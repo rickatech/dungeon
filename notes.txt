@@ -1,1 +1,12 @@
 for dungeon
+
+2014-07-06
+general game activity log file (admin's only can see)
+transaction lock files
+  - server transaction
+  - player transaction
+state files
+  - map
+    wall state, turn tick, player/NPC position
+  - player/NPC info, inventory, account association, which map active
+  - account info, password
