@@ -249,6 +249,16 @@ else { ///
 if (!isset($_SESSION['username']))
 	$v = 20;  // please login
 else if ($m = get_map($filename)) {
+
+	/*  get_map_players  */
+	//  [ new code goes here ]
+	//  get tick, read each active player x, y - from map or map_extra file?
+
+	/*  get tick from map, set session tick = map tick + 1  */
+	$_SESSION['map_tick'] = $aap_tick;
+	$_SESSION['map_x'] =    $aap_x;
+	$_SESSION['map_y'] =    $aap_y;
+
 	$f = 0;
 	if ($m[$x - 1][$y - 1] == 1) $f = $f +  1;
 	if ($m[$x    ][$y - 1] == 1) $f = $f +  2;
@@ -258,13 +268,19 @@ else if ($m = get_map($filename)) {
 	if ($m[$x + 1][$y - 2] == 1) $f = $f + 40;
 	$v = near_far($f);
 	$m[$x][$y] = '*';
-	$msg = "view: ".$v.", field: ".$f." x, y = ".$x.", ".$y;
+	//$msg = "view: ".$v.", field: ".$f." x, y = ".$x.", ".$y;
+	$msg = "view: ".$v.", field: ".$f." tick: ".$map_tick."x, y = ".$map_x.", ".$map_y;
 	}
 else {
 	$v = 19;
 	$msg = "Could not open dungeon map file.";
 	}
 render($v, $msg);
+
+/*  put map players  */
+//  [ new code goes here ]
+//  update tick, write each active player x, y
+
 if (isset($m)) {
 	print_map($m);
 	}
