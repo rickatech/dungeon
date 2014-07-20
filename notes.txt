@@ -10,3 +10,8 @@ state files
     wall state, turn tick, player/NPC position
   - player/NPC info, inventory, account association, which map active
   - account info, password
+
+
+git tips
+
+git clone fredness@mini.local.zaptech.org:/git_alt/dungeon

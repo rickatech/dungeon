@@ -163,16 +163,19 @@ echo "<p style=\"font-size: smaller;\">request 0: ".$_SERVER['REQUEST_URI']."</p
 	$w[20][0] = "    &nbsp; ";
 	$w[20][1] = "please";
 	$w[20][2] = "login ";
+	$w[21][0] = "_    /";
+	$w[21][1] = "_|##  ";
+	$w[21][2] = "     \\";
 
 	function near_far($f) {
 		//  there may be a way to fix code near and far seperate
 		//  then 'green screen' near over far over background
 		$v = 8;
 		if ($f ==  0) $v =  4;  /*       left center right  */ 
-		if ($f ==  1) $v =  2;  /* far    10    20    40 */
-		if ($f ==  2) $v =  8;  /* near    1     2     4 */
+		if ($f ==  1) $v =  2;  /* far    40    20    10 */
+		if ($f ==  2) $v =  8;  /* near    4     2     1 */
 		if ($f ==  3) $v =  8;
-		if ($f ==  4) $v =  5;
+		if ($f ==  4) $v =  2;
 		if ($f ==  5) $v =  0;
 		if ($f ==  6) $v =  8;
 		if ($f ==  7) $v =  8;
@@ -186,11 +189,11 @@ echo "<p style=\"font-size: smaller;\">request 0: ".$_SERVER['REQUEST_URI']."</p
 		if ($f == 17) $v =  8;
 		if ($f == 20) $v =  7;
 		if ($f == 21) $v = 11;
-		if ($f == 30) $v = 16;
+		if ($f == 30) $v = 17;
 		if ($f == 35) $v =  3;
 		if ($f == 40) $v =  2;
 		if ($f == 50) $v = 18;
-		if ($f == 51) $v =  1;
+		if ($f == 51) $v = 21;
 		if ($f == 52) $v =  8;
 		if ($f == 53) $v =  3;
 		if ($f == 54) $v =  8;
@@ -198,6 +201,7 @@ echo "<p style=\"font-size: smaller;\">request 0: ".$_SERVER['REQUEST_URI']."</p
 		if ($f == 56) $v =  8;
 		if ($f == 57) $v =  8;
 		if ($f == 60) $v = 17;
+		if ($f == 65) $v =  3;
 		if ($f == 67) $v =  8;
 		if ($f == 70) $v = 15;
 		if ($f == 77) $v =  8;
@@ -227,10 +231,10 @@ else
 
 if (isset($_GET["x"]))
 	$x = $_GET["x"];
-else $x = 2;
+else $x = 2 + $day;
 if (isset($_GET["y"]))
 	$y = $_GET["y"];
-else $y = 2;
+else $y = 2 + $month;
 
 if (isset($_GET["newmap"])) {
 	echo "\nNEW MAP</br>\n";
@@ -260,16 +264,16 @@ else if ($m = get_map($filename)) {
 	$_SESSION['map_y'] =    $aap_y;
 
 	$f = 0;
-	if ($m[$x - 1][$y - 1] == 1) $f = $f +  1;
+	if ($m[$x - 1][$y - 1] == 1) $f = $f +  4;
 	if ($m[$x    ][$y - 1] == 1) $f = $f +  2;
-	if ($m[$x + 1][$y - 1] == 1) $f = $f +  4;
-	if ($m[$x - 1][$y - 2] == 1) $f = $f + 10;
+	if ($m[$x + 1][$y - 1] == 1) $f = $f +  1;
+	if ($m[$x - 1][$y - 2] == 1) $f = $f + 40;
 	if ($m[$x    ][$y - 2] == 1) $f = $f + 20;
-	if ($m[$x + 1][$y - 2] == 1) $f = $f + 40;
+	if ($m[$x + 1][$y - 2] == 1) $f = $f + 10;
 	$v = near_far($f);
 	$m[$x][$y] = '*';
-	//$msg = "view: ".$v.", field: ".$f." x, y = ".$x.", ".$y;
-	$msg = "view: ".$v.", field: ".$f." tick: ".$map_tick."x, y = ".$map_x.", ".$map_y;
+	$msg = "view: ".$v.", field: ".$f." x, y = ".$x.", ".$y;
+	//$msg = "view: ".$v.", field: ".$f." tick: ".$map_tick."x, y = ".$map_x.", ".$map_y;
 	}
 else {
 	$v = 19;
