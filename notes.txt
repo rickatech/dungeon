@@ -13,5 +13,15 @@ state files
 
 
 git tips
-
 git clone fredness@mini.local.zaptech.org:/git_alt/dungeon
+git status -s
+git add [ file name ]    // for new file, or just changes to existing file
+git commit               // [ file name ] optional, -m optional
+git push origin
+
+- - - -
+
+git fetch
+git diff origin
+git merge origin
+

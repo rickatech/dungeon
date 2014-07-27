@@ -49,7 +49,7 @@ dungeon_render();
 echo "</tr></table></div>\n";
 
 // main display div
-echo "\n\n&lt;cal><div id=\"cal\" style=\"display: block;\">[ calendar ]</div>&lt/cal>\n";
+echo "\n\n<!--  cal  --><div id=\"cal\" style=\"display: block;\">[ calendar ]</div><!--  cal  -->\n";
 ?>
 
 <p style="font-size: smaller; font-style: italic; margin: 0px; text-align: center;">this

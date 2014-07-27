@@ -84,8 +84,8 @@ else {
 
 /*  display: none, block  visibility: hidden, visible  */
 if ($ajax == 0) {
-	echo "\n\n&lt;calout><div id=\"calout\">";
-	echo "[ calout ]</div>&lt;/calout>";
+	echo "\n\n<!--  calout  --><div id=\"calout\">";
+	echo "[ calout ]</div><!--  calout  -->";
 	return;
 	}
 
@@ -98,7 +98,7 @@ if ($ajax == 0) {
 //$result = mysql_query($query) or die(mysql_error());
 //$colqty = mysql_num_fields($result);
 
-echo "<p style=\"font-size: smaller;\">request 0: ".$_SERVER['REQUEST_URI']."</p>\n";
+//  echo "<p style=\"font-size: smaller;\">request 0: ".$_SERVER['REQUEST_URI']."</p>\n";
 
 	$w[ 0][0] = "\    /";
 	$w[ 0][1] = " |##| ";
@@ -166,45 +166,74 @@ echo "<p style=\"font-size: smaller;\">request 0: ".$_SERVER['REQUEST_URI']."</p
 	$w[21][0] = "_    /";
 	$w[21][1] = "_|##  ";
 	$w[21][2] = "     \\";
+	$w[22][0] = "____ /";
+	$w[22][1] = "____| ";
+	$w[22][2] = "     \\";
+	$w[23][0] = "____  ";
+	$w[23][1] = "____|#";
+	$w[23][2] = "     &nbsp;";
+	$w[24][0] = "\ __  ";
+	$w[24][1] = " |__|#";
+	$w[24][2] = "/     ";
+	$w[25][0] = "  __ /";
+	$w[25][1] = "#|__| ";
+	$w[25][2] = "     \\";
+	$w[26][0] = "\    /";
+	$w[26][1] = " |##  ";
+	$w[26][2] = "/    \\";
+	$w[27][0] = "\    /";
+	$w[27][1] = "  ##| ";
+	$w[27][2] = "/    \\";
+	$w[28][0] = "\    /";
+	$w[28][1] = "  ##  ";
+	$w[28][2] = "/    \\";
+
 
 	function near_far($f) {
 		//  there may be a way to fix code near and far seperate
 		//  then 'green screen' near over far over background
 		$v = 8;
 		if ($f ==  0) $v =  4;  /*       left center right  */ 
-		if ($f ==  1) $v =  2;  /* far    40    20    10 */
+		if ($f ==  1) $v =  1;  /* far    40    20    10 */
 		if ($f ==  2) $v =  8;  /* near    4     2     1 */
 		if ($f ==  3) $v =  8;
 		if ($f ==  4) $v =  2;
 		if ($f ==  5) $v =  0;
-		if ($f ==  6) $v =  8;
 		if ($f ==  7) $v =  8;
-		if ($f == 10) $v =  9;
-		if ($f == 11) $v =  6;
+		if ($f == 10) $v = 10;
+		if ($f == 11) $v =  5;
 		if ($f == 12) $v =  8;
 		if ($f == 13) $v =  8; 
-		if ($f == 14) $v =  8;
-		if ($f == 15) $v = 13;
+		if ($f == 14) $v = 12;
+		if ($f == 15) $v = 26;
 		if ($f == 16) $v =  8;
 		if ($f == 17) $v =  8;
 		if ($f == 20) $v =  7;
-		if ($f == 21) $v = 11;
+		if ($f == 21) $v = 25;
+		if ($f == 24) $v = 11;
+		if ($f == 25) $v =  3;
 		if ($f == 30) $v = 17;
+		if ($f == 31) $v = 25;
+		if ($f == 34) $v = 14;
 		if ($f == 35) $v =  3;
-		if ($f == 40) $v =  2;
+		if ($f == 40) $v =  9;
+		if ($f == 44) $v =  6;
+		if ($f == 45) $v =  3;
 		if ($f == 50) $v = 18;
 		if ($f == 51) $v = 21;
-		if ($f == 52) $v =  8;
-		if ($f == 53) $v =  3;
-		if ($f == 54) $v =  8;
-		if ($f == 55) $v =  3;
+		if ($f == 54) $v = 13;
+		if ($f == 55) $v = 28;
 		if ($f == 56) $v =  8;
 		if ($f == 57) $v =  8;
-		if ($f == 60) $v = 17;
+		if ($f == 60) $v = 23;
+		if ($f == 61) $v = 22;
+		if ($f == 64) $v = 11;
 		if ($f == 65) $v =  3;
 		if ($f == 67) $v =  8;
 		if ($f == 70) $v = 15;
-		if ($f == 77) $v =  8;
+		if ($f == 71) $v = 22;
+		if ($f == 74) $v = 14;
+		if ($f == 75) $v =  3;
 		return $v;
 		}
 
@@ -216,8 +245,26 @@ echo "<p style=\"font-size: smaller;\">request 0: ".$_SERVER['REQUEST_URI']."</p
 		    $w[$v][0], $w[$v][1], $w[$v][2]);
 		echo "</td>\n</tr></table>\n";
 		if ($message)
-			echo "\n<br>".$message."\n";
+			echo "\n".$message."\n";
 		echo "</center>";
+		}
+
+	function stepwrap($v, $m, $s) {
+		// torus 'wrap around' world baby!
+		// v current value
+		// m max, wrap around value
+		// s step amount, assumed less than m
+//		if ($s < 0)
+//			$r = ($v + $s < 0) ?        $m + $s :      $v + $s;
+//		else if ($s > 0)
+//			$r = ($v + $s > ($m - 1)) ? $v + $s - $m : $v + $s;
+		if      ($v + $s < 0)        $r = $v + $s + $m;
+		else if ($v + $s > ($m - 1)) $r = $v - $m + $s;
+		else 	                     $r = $v + $s;
+//		else
+//			$r = $v;
+		return ($r);
+		//  what if s > m?
 		}
 
 if (isset($_GET["field"])) {
@@ -274,7 +321,7 @@ if (isset($_GET["newmap"])) {
 	}
 else { ///
 
-if (!isset($_SESSION['username']))
+if (!isset($_SESSION['username']) || !isset($_SESSION['uid']))
 	$v = 20;  // please login
 else if (!($m = get_map($filename))) {
 	$v = 19;  // error
@@ -284,6 +331,10 @@ else if (!isset($m['tick'])) {
 	$v = 19;  // error
 	$msg = "Dungeon has no tick.";
 	}
+else if (!isset($m['size'])) {
+	$v = 19;  // error
+	$msg = "Dungeon has no size.";
+	}
 else if (!isset($m['user'][$_SESSION['username']]) ||
          !isset($m['user'][$_SESSION['username']]['x']) ||
          !isset($m['user'][$_SESSION['username']]['y'])) {
@@ -291,22 +342,41 @@ else if (!isset($m['user'][$_SESSION['username']]) ||
 	$msg = "No active dungeon for ".$_SESSION['username'];
 	}
 else {
+	$msg2 = NULL;
 	if (isset($_GET['cmd'])) {
 		$cmd = $_GET["cmd"];
-		echo "\ncmd: ".$_GET['cmd']."</br>\n";
+		if ($_SESSION['uid'] == 1) // admin/rickatech check
+			$msg2 = 'cmd: '.$_GET['cmd'];
 		}
 	else
 		$cmd = 'refresh';
 
+	$put = 0;
+	$msg3 = NULL;
 	if ($cmd == 'forward') {
 		//  strobe lock file?
-		$m['user'][$_SESSION['username']]['y']--;
+		$m['user'][$_SESSION['username']]['y'] = stepwrap($m['user'][$_SESSION['username']]['y'], $m['size'][2], -1);
+//		if ($m['user'][$_SESSION['username']]['y'] > 0)
+//			$m['user'][$_SESSION['username']]['y']--;
+//		else
+//			$m['user'][$_SESSION['username']]['y'] = $m['size'][2] - 1;
+		$put = 1;
+		}
+	else if ($cmd == 'back') {
+		//  strobe lock file?
+		$m['user'][$_SESSION['username']]['y'] = stepwrap($m['user'][$_SESSION['username']]['y'], $m['size'][2],  1);
+//		if ($m['user'][$_SESSION['username']]['y'] < $m['size'][2])
+//			$m['user'][$_SESSION['username']]['y']++;
+//		else
+//			$m['user'][$_SESSION['username']]['y'] = 0;
+		$put = 1;
+		}
+	if ($put == 1) {
 		$m['tick'][1]++;
-		if (put_map($filename, $m)) {
-			echo "\n<br>write map successful\n";
-			}
+		if (put_map($filename, $m))
+			$msg3 = 'write map successful';
 		else
-			echo "\n<br>write map error\n";
+			$msg3 = 'write map error';
 		}
 
 	//  setting session here is very important
@@ -331,16 +401,30 @@ else {
 		$y  = $m[$_SESSION['username']]['y'];
 		}
 	$f = 0;
-	if ($m[$x - 1][$y - 1] == 1) $f = $f +  4;
-	if ($m[$x    ][$y - 1] == 1) $f = $f +  2;
-	if ($m[$x + 1][$y - 1] == 1) $f = $f +  1;
-	if ($m[$x - 1][$y - 2] == 1) $f = $f + 40;
-	if ($m[$x    ][$y - 2] == 1) $f = $f + 20;
-	if ($m[$x + 1][$y - 2] == 1) $f = $f + 10;
+	//  wrap around 'torus' world
+	if ($x < 1)  $xl = $m['size'][1] - 1; else $xl = $x - 1;
+	if ($x > $m['size'][1] - 2) $xr = 0;  else $xr = $x + 1;
+	$y2 = ($y < 2) ? $m['size'][2] - 2 + $y : $y - 2;
+	$y1 = ($y < 1) ? $m['size'][2] - 1      : $y - 1;
+	if ($y == 0) $y1 = $m['size'][2] - 1; else $y1 = $y - 1;
+	//  near walls 
+	if ($m[$xl][$y1] == 1) $f = $f +  4;
+	if ($m[$x ][$y1] == 1) $f = $f +  2;
+	if ($m[$xr][$y1] == 1) $f = $f +  1;
+	if ($m[$xl][$y2] == 1) $f = $f + 40;
+	if ($m[$x ][$y2] == 1) $f = $f + 20;
+	if ($m[$xr][$y2] == 1) $f = $f + 10;
+
 	$v = near_far($f);
 	$m[$x][$y] = '*';
 	//  $msg = "view: ".$v.", field: ".$f." tick: ".$m['tick']." x, y = ".$x.", ".$y;
 	$msg = "view: ".$v.", field: ".$f." tick: ".$_SESSION['tick']." x, y = ".$x.", ".$y;
+	if ($msg3)
+		$msg .= "\n<br>".$msg3;
+	if ($msg2)
+		$msg .= "\n<br>".$msg2;
+	if ($_SESSION['uid'] == 1) // admin/rickatech check
+		$msg .= "\n<br><span style=\"font-size: smaller; color: #ff0000;\">".$_SERVER['REQUEST_URI']."</span>";
 	}
 render($v, $msg);
 
@@ -350,7 +434,8 @@ render($v, $msg);
 //  update tick, write each active player x, y
 
 if (isset($m)) {
-	print_map($m);
+	if ($_SESSION['uid'] == 1) // admin/rickatech check
+		print_map($m);
 	}
 } ///
 ?>

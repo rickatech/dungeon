@@ -81,6 +81,12 @@ function nav_forward(which) {
 	calhq.do_hq();
 	}
 
+function nav_back(which) {
+	calhq.url = dungeon_display_file+'?ajax=1&cmd=back';
+	calhq.div = "calout";
+	calhq.do_hq();
+	}
+
 function cal_newmap(which) {
 	calhq.url = dungeon_display_file+'?ajax=1&newmap';
 	calhq.div = "calout";

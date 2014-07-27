@@ -10,6 +10,11 @@ function get_map($filename) {
 				$new_map['tick'][0] = 'tick';
 				$new_map['tick'][1] = $data[1];
 				}
+			else if ($data[0] == 'size') {
+				$new_map['size'][0] = 'size';
+				$new_map['size'][1] = $data[1];
+				$new_map['size'][2] = $data[2];
+				}
 			else if ($data[0] == 'user') {
 				$new_map['user'][$data[1]]['x'] = $data[2];
 				$new_map['user'][$data[1]]['y'] = $data[3];
@@ -36,8 +41,9 @@ function print_map($m) {
 			}
 		$map_textpre .= "\n";
 		}
-	echo "<pre>".$map_textpre."</pre>\n";
+	echo "<pre>".$map_textpre;
 	//  echo print_r($m);
+	echo "</pre>\n";
 	}
 
 function put_map($newfile, &$a) {
