@@ -2,9 +2,21 @@
 function get_map($filename) {
 	//  try to import dungeon array
 	$row = 0;
+	$user = 0;
 	if ($fh = fopen($filename, 'r')) {
 		while (($data = fgetcsv($fh, 1000, ",")) !== FALSE) {
-			$new_map[$row] = $data;
+			//  echo "\ndata[0]: ".$data[0]."\n";
+			if ($data[0] == 'tick') {
+				$new_map['tick'][0] = 'tick';
+				$new_map['tick'][1] = $data[1];
+				}
+			else if ($data[0] == 'user') {
+				$new_map['user'][$data[1]]['x'] = $data[2];
+				$new_map['user'][$data[1]]['y'] = $data[3];
+				$user++;
+				}
+			else
+				$new_map[$row] = $data;
 			$row++;
 			}
 		fclose($fh);
@@ -25,6 +37,7 @@ function print_map($m) {
 		$map_textpre .= "\n";
 		}
 	echo "<pre>".$map_textpre."</pre>\n";
+	//  echo print_r($m);
 	}
 
 function put_map($newfile, &$a) {
@@ -34,8 +47,17 @@ function put_map($newfile, &$a) {
 //	$a[63][63] = 8;
 	//  try to output dungeon array in format that can be read back into an array later
 	if ($fh = fopen($newfile, 'w')) {
-		foreach ($a as $av) {
-			fputcsv($fh, $av);
+		foreach ($a as $ak => $av) {
+			if ($ak === 'user') {
+				foreach ($av as $bv) {
+					$user = array('user', key($av), $bv['x'], $bv['y']);
+					next($av);
+					fputcsv($fh, $user);
+					}
+				}
+			else {
+				fputcsv($fh, $av);
+				}
 			}
 		fclose($fh);
         	return true;

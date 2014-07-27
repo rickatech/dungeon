@@ -236,6 +236,30 @@ if (isset($_GET["y"]))
 	$y = $_GET["y"];
 else $y = 2 + $month;
 
+//  HEY, here's where we detect display no action refresh, or command + display refresh!!!
+//  if no command ... skip command processing ... get map, return display
+//  if command, get map, process command, WRITE map
+//  if write okay, then display current map
+//  else post error message, but also get updated map, display it
+
+//  turns
+//  when processing command, 1st make an array of active users in a map,
+//  try to move too soon, warning to wait ... seconds for your turn
+//  check player vs map tick
+//    map will have last move tick / player.  
+//    1 player  only, no turn delays, ticks advances as 1 player moves
+//    2+ player, must wait for other player to move or wait 20 x [ n players - 1] seconds, 
+//               ticks advance as each player moves (or forfiets their move (by timeout)
+
+//  COMMANDS
+//  enter/switch map
+//  forward, slide left, slide right, backward, turn left, turn right, turn left + forward, turn right + forwad
+//  push block, pull block (25% chance destroy block, spawns it nearby),
+//  move fails if it squishes a player (but does 1hp dammage to themi, respans them if last hp)
+//  player coma (idle, left game), if 0 hp don't, respawn when they login next time
+//  move into a wall, 50% chance player bumped
+//  move into another players position, both player bumped
+//  need to deal with 'torus world' x/y wrap around
 if (isset($_GET["newmap"])) {
 	echo "\nNEW MAP</br>\n";
 	$newfile = $data_dir."/new.txt";
@@ -252,17 +276,60 @@ else { ///
 
 if (!isset($_SESSION['username']))
 	$v = 20;  // please login
-else if ($m = get_map($filename)) {
+else if (!($m = get_map($filename))) {
+	$v = 19;  // error
+	$msg = "Could not open dungeon map file.";
+	}
+else if (!isset($m['tick'])) {
+	$v = 19;  // error
+	$msg = "Dungeon has no tick.";
+	}
+else if (!isset($m['user'][$_SESSION['username']]) ||
+         !isset($m['user'][$_SESSION['username']]['x']) ||
+         !isset($m['user'][$_SESSION['username']]['y'])) {
+	$v = 19;  // error
+	$msg = "No active dungeon for ".$_SESSION['username'];
+	}
+else {
+	if (isset($_GET['cmd'])) {
+		$cmd = $_GET["cmd"];
+		echo "\ncmd: ".$_GET['cmd']."</br>\n";
+		}
+	else
+		$cmd = 'refresh';
+
+	if ($cmd == 'forward') {
+		//  strobe lock file?
+		$m['user'][$_SESSION['username']]['y']--;
+		$m['tick'][1]++;
+		if (put_map($filename, $m)) {
+			echo "\n<br>write map successful\n";
+			}
+		else
+			echo "\n<br>write map error\n";
+		}
+
+	//  setting session here is very important
+	//  when user clicks move/attack/... button
+	//  it will check map tick vs session before making request
+	$_SESSION['tick'] = $m['tick'][1];
+	$x  = $m['user'][$_SESSION['username']]['x'];
+	$y  = $m['user'][$_SESSION['username']]['y'];
 
 	/*  get_map_players  */
 	//  [ new code goes here ]
 	//  get tick, read each active player x, y - from map or map_extra file?
 
 	/*  get tick from map, set session tick = map tick + 1  */
-	$_SESSION['map_tick'] = $aap_tick;
-	$_SESSION['map_x'] =    $aap_x;
-	$_SESSION['map_y'] =    $aap_y;
-
+	//$_SESSION['map_tick'] = $m['tick'];
+	//$_SESSION['map_x'] =    $aap_x;
+	//$_SESSION['map_y'] =    $aap_y;
+	if (isset($m[$_SESSION['username']])      &&
+	    isset($m[$_SESSION['username']]['x']) &&
+	    isset($m[$_SESSION['username']]['y'])) {
+		$x  = $m[$_SESSION['username']]['x'];
+		$y  = $m[$_SESSION['username']]['y'];
+		}
 	$f = 0;
 	if ($m[$x - 1][$y - 1] == 1) $f = $f +  4;
 	if ($m[$x    ][$y - 1] == 1) $f = $f +  2;
@@ -272,16 +339,13 @@ else if ($m = get_map($filename)) {
 	if ($m[$x + 1][$y - 2] == 1) $f = $f + 10;
 	$v = near_far($f);
 	$m[$x][$y] = '*';
-	$msg = "view: ".$v.", field: ".$f." x, y = ".$x.", ".$y;
-	//$msg = "view: ".$v.", field: ".$f." tick: ".$map_tick."x, y = ".$map_x.", ".$map_y;
-	}
-else {
-	$v = 19;
-	$msg = "Could not open dungeon map file.";
+	//  $msg = "view: ".$v.", field: ".$f." tick: ".$m['tick']." x, y = ".$x.", ".$y;
+	$msg = "view: ".$v.", field: ".$f." tick: ".$_SESSION['tick']." x, y = ".$x.", ".$y;
 	}
 render($v, $msg);
 
 /*  put map players  */
+//  Actually, SKIP THIS, seperate irequest for move, attack, ... will deal with changing this?
 //  [ new code goes here ]
 //  update tick, write each active player x, y
 
@@ -290,5 +354,3 @@ if (isset($m)) {
 	}
 } ///
 ?>
-
-

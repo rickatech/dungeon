@@ -50,6 +50,9 @@ function dungeon_render() {
 		pretty(1, "filter", 0);
 	echo "</td></form>";
 	printf("\n<td><input type=button value=\"set\" onclick=\"cal_set('calout')\"></td>");
+	if (isset($_SESSION['uid'])) {
+		printf("\n<td><input type=button value=\"^\" onclick=\"nav_forward('calout')\"></td>");
+		}
 	if ((isset($_SESSION['uid'])) && ($_SESSION['uid'] == "1") && !isprod()) {
 		if ((isset($_SESSION['username'])) && ($_SESSION['username'] == "rickatech")) {
 			printf("\n<td><input type=button value=\"newmap\" onclick=\"cal_newmap('calout')\"></td>");
