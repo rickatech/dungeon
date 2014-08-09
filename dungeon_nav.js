@@ -75,14 +75,26 @@ function cal_set(which) {
 	calhq.do_hq();
 	}
 
-function nav_forward(which) {
-	calhq.url = dungeon_display_file+'?ajax=1&cmd=forward';
+function nav_stepforw(which) {
+	calhq.url = dungeon_display_file+'?ajax=1&cmd=stepforw';
 	calhq.div = "calout";
 	calhq.do_hq();
 	}
 
-function nav_back(which) {
-	calhq.url = dungeon_display_file+'?ajax=1&cmd=back';
+function nav_stepback(which) {
+	calhq.url = dungeon_display_file+'?ajax=1&cmd=stepback';
+	calhq.div = "calout";
+	calhq.do_hq();
+	}
+
+function nav_stepleft(which) {
+	calhq.url = dungeon_display_file+'?ajax=1&cmd=stepleft';
+	calhq.div = "calout";
+	calhq.do_hq();
+	}
+
+function nav_steprght(which) {
+	calhq.url = dungeon_display_file+'?ajax=1&cmd=steprght';
 	calhq.div = "calout";
 	calhq.do_hq();
 	}

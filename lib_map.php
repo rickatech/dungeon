@@ -16,6 +16,8 @@ function get_map($filename) {
 				$new_map['size'][2] = $data[2];
 				}
 			else if ($data[0] == 'user') {
+				//  FUTURE: use UID here instead of char name,
+				//  then add extra field for chat name
 				$new_map['user'][$data[1]]['x'] = $data[2];
 				$new_map['user'][$data[1]]['y'] = $data[3];
 				$user++;
@@ -78,6 +80,11 @@ function gen_map(&$map) {
 			$map[$x][$y] = rand(0, 1);
 			}
 		}
+		$map['tick'][0] = 'tick';
+		$map['tick'][1] = 0;
+		$map['size'][0] = 'size';
+		$map['size'][1] = 64;
+		$map['size'][2] = 64;
 		return $map;
 	}
 ?>

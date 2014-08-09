@@ -187,6 +187,9 @@ if ($ajax == 0) {
 	$w[28][0] = "\    /";
 	$w[28][1] = "  ##  ";
 	$w[28][2] = "/    \\";
+	$w[29][0] = "_    /";
+	$w[29][1] = "_|##| ";
+	$w[29][2] = "     \\";
 
 
 	function near_far($f) {
@@ -217,6 +220,7 @@ if ($ajax == 0) {
 		if ($f == 34) $v = 14;
 		if ($f == 35) $v =  3;
 		if ($f == 40) $v =  9;
+		if ($f == 41) $v = 29;
 		if ($f == 44) $v =  6;
 		if ($f == 45) $v =  3;
 		if ($f == 50) $v = 18;
@@ -353,22 +357,28 @@ else {
 
 	$put = 0;
 	$msg3 = NULL;
-	if ($cmd == 'forward') {
+	if      ($cmd == 'stepforw') {
 		//  strobe lock file?
-		$m['user'][$_SESSION['username']]['y'] = stepwrap($m['user'][$_SESSION['username']]['y'], $m['size'][2], -1);
-//		if ($m['user'][$_SESSION['username']]['y'] > 0)
-//			$m['user'][$_SESSION['username']]['y']--;
-//		else
-//			$m['user'][$_SESSION['username']]['y'] = $m['size'][2] - 1;
+		$m['user'][$_SESSION['username']]['y'] =
+		  stepwrap($m['user'][$_SESSION['username']]['y'], $m['size'][2], -1);
 		$put = 1;
 		}
-	else if ($cmd == 'back') {
+	else if ($cmd == 'stepback') {
 		//  strobe lock file?
-		$m['user'][$_SESSION['username']]['y'] = stepwrap($m['user'][$_SESSION['username']]['y'], $m['size'][2],  1);
-//		if ($m['user'][$_SESSION['username']]['y'] < $m['size'][2])
-//			$m['user'][$_SESSION['username']]['y']++;
-//		else
-//			$m['user'][$_SESSION['username']]['y'] = 0;
+		$m['user'][$_SESSION['username']]['y'] =
+		  stepwrap($m['user'][$_SESSION['username']]['y'], $m['size'][2],  1);
+		$put = 1;
+		}
+	else if ($cmd == 'stepleft') {
+		//  strobe lock file?
+		$m['user'][$_SESSION['username']]['x'] =
+		  stepwrap($m['user'][$_SESSION['username']]['x'], $m['size'][2], -1);
+		$put = 1;
+		}
+	else if ($cmd == 'steprght') {
+		//  strobe lock file?
+		$m['user'][$_SESSION['username']]['x'] =
+		  stepwrap($m['user'][$_SESSION['username']]['x'], $m['size'][2],  1);
 		$put = 1;
 		}
 	if ($put == 1) {
@@ -416,7 +426,6 @@ else {
 	if ($m[$xr][$y2] == 1) $f = $f + 10;
 
 	$v = near_far($f);
-	$m[$x][$y] = '*';
 	//  $msg = "view: ".$v.", field: ".$f." tick: ".$m['tick']." x, y = ".$x.", ".$y;
 	$msg = "view: ".$v.", field: ".$f." tick: ".$_SESSION['tick']." x, y = ".$x.", ".$y;
 	if ($msg3)
@@ -425,13 +434,18 @@ else {
 		$msg .= "\n<br>".$msg2;
 	if ($_SESSION['uid'] == 1) // admin/rickatech check
 		$msg .= "\n<br><span style=\"font-size: smaller; color: #ff0000;\">".$_SERVER['REQUEST_URI']."</span>";
+	/*  modifying map for display purposes,
+        /*  NEVER SAVE THIS?  */
+	//  $m[$x][$y] = '*';
+	foreach ($m['user'] as $ak => $av) {
+		if ($av['x'] == $x && $av['y'] == $y)
+			$m[$x][$y] = '*';
+		else
+			$m[$av['x']][$av['y']] = '+';
+		}
 	}
-render($v, $msg);
 
-/*  put map players  */
-//  Actually, SKIP THIS, seperate irequest for move, attack, ... will deal with changing this?
-//  [ new code goes here ]
-//  update tick, write each active player x, y
+render($v, $msg);
 
 if (isset($m)) {
 	if ($_SESSION['uid'] == 1) // admin/rickatech check
