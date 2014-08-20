@@ -16,10 +16,10 @@ function get_map($filename) {
 				$new_map['size'][2] = $data[2];
 				}
 			else if ($data[0] == 'user') {
-				//  FUTURE: use UID here instead of char name,
 				//  then add extra field for chat name
-				$new_map['user'][$data[1]]['x'] = $data[2];
-				$new_map['user'][$data[1]]['y'] = $data[3];
+				$new_map['user'][$data[1]]['handle'] = $data[2];
+				$new_map['user'][$data[1]]['x'] =      $data[3];
+				$new_map['user'][$data[1]]['y'] =      $data[4];
 				$user++;
 				}
 			else
@@ -58,7 +58,8 @@ function put_map($newfile, &$a) {
 		foreach ($a as $ak => $av) {
 			if ($ak === 'user') {
 				foreach ($av as $bv) {
-					$user = array('user', key($av), $bv['x'], $bv['y']);
+			//		$user = array('user', key($av), $bv['x'], $bv['y']);
+					$user = array('user', key($av), $bv['handle'], $bv['x'], $bv['y']);
 					next($av);
 					fputcsv($fh, $user);
 					}
@@ -80,11 +81,12 @@ function gen_map(&$map) {
 			$map[$x][$y] = rand(0, 1);
 			}
 		}
-		$map['tick'][0] = 'tick';
-		$map['tick'][1] = 0;
-		$map['size'][0] = 'size';
-		$map['size'][1] = 64;
-		$map['size'][2] = 64;
-		return $map;
+	$map['tick'][0] = 'tick';
+	$map['tick'][1] = 0;
+	$map['size'][0] = 'size';
+	$map['size'][1] = 64;
+	$map['size'][2] = 64;
+	//  user lines appended elsewhere
+	return $map;
 	}
 ?>

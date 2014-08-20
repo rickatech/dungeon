@@ -1,5 +1,7 @@
 for dungeon
 
+grep FUTURE in code enahncement suggestions
+
 2014-07-06
 general game activity log file (admin's only can see)
 transaction lock files

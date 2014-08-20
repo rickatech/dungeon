@@ -222,7 +222,7 @@ if ($ajax == 0) {
 		if ($f == 40) $v =  9;
 		if ($f == 41) $v = 29;
 		if ($f == 44) $v =  6;
-		if ($f == 45) $v =  3;
+		if ($f == 45) $v = 27;
 		if ($f == 50) $v = 18;
 		if ($f == 51) $v = 21;
 		if ($f == 54) $v = 13;
@@ -339,9 +339,11 @@ else if (!isset($m['size'])) {
 	$v = 19;  // error
 	$msg = "Dungeon has no size.";
 	}
-else if (!isset($m['user'][$_SESSION['username']]) ||
-         !isset($m['user'][$_SESSION['username']]['x']) ||
-         !isset($m['user'][$_SESSION['username']]['y'])) {
+else if (!isset($m['user'][$_SESSION['uid']]) ||
+         !isset($m['user'][$_SESSION['uid']]['handle']) ||
+         !isset($m['user'][$_SESSION['uid']]['x']) ||
+         !isset($m['user'][$_SESSION['uid']]['y'])) {
+	//  FUTURE: set local variable = $_SESSION['uid']?
 	$v = 19;  // error
 	$msg = "No active dungeon for ".$_SESSION['username'];
 	}
@@ -359,26 +361,26 @@ else {
 	$msg3 = NULL;
 	if      ($cmd == 'stepforw') {
 		//  strobe lock file?
-		$m['user'][$_SESSION['username']]['y'] =
-		  stepwrap($m['user'][$_SESSION['username']]['y'], $m['size'][2], -1);
+		$m['user'][$_SESSION['uid']]['y'] =
+		  stepwrap($m['user'][$_SESSION['uid']]['y'], $m['size'][2], -1);
 		$put = 1;
 		}
 	else if ($cmd == 'stepback') {
 		//  strobe lock file?
-		$m['user'][$_SESSION['username']]['y'] =
-		  stepwrap($m['user'][$_SESSION['username']]['y'], $m['size'][2],  1);
+		$m['user'][$_SESSION['uid']]['y'] =
+		  stepwrap($m['user'][$_SESSION['uid']]['y'], $m['size'][2],  1);
 		$put = 1;
 		}
 	else if ($cmd == 'stepleft') {
 		//  strobe lock file?
-		$m['user'][$_SESSION['username']]['x'] =
-		  stepwrap($m['user'][$_SESSION['username']]['x'], $m['size'][2], -1);
+		$m['user'][$_SESSION['uid']]['x'] =
+		  stepwrap($m['user'][$_SESSION['uid']]['x'], $m['size'][2], -1);
 		$put = 1;
 		}
 	else if ($cmd == 'steprght') {
 		//  strobe lock file?
-		$m['user'][$_SESSION['username']]['x'] =
-		  stepwrap($m['user'][$_SESSION['username']]['x'], $m['size'][2],  1);
+		$m['user'][$_SESSION['uid']]['x'] =
+		  stepwrap($m['user'][$_SESSION['uid']]['x'], $m['size'][2],  1);
 		$put = 1;
 		}
 	if ($put == 1) {
@@ -393,8 +395,8 @@ else {
 	//  when user clicks move/attack/... button
 	//  it will check map tick vs session before making request
 	$_SESSION['tick'] = $m['tick'][1];
-	$x  = $m['user'][$_SESSION['username']]['x'];
-	$y  = $m['user'][$_SESSION['username']]['y'];
+	$x  = $m['user'][$_SESSION['uid']]['x'];
+	$y  = $m['user'][$_SESSION['uid']]['y'];
 
 	/*  get_map_players  */
 	//  [ new code goes here ]
@@ -404,11 +406,11 @@ else {
 	//$_SESSION['map_tick'] = $m['tick'];
 	//$_SESSION['map_x'] =    $aap_x;
 	//$_SESSION['map_y'] =    $aap_y;
-	if (isset($m[$_SESSION['username']])      &&
-	    isset($m[$_SESSION['username']]['x']) &&
-	    isset($m[$_SESSION['username']]['y'])) {
-		$x  = $m[$_SESSION['username']]['x'];
-		$y  = $m[$_SESSION['username']]['y'];
+	if (isset($m[$_SESSION['uid']])      &&
+	    isset($m[$_SESSION['uid']]['x']) &&
+	    isset($m[$_SESSION['uid']]['y'])) {
+		$x  = $m[$_SESSION['uid']]['x'];
+		$y  = $m[$_SESSION['uid']]['y'];
 		}
 	$f = 0;
 	//  wrap around 'torus' world
