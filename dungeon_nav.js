@@ -105,6 +105,18 @@ function cal_newmap(which) {
 	calhq.do_hq();
 	}
 
+function nav_turnrght(which) {
+	calhq.url = dungeon_display_file+'?ajax=1&cmd=turnrght';
+	calhq.div = "calout";
+	calhq.do_hq();
+	}
+
+function nav_turnleft(which) {
+	calhq.url = dungeon_display_file+'?ajax=1&cmd=turnleft';
+	calhq.div = "calout";
+	calhq.do_hq();
+	}
+
 function cal_prev(which) {
 	/*  set previous week, refresh calendar  */
 	if (p1 = document.getElementById('pprreevv')) {

@@ -258,15 +258,9 @@ if ($ajax == 0) {
 		// v current value
 		// m max, wrap around value
 		// s step amount, assumed less than m
-//		if ($s < 0)
-//			$r = ($v + $s < 0) ?        $m + $s :      $v + $s;
-//		else if ($s > 0)
-//			$r = ($v + $s > ($m - 1)) ? $v + $s - $m : $v + $s;
 		if      ($v + $s < 0)        $r = $v + $s + $m;
 		else if ($v + $s > ($m - 1)) $r = $v - $m + $s;
 		else 	                     $r = $v + $s;
-//		else
-//			$r = $v;
 		return ($r);
 		//  what if s > m?
 		}
@@ -342,7 +336,8 @@ else if (!isset($m['size'])) {
 else if (!isset($m['user'][$_SESSION['uid']]) ||
          !isset($m['user'][$_SESSION['uid']]['handle']) ||
          !isset($m['user'][$_SESSION['uid']]['x']) ||
-         !isset($m['user'][$_SESSION['uid']]['y'])) {
+         !isset($m['user'][$_SESSION['uid']]['y']) ||
+         !isset($m['user'][$_SESSION['uid']]['yaw'])) {
 	//  FUTURE: set local variable = $_SESSION['uid']?
 	$v = 19;  // error
 	$msg = "No active dungeon for ".$_SESSION['username'];
@@ -359,6 +354,7 @@ else {
 
 	$put = 0;
 	$msg3 = NULL;
+	//  FUTURE: check ticks, is it user's turn yet?
 	if      ($cmd == 'stepforw') {
 		//  strobe lock file?
 		$m['user'][$_SESSION['uid']]['y'] =
@@ -383,6 +379,18 @@ else {
 		  stepwrap($m['user'][$_SESSION['uid']]['x'], $m['size'][2],  1);
 		$put = 1;
 		}
+	else if ($cmd == 'turnleft') {
+		//  strobe lock file?
+		$m['user'][$_SESSION['uid']]['yaw'] =
+		  stepwrap($m['user'][$_SESSION['uid']]['yaw'], 360, -90);
+		$put = 1;
+		}
+	else if ($cmd == 'turnrght') {
+		//  strobe lock file?
+		$m['user'][$_SESSION['uid']]['yaw'] =
+		  stepwrap($m['user'][$_SESSION['uid']]['yaw'], 360,  90);
+		$put = 1;
+		}
 	if ($put == 1) {
 		$m['tick'][1]++;
 		if (put_map($filename, $m))
@@ -395,31 +403,30 @@ else {
 	//  when user clicks move/attack/... button
 	//  it will check map tick vs session before making request
 	$_SESSION['tick'] = $m['tick'][1];
-	$x  = $m['user'][$_SESSION['uid']]['x'];
-	$y  = $m['user'][$_SESSION['uid']]['y'];
+	$x   = $m['user'][$_SESSION['uid']]['x'];
+	$y   = $m['user'][$_SESSION['uid']]['y'];
+	$yaw = $m['user'][$_SESSION['uid']]['yaw'];
 
 	/*  get_map_players  */
 	//  [ new code goes here ]
 	//  get tick, read each active player x, y - from map or map_extra file?
 
-	/*  get tick from map, set session tick = map tick + 1  */
-	//$_SESSION['map_tick'] = $m['tick'];
-	//$_SESSION['map_x'] =    $aap_x;
-	//$_SESSION['map_y'] =    $aap_y;
-	if (isset($m[$_SESSION['uid']])      &&
-	    isset($m[$_SESSION['uid']]['x']) &&
-	    isset($m[$_SESSION['uid']]['y'])) {
-		$x  = $m[$_SESSION['uid']]['x'];
-		$y  = $m[$_SESSION['uid']]['y'];
-		}
-	$f = 0;
 	//  wrap around 'torus' world
-	if ($x < 1)  $xl = $m['size'][1] - 1; else $xl = $x - 1;
-	if ($x > $m['size'][1] - 2) $xr = 0;  else $xr = $x + 1;
-	$y2 = ($y < 2) ? $m['size'][2] - 2 + $y : $y - 2;
-	$y1 = ($y < 1) ? $m['size'][2] - 1      : $y - 1;
-	if ($y == 0) $y1 = $m['size'][2] - 1; else $y1 = $y - 1;
+	//  yaw   0: x-1,y-2 | x,y-2 | x+1,y-2
+	//           x-1,y-1 | x,y-1 | x+1,y-1
+	//  yaw  90: x+2,y-1 | x+2,y | x+2,y+1
+	//           x+1,y-1 | x+1,y | x+1,y+1
+	//  yaw 180: x+1,y+2 | x,y+2 | x-1,y+2
+	//           x+1,y+1 | x,y+1 | x-1,y+1
+	//  yaw 270: x-2,y+1 | x-2,y | x-2,y-1
+	//           x-1,y+1 | x-1,y | x-1,y-1
+	$xl = ($x < 1) ?                 $m['size'][1] - 1 :      $x - 1;
+	$xr = ($x > $m['size'][1] - 2) ? 0 :                      $x + 1;
+	$y2 = ($y < 2) ?                 $m['size'][2] - 2 + $y : $y - 2;
+	$y1 = ($y < 1) ?                 $m['size'][2] - 1      : $y - 1;
+//	if ($y == 0) $y1 = $m['size'][2] - 1; else $y1 = $y - 1;
 	//  near walls 
+	$f = 0;
 	if ($m[$xl][$y1] == 1) $f = $f +  4;
 	if ($m[$x ][$y1] == 1) $f = $f +  2;
 	if ($m[$xr][$y1] == 1) $f = $f +  1;
@@ -429,7 +436,7 @@ else {
 
 	$v = near_far($f);
 	//  $msg = "view: ".$v.", field: ".$f." tick: ".$m['tick']." x, y = ".$x.", ".$y;
-	$msg = "view: ".$v.", field: ".$f." tick: ".$_SESSION['tick']." x, y = ".$x.", ".$y;
+	$msg = "view: ".$v.", field: ".$f." tick: ".$_SESSION['tick']." x, y = ".$x.", ".$y." ".$yaw;
 	if ($msg3)
 		$msg .= "\n<br>".$msg3;
 	if ($msg2)

@@ -20,6 +20,7 @@ function get_map($filename) {
 				$new_map['user'][$data[1]]['handle'] = $data[2];
 				$new_map['user'][$data[1]]['x'] =      $data[3];
 				$new_map['user'][$data[1]]['y'] =      $data[4];
+				$new_map['user'][$data[1]]['yaw'] =    $data[5];
 				$user++;
 				}
 			else
@@ -58,8 +59,8 @@ function put_map($newfile, &$a) {
 		foreach ($a as $ak => $av) {
 			if ($ak === 'user') {
 				foreach ($av as $bv) {
-			//		$user = array('user', key($av), $bv['x'], $bv['y']);
-					$user = array('user', key($av), $bv['handle'], $bv['x'], $bv['y']);
+					$user = array('user', key($av), $bv['handle'],
+					  $bv['x'], $bv['y'], $bv['yaw']);
 					next($av);
 					fputcsv($fh, $user);
 					}

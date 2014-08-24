@@ -17,6 +17,7 @@ state files
 git tips
 git clone fredness@mini.local.zaptech.org:/git_alt/dungeon
 git status -s
+git --no-pager diff -b 
 git add [ file name ]    // for new file, or just changes to existing file
 git commit               // [ file name ] optional, -m optional
 git push origin
