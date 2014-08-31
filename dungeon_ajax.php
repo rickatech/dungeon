@@ -355,28 +355,59 @@ else {
 	$put = 0;
 	$msg3 = NULL;
 	//  FUTURE: check ticks, is it user's turn yet?
+	$my = $m['user']   [$_SESSION['uid']]     ['yaw'];
 	if      ($cmd == 'stepforw') {
 		//  strobe lock file?
-		$m['user'][$_SESSION['uid']]['y'] =
-		  stepwrap($m['user'][$_SESSION['uid']]['y'], $m['size'][2], -1);
+		if ($my < 90)        //  0
+			$m['user'][$_SESSION['uid']]['y'] = stepwrap($m['user'][$_SESSION['uid']]['y'], $m['size'][2], -1);
+		else if ($my < 180) //  90
+			$m['user'][$_SESSION['uid']]['x'] = stepwrap($m['user'][$_SESSION['uid']]['x'], $m['size'][1],  1);
+		else if ($my < 270) // 180
+			$m['user'][$_SESSION['uid']]['y'] = stepwrap($m['user'][$_SESSION['uid']]['y'], $m['size'][2],  1);
+		else                // 270
+			$m['user'][$_SESSION['uid']]['x'] = stepwrap($m['user'][$_SESSION['uid']]['x'], $m['size'][1], -1);
 		$put = 1;
 		}
 	else if ($cmd == 'stepback') {
 		//  strobe lock file?
-		$m['user'][$_SESSION['uid']]['y'] =
-		  stepwrap($m['user'][$_SESSION['uid']]['y'], $m['size'][2],  1);
+//		$m['user'][$_SESSION['uid']]['y'] =
+//		  stepwrap($m['user'][$_SESSION['uid']]['y'], $m['size'][2],  1);
+		if ($my < 90)        //  0
+			$m['user'][$_SESSION['uid']]['y'] = stepwrap($m['user'][$_SESSION['uid']]['y'], $m['size'][2],  1);
+		else if ($my < 180) //  90
+			$m['user'][$_SESSION['uid']]['x'] = stepwrap($m['user'][$_SESSION['uid']]['x'], $m['size'][1], -1);
+		else if ($my < 270) // 180
+			$m['user'][$_SESSION['uid']]['y'] = stepwrap($m['user'][$_SESSION['uid']]['y'], $m['size'][2], -1);
+		else                // 270
+			$m['user'][$_SESSION['uid']]['x'] = stepwrap($m['user'][$_SESSION['uid']]['x'], $m['size'][1],  1);
 		$put = 1;
 		}
 	else if ($cmd == 'stepleft') {
 		//  strobe lock file?
-		$m['user'][$_SESSION['uid']]['x'] =
-		  stepwrap($m['user'][$_SESSION['uid']]['x'], $m['size'][2], -1);
+//		$m['user'][$_SESSION['uid']]['x'] =
+//		  stepwrap($m['user'][$_SESSION['uid']]['x'], $m['size'][1], -1);
+		if ($my < 90)        //  0
+			$m['user'][$_SESSION['uid']]['x'] = stepwrap($m['user'][$_SESSION['uid']]['x'], $m['size'][1], -1);
+		else if ($my < 180) //  90
+			$m['user'][$_SESSION['uid']]['y'] = stepwrap($m['user'][$_SESSION['uid']]['y'], $m['size'][2], -1);
+		else if ($my < 270) // 180
+			$m['user'][$_SESSION['uid']]['x'] = stepwrap($m['user'][$_SESSION['uid']]['x'], $m['size'][1],  1);
+		else                // 270
+			$m['user'][$_SESSION['uid']]['y'] = stepwrap($m['user'][$_SESSION['uid']]['y'], $m['size'][2],  1);
 		$put = 1;
 		}
 	else if ($cmd == 'steprght') {
 		//  strobe lock file?
-		$m['user'][$_SESSION['uid']]['x'] =
-		  stepwrap($m['user'][$_SESSION['uid']]['x'], $m['size'][2],  1);
+//		$m['user'][$_SESSION['uid']]['x'] =
+//		  stepwrap($m['user'][$_SESSION['uid']]['x'], $m['size'][1],  1);
+		if ($my < 90)        //  0
+			$m['user'][$_SESSION['uid']]['x'] = stepwrap($m['user'][$_SESSION['uid']]['x'], $m['size'][1],  1);
+		else if ($my < 180) //  90
+			$m['user'][$_SESSION['uid']]['y'] = stepwrap($m['user'][$_SESSION['uid']]['y'], $m['size'][2],  1);
+		else if ($my < 270) // 180
+			$m['user'][$_SESSION['uid']]['x'] = stepwrap($m['user'][$_SESSION['uid']]['x'], $m['size'][1], -1);
+		else                // 270
+			$m['user'][$_SESSION['uid']]['y'] = stepwrap($m['user'][$_SESSION['uid']]['y'], $m['size'][2], -1);
 		$put = 1;
 		}
 	else if ($cmd == 'turnleft') {
@@ -420,6 +451,38 @@ else {
 	//           x+1,y+1 | x,y+1 | x-1,y+1
 	//  yaw 270: x-2,y+1 | x-2,y | x-2,y-1
 	//           x-1,y+1 | x-1,y | x-1,y-1
+	if ($yaw < 90) {  //   0
+		$view['a'][1] = $m[stepwrap($x, $m['size'][1], -1)][stepwrap($y, $m['size'][2], -1)];
+		$view['b'][1] = $m[$x                             ][stepwrap($y, $m['size'][2], -1)];
+		$view['c'][1] = $m[stepwrap($x, $m['size'][1],  1)][stepwrap($y, $m['size'][2], -1)];
+		$view['a'][2] = $m[stepwrap($x, $m['size'][1], -1)][stepwrap($y, $m['size'][2], -2)];
+		$view['b'][2] = $m[$x                             ][stepwrap($y, $m['size'][2], -2)];
+		$view['c'][2] = $m[stepwrap($x, $m['size'][1],  1)][stepwrap($y, $m['size'][2], -2)];
+		}
+	else if ($yaw < 180) {  // 90
+		$view['a'][1] = $m[stepwrap($x, $m['size'][1],  1)][stepwrap($y, $m['size'][2], -1)];
+		$view['b'][1] = $m[stepwrap($x, $m['size'][1],  1)][$y                             ];
+		$view['c'][1] = $m[stepwrap($x, $m['size'][1],  1)][stepwrap($y, $m['size'][2],  1)];
+		$view['a'][2] = $m[stepwrap($x, $m['size'][1],  2)][stepwrap($y, $m['size'][2], -1)];
+		$view['b'][2] = $m[stepwrap($x, $m['size'][1],  2)][$y                             ];
+		$view['c'][2] = $m[stepwrap($x, $m['size'][1],  2)][stepwrap($y, $m['size'][2],  1)];
+		}
+	else if ($yaw < 270) {  //180 
+		$view['a'][1] = $m[stepwrap($x, $m['size'][1],  1)][stepwrap($y, $m['size'][2],  1)];
+		$view['b'][1] = $m[$x                             ][stepwrap($y, $m['size'][2],  1)];
+		$view['c'][1] = $m[stepwrap($x, $m['size'][1], -1)][stepwrap($y, $m['size'][2],  1)];
+		$view['a'][2] = $m[stepwrap($x, $m['size'][1],  1)][stepwrap($y, $m['size'][2],  2)];
+		$view['b'][2] = $m[$x                             ][stepwrap($y, $m['size'][2],  2)];
+		$view['c'][2] = $m[stepwrap($x, $m['size'][1], -1)][stepwrap($y, $m['size'][2],  2)];
+		}
+	else {                  //270
+		$view['a'][1] = $m[stepwrap($x, $m['size'][1], -1)][stepwrap($y, $m['size'][2],  1)];
+		$view['b'][1] = $m[stepwrap($x, $m['size'][1], -1)][$y                             ];
+		$view['c'][1] = $m[stepwrap($x, $m['size'][1], -1)][stepwrap($y, $m['size'][2], -1)];
+		$view['a'][2] = $m[stepwrap($x, $m['size'][1], -2)][stepwrap($y, $m['size'][2],  1)];
+		$view['b'][2] = $m[stepwrap($x, $m['size'][1], -2)][$y                             ];
+		$view['c'][2] = $m[stepwrap($x, $m['size'][1], -2)][stepwrap($y, $m['size'][2], -1)];
+		}
 	$xl = ($x < 1) ?                 $m['size'][1] - 1 :      $x - 1;
 	$xr = ($x > $m['size'][1] - 2) ? 0 :                      $x + 1;
 	$y2 = ($y < 2) ?                 $m['size'][2] - 2 + $y : $y - 2;
@@ -427,12 +490,21 @@ else {
 //	if ($y == 0) $y1 = $m['size'][2] - 1; else $y1 = $y - 1;
 	//  near walls 
 	$f = 0;
+	if (0) {
 	if ($m[$xl][$y1] == 1) $f = $f +  4;
 	if ($m[$x ][$y1] == 1) $f = $f +  2;
 	if ($m[$xr][$y1] == 1) $f = $f +  1;
 	if ($m[$xl][$y2] == 1) $f = $f + 40;
 	if ($m[$x ][$y2] == 1) $f = $f + 20;
 	if ($m[$xr][$y2] == 1) $f = $f + 10;
+	} else {
+	if ($view['a'][1] == 1) $f = $f +  4;
+	if ($view['b'][1] == 1) $f = $f +  2;
+	if ($view['c'][1] == 1) $f = $f +  1;
+	if ($view['a'][2] == 1) $f = $f + 40;
+	if ($view['b'][2] == 1) $f = $f + 20;
+	if ($view['c'][2] == 1) $f = $f + 10;
+	}
 
 	$v = near_far($f);
 	//  $msg = "view: ".$v.", field: ".$f." tick: ".$m['tick']." x, y = ".$x.", ".$y;

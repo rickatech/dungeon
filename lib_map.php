@@ -40,7 +40,11 @@ function print_map($m) {
 	$map_textpre = NULL;
 	for ($y = 0; $y < 64; $y++) {
 		for ($x = 0; $x < 64; $x++) {
-			$map_textpre .= $m[$x][$y];
+			$o = ord($m[$x][$y]);
+			if ($o == 48)
+				$map_textpre .= '&nbsp;';
+			else 
+				$map_textpre .= $m[$x][$y];
 			}
 		$map_textpre .= "\n";
 		}
@@ -79,7 +83,10 @@ function gen_map(&$map) {
 	// $map  passed in by reference
 	for ($y = 0; $y < 64; $y++) {
 		for ($x = 0; $x < 64; $x++) {
-			$map[$x][$y] = rand(0, 1);
+			//  very crude, 33% blocks for now, FUTURE: room, cavern allgythms?
+			if ($r = rand(0, 2) > 1 )
+				$map[$x][$y] = 1;
+			else $map[$x][$y] = 0;
 			}
 		}
 	$map['tick'][0] = 'tick';

@@ -30,7 +30,7 @@ UL.ALT {
 <script type="text/JavaScript" src="dungeon_nav.js"></script> 
 </HEAD>
 
-<BODY>
+<body style="-webkit-text-size-adjust:none">
 <TABLE WIDTH=100% BORDER=1><TR>
 <TD VALIGN=TOP id="today"><?php  printf("%s today", date('Y-m-d'));  ?></TD>
 <TD VALIGN=TOP ALIGN=CENTER><B>Dungeon</B></TD>
