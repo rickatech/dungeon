@@ -241,10 +241,14 @@ if ($ajax == 0) {
 		return $v;
 		}
 
-	function render($v, $message = NULL) {
+	function render($v, $message = NULL, $b = 0) {
 		/*  this may be client side javascript at some point?  */
 		global $w;
-		echo "<center><table style=\"margin: auto:\"><tr>\n<td style=\"border: solid 4px;\">\n";
+		$bs  = $b & 1 ? 'border-top: solid 4px;' :       'border-top: solid 4px; border-top-color: #9FFF9F;';
+		$bs .= $b & 2 ? 'border-left: solid 4px;' :     'border-left: solid 4px; border-left-color: #9FFF9F;';
+		$bs .= $b & 4 ? 'border-right: solid 4px;' :   'border-right: solid 4px; border-right-color: #9FFF9F;';
+		$bs .= $b & 8 ? 'border-bottom: solid 4px;' : 'border-bottom: solid 4px; border-bottom-color: #9FFF9F;';
+		echo "<center><table style=\"margin: auto:\"><tr>\n<td style=\"".$bs."\">\n";
 		printf("<pre style=\"font-size: 72px; margin-bottom: 0px;\">%s\n%s\n%s</pre>",
 		    $w[$v][0], $w[$v][1], $w[$v][2]);
 		echo "</td>\n</tr></table>\n";
@@ -451,7 +455,12 @@ else {
 	//           x+1,y+1 | x,y+1 | x-1,y+1
 	//  yaw 270: x-2,y+1 | x-2,y | x-2,y-1
 	//           x-1,y+1 | x-1,y | x-1,y-1
+	$nearwall = 0;
 	if ($yaw < 90) {  //   0
+		$nearwall |= $m[$x                             ][stepwrap($y, $m['size'][2], -1)] ? 1 : 0;
+		$nearwall |= $m[stepwrap($x, $m['size'][1], -1)][$y                             ] ? 2 : 0;
+		$nearwall |= $m[stepwrap($x, $m['size'][1],  1)][$y                             ] ? 4 : 0;
+		$nearwall |= $m[$x                             ][stepwrap($y, $m['size'][2],  1)] ? 8 : 0;
 		$view['a'][1] = $m[stepwrap($x, $m['size'][1], -1)][stepwrap($y, $m['size'][2], -1)];
 		$view['b'][1] = $m[$x                             ][stepwrap($y, $m['size'][2], -1)];
 		$view['c'][1] = $m[stepwrap($x, $m['size'][1],  1)][stepwrap($y, $m['size'][2], -1)];
@@ -460,6 +469,10 @@ else {
 		$view['c'][2] = $m[stepwrap($x, $m['size'][1],  1)][stepwrap($y, $m['size'][2], -2)];
 		}
 	else if ($yaw < 180) {  // 90
+		$nearwall |= $m[stepwrap($x, $m['size'][1],  1)][$y                             ] ? 1 : 0;
+		$nearwall |= $m[$x                             ][stepwrap($y, $m['size'][2], -1)] ? 2 : 0;
+		$nearwall |= $m[$x                             ][stepwrap($y, $m['size'][2],  1)] ? 4 : 0;
+		$nearwall |= $m[stepwrap($x, $m['size'][1], -1)][$y                             ] ? 8 : 0;
 		$view['a'][1] = $m[stepwrap($x, $m['size'][1],  1)][stepwrap($y, $m['size'][2], -1)];
 		$view['b'][1] = $m[stepwrap($x, $m['size'][1],  1)][$y                             ];
 		$view['c'][1] = $m[stepwrap($x, $m['size'][1],  1)][stepwrap($y, $m['size'][2],  1)];
@@ -468,6 +481,10 @@ else {
 		$view['c'][2] = $m[stepwrap($x, $m['size'][1],  2)][stepwrap($y, $m['size'][2],  1)];
 		}
 	else if ($yaw < 270) {  //180 
+		$nearwall |= $m[$x                             ][stepwrap($y, $m['size'][2],  1)] ? 1 : 0;
+		$nearwall |= $m[stepwrap($x, $m['size'][1],  1)][$y                             ] ? 2 : 0;
+		$nearwall |= $m[stepwrap($x, $m['size'][1], -1)][$y                             ] ? 4 : 0;
+		$nearwall |= $m[$x                             ][stepwrap($y, $m['size'][2], -1)] ? 8 : 0;
 		$view['a'][1] = $m[stepwrap($x, $m['size'][1],  1)][stepwrap($y, $m['size'][2],  1)];
 		$view['b'][1] = $m[$x                             ][stepwrap($y, $m['size'][2],  1)];
 		$view['c'][1] = $m[stepwrap($x, $m['size'][1], -1)][stepwrap($y, $m['size'][2],  1)];
@@ -476,6 +493,10 @@ else {
 		$view['c'][2] = $m[stepwrap($x, $m['size'][1], -1)][stepwrap($y, $m['size'][2],  2)];
 		}
 	else {                  //270
+		$nearwall |= $m[stepwrap($x, $m['size'][1], -1)][$y                             ] ? 1 : 0;
+		$nearwall |= $m[$x                             ][stepwrap($y, $m['size'][2],  1)] ? 2 : 0;
+		$nearwall |= $m[$x                             ][stepwrap($y, $m['size'][2], -1)] ? 4 : 0;
+		$nearwall |= $m[stepwrap($x, $m['size'][1],  1)][$y                             ] ? 8 : 0;
 		$view['a'][1] = $m[stepwrap($x, $m['size'][1], -1)][stepwrap($y, $m['size'][2],  1)];
 		$view['b'][1] = $m[stepwrap($x, $m['size'][1], -1)][$y                             ];
 		$view['c'][1] = $m[stepwrap($x, $m['size'][1], -1)][stepwrap($y, $m['size'][2], -1)];
@@ -526,7 +547,7 @@ else {
 		}
 	}
 
-render($v, $msg);
+render($v, $msg, $nearwall);
 
 if (isset($m)) {
 	if ($_SESSION['uid'] == 1) // admin/rickatech check
