@@ -1,9 +1,12 @@
 <?PHP 
 /*  This 'plug-in' generates output for calout div from AJAX call.
 
-/*  Invalid session okay here since empty calendar will be output if no user is detected.
-/*  However, still need to setup up session to handle logged in users.  */
-//  include "session_check.php";
+/*  FUTURE
+  - use case: user logged in and active, steps away from computer, back after an hour, clicks a command
+    javascript timer to idle screen, reset session?  server side, invalid session after x minutes
+    should refresh display, ignore command, indicate your next command will be ohonored if you don't step away again  */
+
+/*  Invalid session okay here since login prompt if no user is detected  */
 session_start();
 
 //  service configuration parameters
@@ -89,26 +92,24 @@ if ($ajax == 0) {
 	return;
 	}
 
-/*  For ajax request, database connection is not already in place.  Future: move settings to config file.  */
-//mysql_connect("localhost", "daytimer", "cottageread") or die("mysql_connect() failed");
-//mysql_select_db("daytimer") or die("mysql_select_db() failed");
-
-/*  Future Optimization: narrow select to date range, and possible also specific UID values  */
-//$query = "select * from appointments order by date, time";
-//$result = mysql_query($query) or die(mysql_error());
-//$colqty = mysql_num_fields($result);
-
-//  echo "<p style=\"font-size: smaller;\">request 0: ".$_SERVER['REQUEST_URI']."</p>\n";
-
+	//  lofi ASC viewpoint patterns,
+	//  FUTURE z buffer matching array to allow easier composting of dynamic elements?
+	$z[ 0] = array(9, 9, 9);
+	$z[ 1] = array(1, 9, 1);
+	$z[ 2] = array(9, 9, 1);
+	$z[ 3] = array(1, 9, 9);
 	$w[ 0][0] = "\    /";
 	$w[ 0][1] = " |##| ";
 	$w[ 0][2] = "/    \\";  /*  ! \"  */
+	$w[ 0]['z'] = 1;
 	$w[ 1][0] = "     /";
 	$w[ 1][1] = "####| ";
 	$w[ 1][2] = "     \\";  /*  ! \"  */
+	$w[ 1]['z'] = 2;
 	$w[ 2][0] = "\     ";
 	$w[ 2][1] = " |####";
 	$w[ 2][2] = "/     ";
+	$w[ 2]['z'] = 3;
 	$w[ 3][0] = "\ __ /";
 	$w[ 3][1] = " |__| ";
 	$w[ 3][2] = "/    \\";  /*  ! \"  */
@@ -123,10 +124,11 @@ if ($ajax == 0) {
 	$w[ 6][2] = "/     ";
 	$w[ 7][0] = "  __  ";
 	$w[ 7][1] = "#|__|#";
-	$w[ 7][2] = "     &nbsp;";
+	$w[ 7][2] = "    &nbsp; ";
 	$w[ 8][0] = "    &nbsp; ";
 	$w[ 8][1] = "    &nbsp; ";
 	$w[ 8][2] = "    &nbsp; ";
+	$w[ 8]['z'] = 0;
 	$w[ 9][0] = "_     ";
 	$w[ 9][1] = "_|####";
 	$w[ 9][2] = "    &nbsp; ";
@@ -241,16 +243,26 @@ if ($ajax == 0) {
 		return $v;
 		}
 
-	function render($v, $message = NULL, $b = 0) {
+	function render($v, $message = NULL, $b = 0, $o = NULL, $oo = NULL) {
 		/*  this may be client side javascript at some point?  */
 		global $w;
+		//  adjust border color to hint at presence of nearby walls
 		$bs  = $b & 1 ? 'border-top: solid 4px;' :       'border-top: solid 4px; border-top-color: #9FFF9F;';
 		$bs .= $b & 2 ? 'border-left: solid 4px;' :     'border-left: solid 4px; border-left-color: #9FFF9F;';
 		$bs .= $b & 4 ? 'border-right: solid 4px;' :   'border-right: solid 4px; border-right-color: #9FFF9F;';
 		$bs .= $b & 8 ? 'border-bottom: solid 4px;' : 'border-bottom: solid 4px; border-bottom-color: #9FFF9F;';
+		$r0 = $w[$v][0];
+		$r1 = $w[$v][1];
+		$r2 = $w[$v][2];
+		//  show other player!!!
+		if ($o)
+			$r1[3] = $o;
+		if ($oo) {
+			$r1[2] = $oo; $r1[3] = $oo;
+			$r2[2] = $oo; $r2[3] = $oo; }
 		echo "<center><table style=\"margin: auto:\"><tr>\n<td style=\"".$bs."\">\n";
 		printf("<pre style=\"font-size: 72px; margin-bottom: 0px;\">%s\n%s\n%s</pre>",
-		    $w[$v][0], $w[$v][1], $w[$v][2]);
+		    $r0, $r1, $r2);
 		echo "</td>\n</tr></table>\n";
 		if ($message)
 			echo "\n".$message."\n";
@@ -426,6 +438,7 @@ else {
 		  stepwrap($m['user'][$_SESSION['uid']]['yaw'], 360,  90);
 		$put = 1;
 		}
+	//  FUTURE: check if moving into a block or other dynamic element
 	if ($put == 1) {
 		$m['tick'][1]++;
 		if (put_map($filename, $m))
@@ -539,15 +552,42 @@ else {
 	/*  modifying map for display purposes,
         /*  NEVER SAVE THIS?  */
 	//  $m[$x][$y] = '*';
+	$o = NULL;
+	$oo = NULL;
 	foreach ($m['user'] as $ak => $av) {
 		if ($av['x'] == $x && $av['y'] == $y)
 			$m[$x][$y] = '*';
-		else
+		else {
 			$m[$av['x']][$av['y']] = '+';
+			if ($yaw < 90) {
+				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+					$o = $av['handle'][0];  //  $o = 'H';
+				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -1))	
+					$oo = $av['handle'][0];  //  $oo = 'H';
+				}
+			else if ($yaw < 180) {
+				if ($av['y'] == $y && $av['x'] == stepwrap($x, $m['size'][1],  2))	
+					$o = $av['handle'][0];  //  $o = 'H';
+				if ($av['y'] == $y && $av['x'] == stepwrap($x, $m['size'][1],  1))	
+					$oo = $av['handle'][0];  //  $oo = 'H';
+				}
+			else if ($yaw < 270) {
+				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+					$o = $av['handle'][0];  //  $o = 'H';
+				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  1))	
+					$oo = $av['handle'][0];  //  $oo = 'H';
+				}
+			else {
+				if ($av['y'] == $y && $av['x'] == stepwrap($x, $m['size'][1], -2))	
+					$o = $av['handle'][0];  //  $o = 'H';
+				if ($av['y'] == $y && $av['x'] == stepwrap($x, $m['size'][1], -1))	
+					$oo = $av['handle'][0];  //  $oo = 'H';
+				}
+			}
 		}
 	}
 
-render($v, $msg, $nearwall);
+render($v, $msg, $nearwall, $o, $oo);
 
 if (isset($m)) {
 	if ($_SESSION['uid'] == 1) // admin/rickatech check
