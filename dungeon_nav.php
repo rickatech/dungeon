@@ -18,6 +18,7 @@ function dungeon_render() {
 //	global $month;
 //	global $day;
 
+if (0) {
 	echo "\n<form name=\"form_date\" method=\"get\" style=\"margin: 0px;\"><td>";
 	if (isset($_GET['year']))
 		pretty(4, "year", $year);  //  never happens
@@ -49,7 +50,9 @@ function dungeon_render() {
 	else
 		pretty(1, "filter", 0);
 	echo "</td></form>";
-	printf("\n<td><input type=button value=\"set\" onclick=\"cal_set('calout')\"></td>");
+}
+
+	printf("\n<td><input type=button value=\"refresh\" onclick=\"cal_set('calout')\"></td>");
 	if (isset($_SESSION['uid'])) {
 		printf("\n<td><input type=button value=\"<\" onclick=\"nav_stepleft('calout')\"></td>");
 		printf("\n<td><input type=button value=\".\" onclick=\"nav_turnleft('calout')\"></td>");
@@ -68,7 +71,7 @@ function dungeon_render() {
 //		printf("\n<td><input type=button value=\"users\" onclick=\"users_set('calout')\"></td>");
 //		printf("\n<td><input type=button value=\"prev\" onclick=\"cal_prev('calout')\"></td>");
 		}
-	echo "\n<td><a href=\"javascript: showtest('calout');\">test</a></td>";
+	echo "\n<td><a href=\"javascript: showtest('calout');\">reset</a></td>";
 	}
 
 ?>

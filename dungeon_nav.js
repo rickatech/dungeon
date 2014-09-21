@@ -30,7 +30,8 @@ function hideshow0(which) {
 function showtest(which) {
 	if (!document.getElementById)
 		return;
-	document.getElementById(which).innerHTML = '[ test ]';
+	document.getElementById(which).innerHTML =
+	  '<center><table style=\"margin: auto;\"><tr><td>[ reset complete  ]</td></tr></table></center>';
 	}
 
 function hideshow(which) {
