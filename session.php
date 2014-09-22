@@ -1,7 +1,8 @@
 <?PHP
 
 session_start();
-if (!isset($_POST['logout']) && isset($_SESSION['username'])) {
+if (!isset($_POST['logout']) && !isset($_GET['logout']) && isset($_SESSION['username'])) {
+//if (!isset($_POST['logout']) && isset($_SESSION['username'])) {
 	/*  preserve session unless logout detected  */
 	$mode = 1;
 	}
@@ -9,6 +10,11 @@ else if (isset($_POST['username']) && isset($_POST['password']) && (!isset($_SES
 	/*  login attempt detected, setup session username  */
 	$mode = 2;
 	$_SESSION['username'] = $_POST['username'];
+	}
+else if (isset($_GET['username']) && isset($_GET['password']) && (!isset($_SESSION['username']))) {
+	/*  login attempt detected, setup session username  */
+	$mode = 2;
+	$_SESSION['username'] = $_GET['username'];
 	}
 else {
 	$mode = 0;
@@ -66,7 +72,7 @@ function login_state() {
 	/*  Assumes a form with name=login, type=post is being used.  */
 	/*  return 1  login accepted - output logout  */
 	/*  return 0  invalid login - output username, password form  */
-	if (isset($_POST['username']) && isset($_POST['password'])) {
+	if (isset($_POST['username']) && isset($_POST['password'])) {  // clasic POST form
 		unset($_SESSION['uid']);
 		/*  login_check will set $_SESSION['uid'] for valid login  */
 		if ($msg = login_check($_POST['username'], $_POST['password'])) {
@@ -74,23 +80,47 @@ function login_state() {
 			unset($_SESSION['username']);
 			}
 		}
+	if (isset($_GET['username']) && isset($_GET['password'])) {  // new AJAX form
+//	if (isset($username)) {  //  new AJAX form
+		unset($_SESSION['uid']);
+		/*  login_check will set $_SESSION['uid'] for valid login  */
+		if ($msg = login_check($_GET['username'], $_GET['password'])) {
+			echo "<span style=\"color: #ff0000;\">".$msg."</span> ";
+			unset($_SESSION['username']);
+			}
+		}
 	if (isset($_SESSION['uid'])) {
+		echo "\n<form method=\"POST\" action=\"\" name=\"login\" style=\"margin: 0px;\">";
 		echo $_SESSION['username']." ";
 		echo "<input name=\"logout\" value=\"yes\" type=\"hidden\">";
-		echo " <a href=\"javascript:document['login'].submit();\">logout</a>";
+		echo " <a href=\"javascript:head_logout();\">logout</a>";
+		echo "\n</form>";
 		return (1);
 		}
+//	echo "<form style=\"margin: 0px;\">[ loading ... ]";
+//	echo "</form>";
+//	document.getElementById("newTotal").value = your_new_total;
+//http://stackoverflow.com/questions/3134819/how-do-i-call-a-js-function-on-pressing-enter-key
+//onkeypress="return handleEnter(event, update_field(this));
+//function handleEnter(e, func){
+//    if (e.keyCode == 13 || e.which == 13)
+//        //Enter was pressed, handle it here
+//}
+	echo "\n<form method=\"POST\" action=\"\" name=\"login\" style=\"margin: 0px;\">";
 	echo "<a href=\"javascript: formpop('signup');\">signup</a> ";
-	echo "login ";
-	echo "\n<input size=12 name=\"username\" style=\"font-size: 10px; border: 1px solid;\"";
-	echo "  value=\"username\" onKeyPress=\"detectKey(event)\"";
+
+	echo "\n<input size=12               name=\"username\" id=\"username\" style=\"font-size: 10px; border: 1px solid;\"";
+	echo "  value=\"username\" onKeyPress=\"detectKeyLogin(event)\"";
 	echo " onfocus=\"if(this.value == 'username') {this.value = '';}\"";
 	echo " onblur=\"if(this.value == '') {this.value = 'username';}\">";
-	echo "\n<input size=12 type=password name=\"password\" style=\"font-size: 10px; border: 1px solid;\"";
-	echo " value=\"password\" onKeyDown=\"detectKey(event)\"";
+
+	echo "\n<input size=12 type=password name=\"password\" id=\"password\" style=\"font-size: 10px; border: 1px solid;\"";
+	echo " value=\"password\" onKeyDown=\"detectKeyLogin(event)\"";
 	echo " onfocus=\"if(this.value == 'password') {this.value = '';}\"";
 	echo " onblur=\"if(this.value == '') {this.value = 'password';}\">";
+
+	//  echo "\n<a href=\"javascript:head_login('rickatech');\">login</a>";
+	echo "\n</form>";
 	return (0);
 	}
-
 ?>

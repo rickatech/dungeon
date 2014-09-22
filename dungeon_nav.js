@@ -1,6 +1,8 @@
 //  http://www.crockford.com/javascript/private.html
 
 dungeon_display_file = 'dungeon_ajax.php';
+head_display_file =    'head_ajax.php';
+nav_display_file =     'nav_ajax.php';
 
 function popUp(URL) {
 
@@ -15,6 +17,12 @@ function popUp(URL) {
 function detectKey(event) {
 	if (event.keyCode == 13) { 
 		document['login'].submit();
+		}
+	}
+
+function detectKeyLogin(event) {
+	if (event.keyCode == 13) { 
+		head_login();
 		}
 	}
 
@@ -43,6 +51,33 @@ function hideshow(which) {
 		document.getElementById(which).style.display = "none";
 	}
 
+function head_set(which) {
+	headhq.url = head_display_file+'?ajax=1';
+	headhq.div = "head";
+	headhq.do_hq();
+	}
+
+function head_login() {
+	un = document.getElementById("username").value;
+	pw = document.getElementById("password").value;
+	alert('username: ' + un + ', ' + pw);
+	headhq.url = head_display_file+'?ajax=1&username='+un+'&password='+pw;
+	headhq.div = "head";
+	headhq.do_hq();
+	alert('login 2');
+ 	navhq.do_now();     // refresh navigation controls
+ 	cal_set('calout');  // refresh dungeon view
+	}
+
+function head_logout() {
+	alert('logout');
+	headhq.url = head_display_file+'?ajax=0&logout';
+	headhq.div = "head";
+	headhq.do_hq();
+	alert('logout 2');
+ 	navhq.do_now();     // refresh navigation controls
+ 	cal_set('calout');  // refresh/clear dungeon view
+	}
 
 function cal_set(which) {
 	//  future: supported GET parameters should be in a config file

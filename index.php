@@ -32,21 +32,18 @@ UL.ALT {
 
 <body style="-webkit-text-size-adjust:none">
 <TABLE WIDTH=100% BORDER=1><TR>
-<TD VALIGN=TOP id="today"><?php  printf("%s today", date('Y-m-d'));  ?></TD>
-<TD VALIGN=TOP ALIGN=CENTER><B>Dungeon</B></TD>
-<form method="POST" action="" name="login">
-<TD ALIGN=RIGHT><?php
-	//  can this be dynamic AJAX instead of whole page sumbit/POST?
-	login_state();  ?></TD>
-</form>
+<TD VALIGN=TOP id="today" id="head-today"><?php  printf("%s today", date('Y-m-d'));  ?></TD>
+<TD VALIGN=TOP ALIGN=CENTER id="head-title"><B>Dungeon</B></TD>
+<TD ALIGN=RIGHT><div id="head">[ loading ... ]</div></td>
 </TR></TABLE>
 
 <?php 
 // main navigation controls div
-echo "<div id=\"calnav\" style=\"display: block; text-align: center;\">";  //  IE is fussy about this
-echo "<table border=0\n  cellspacing=0 cellpadding=0 style=\"margin-left: auto; margin-right: auto;\";><tr>";
-dungeon_render();
-echo "</tr></table></div>\n";
+//  echo "<div id=\"calnav\" style=\"display: block; text-align: center;\">";  //  IE is fussy about this
+//  echo "<table border=0\n  cellspacing=0 cellpadding=0 style=\"margin-left: auto; margin-right: auto;\";><tr>";
+//  dungeon_render();
+//  echo "</tr></table></div>\n";
+echo "\n\n<!--  calnav  --><div id=\"calnav\" style=\"display: block; text-align: center;\">[ loading ... ]</div><!--  calnav  -->\n";
 
 // main display div
 echo "\n\n<!--  cal  --><div id=\"cal\" style=\"display: block;\">[ calendar ]</div><!--  cal  -->\n";
@@ -56,7 +53,17 @@ echo "\n\n<!--  cal  --><div id=\"cal\" style=\"display: block;\">[ calendar ]</
 site brought to you by <A HREF=http://zaptech.com/>zap technologies</A></p>
 
 <SCRIPT LANGUAGE="JavaScript"><!-- Begin
-//      alert(dungeon_display_file);
+	var headhq;
+ 	headhq = new class_hq('head');
+	headhq.url = head_display_file+'?ajax=0';
+ 	headhq.do_now();
+
+	var navhq;
+ 	navhq = new class_hq('calnav');
+	navhq.url = nav_display_file+'?ajax=0';
+ 	navhq.do_now();
+
+ 	head_set('head');
 
 	var calhq;
  	calhq = new class_hq('cal');
