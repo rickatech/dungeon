@@ -80,9 +80,11 @@ function put_map($newfile, &$a) {
 	}
 
 function gen_map(&$map) {
+	$mx = 16;
+	$my = 16;
 	// $map  passed in by reference
-	for ($y = 0; $y < 64; $y++) {
-		for ($x = 0; $x < 64; $x++) {
+	for ($y = 0; $y < $my; $y++) {
+		for ($x = 0; $x < $mx; $x++) {
 			//  very crude, 33% blocks for now, FUTURE: room, cavern allgythms?
 			if ($r = rand(0, 2) > 1 )
 				$map[$x][$y] = 1;
@@ -92,8 +94,8 @@ function gen_map(&$map) {
 	$map['tick'][0] = 'tick';
 	$map['tick'][1] = 0;
 	$map['size'][0] = 'size';
-	$map['size'][1] = 64;
-	$map['size'][2] = 64;
+	$map['size'][1] = $mx;
+	$map['size'][2] = $my;
 	//  user lines appended elsewhere
 	return $map;
 	}

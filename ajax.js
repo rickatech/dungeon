@@ -60,21 +60,21 @@ function head_set(which) {
 function head_login() {
 	un = document.getElementById("username").value;
 	pw = document.getElementById("password").value;
-	alert('username: ' + un + ', ' + pw);
+	//alert('username: ' + un + ', ' + pw);
 	headhq.url = head_display_file+'?ajax=1&username='+un+'&password='+pw;
 	headhq.div = "head";
 	headhq.do_hq();
-	alert('login 2');
+	//alert('login 2');
  	navhq.do_now();     // refresh navigation controls
  	cal_set('calout');  // refresh dungeon view
 	}
 
 function head_logout() {
-	alert('logout');
+	//alert('logout');
 	headhq.url = head_display_file+'?ajax=0&logout';
 	headhq.div = "head";
 	headhq.do_hq();
-	alert('logout 2');
+	//alert('logout 2');
  	navhq.do_now();     // refresh navigation controls
  	cal_set('calout');  // refresh/clear dungeon view
 	}

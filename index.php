@@ -1,6 +1,8 @@
 <?PHP	date_default_timezone_set('America/Los_Angeles');  // otherwise PHP warnings
 	include "session.php";  // identical session code used for daytimer?
-	include "dungeon_nav.php";  /// MUST pair with dungeon_nav.js 
+	include "dungeon_nav.php";  /// MUST pair with ajax.js 
+	//  FUTURE: change session from ID to ID_DG so that daytimer doesn't use same session?
+	//  rename ajax.js?
 ?><HTML>
 <HEAD>
 <meta name = "viewport" content = "width = 600"><!--  iPhone hint  -->
@@ -27,7 +29,7 @@ UL.ALT {
 	}
 --></STYLE>
 
-<script type="text/JavaScript" src="dungeon_nav.js"></script> 
+<script type="text/JavaScript" src="ajax.js"></script> 
 </HEAD>
 
 <body style="-webkit-text-size-adjust:none">

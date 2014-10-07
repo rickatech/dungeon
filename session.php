@@ -76,7 +76,7 @@ function login_state() {
 		unset($_SESSION['uid']);
 		/*  login_check will set $_SESSION['uid'] for valid login  */
 		if ($msg = login_check($_POST['username'], $_POST['password'])) {
-			echo "<span style=\"color: #ff0000;\">".$msg."</span> ";
+			//  echo "<span style=\"color: #ff0000;\">".$msg."</span> ";
 			unset($_SESSION['username']);
 			}
 		}
@@ -85,7 +85,7 @@ function login_state() {
 		unset($_SESSION['uid']);
 		/*  login_check will set $_SESSION['uid'] for valid login  */
 		if ($msg = login_check($_GET['username'], $_GET['password'])) {
-			echo "<span style=\"color: #ff0000;\">".$msg."</span> ";
+			//  echo "<span style=\"color: #ff0000;\">".$msg."</span> ";
 			unset($_SESSION['username']);
 			}
 		}
@@ -107,6 +107,8 @@ function login_state() {
 //        //Enter was pressed, handle it here
 //}
 	echo "\n<form method=\"POST\" action=\"\" name=\"login\" style=\"margin: 0px;\">";
+	if ($msg)
+		echo "<span style=\"color: #ff0000;\">".$msg."</span> ";
 	echo "<a href=\"javascript: formpop('signup');\">signup</a> ";
 
 	echo "\n<input size=12               name=\"username\" id=\"username\" style=\"font-size: 10px; border: 1px solid;\"";
