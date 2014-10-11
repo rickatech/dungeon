@@ -107,7 +107,7 @@ function login_state() {
 //        //Enter was pressed, handle it here
 //}
 	echo "\n<form method=\"POST\" action=\"\" name=\"login\" style=\"margin: 0px;\">";
-	if ($msg)
+	if (isset($msg))
 		echo "<span style=\"color: #ff0000;\">".$msg."</span> ";
 	echo "<a href=\"javascript: formpop('signup');\">signup</a> ";
 

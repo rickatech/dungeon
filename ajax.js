@@ -42,6 +42,12 @@ function showtest(which) {
 	  '<center><table style=\"margin: auto;\"><tr><td>[ reset complete  ]</td></tr></table></center>';
 	}
 
+function showactive(which) {
+	if (!document.getElementById)
+		return;
+	document.getElementById(which).style.backgroundColor = 'blue';
+	}
+
 function hideshow(which) {
 	if (!document.getElementById)
 		return;

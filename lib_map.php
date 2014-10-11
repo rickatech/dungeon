@@ -31,7 +31,7 @@ function get_map($filename) {
 		return ($new_map);
 		}
 	else {
-		echo "<p>fopen read error </p> \n\n";
+		//  echo "<p>fopen read error </p> \n\n";  //  FUTURE, make a log file entry for this?
 		return (NULL);
 		}
 	}

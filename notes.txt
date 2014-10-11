@@ -3,6 +3,8 @@ for dungeon
 grep FUTURE in code enahncement suggestions
 
 2014-10
+  - backups
+    need daily static file backups!
   - security levels for different maps
     map    sec 10, if innactive just stay put (home map)
            sec  9, if innactive, minor bounty to return you to home map

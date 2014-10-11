@@ -12,6 +12,9 @@ session_start();
 //  service configuration parameters
 $data_dir = "test";
 $filename = $data_dir."/test.txt";
+$homemap_prefix = 'user';
+//  user00000001.txt, 'user' + uid of user + '.txt', player's home map
+//  home.txt,                           new player home map 'template'
 
 include "lib_map.php";
 
@@ -260,7 +263,7 @@ if ($ajax == 0) {
 				$r1[2] = $oo; $r1[3] = $oo;
 				$r2[2] = $oo; $r2[3] = $oo; }
 			}
-		echo "<center><table style=\"margin: auto:\"><tr>\n<td style=\"".$bs."\">\n";
+		echo "<center><table style=\"margin: auto:\"><tr>\n<td id=\"rentab\" style=\"".$bs."\">\n";
 		printf("<pre style=\"font-size: 72px; margin-bottom: 0px;\">%s\n%s\n%s</pre>",
 		    $r0, $r1, $r2);
 		echo "</td>\n</tr></table>\n";
@@ -337,6 +340,12 @@ else { ///
 
 if (!isset($_SESSION['username']) || !isset($_SESSION['uid']))
 	$v = 20;  // please login
+//  open 'home' map + character info
+//  open 'active' map
+else if (0 && !($m_home = get_map($kkk = $homemap_prefix.sprintf('%08d.txt', $_SESSION['uid'])))) {
+	$v = 19;  // error
+	$msg = "Could not open home map file: ".$kkk;
+	}
 else if (!($m = get_map($filename))) {
 	$v = 19;  // error
 	$msg = "Could not open dungeon map file.";
@@ -608,7 +617,10 @@ else {
 		}
 	}
 
+if (isset($msg))
 render($v, $msg, $nearwall, $o, $oo);
+else
+render($v);
 
 if (isset($m)) {
 	if ($_SESSION['uid'] == 1) // admin/rickatech check

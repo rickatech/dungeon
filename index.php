@@ -1,6 +1,6 @@
 <?PHP	date_default_timezone_set('America/Los_Angeles');  // otherwise PHP warnings
 	include "session.php";  // identical session code used for daytimer?
-	include "dungeon_nav.php";  /// MUST pair with ajax.js 
+	//include "dungeon_nav.php";  /// MUST pair with ajax.js 
 	//  FUTURE: change session from ID to ID_DG so that daytimer doesn't use same session?
 	//  rename ajax.js?
 ?><HTML>

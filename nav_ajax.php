@@ -26,19 +26,19 @@ if ($ajax == 0) {
 echo "<table border=0\n  cellspacing=0 cellpadding=0 style=\"margin-left: auto; margin-right: auto;\";><tr>";
 //  dungeon_render();
 
-	printf("\n<td><input type=button value=\"refresh\" onclick=\"cal_set('calout')\"></td>");
+	printf("\n<td><input type=button value=\"refresh\" onclick=\"showactive('rentab'); cal_set('calout');\"></td>");
 	if (isset($_SESSION['uid'])) {
-		printf("\n<td><input type=button value=\"<\" onclick=\"nav_stepleft('calout')\"></td>");
-		printf("\n<td><input type=button value=\".\" onclick=\"nav_turnleft('calout')\"></td>");
-		printf("\n<td><input type=button value=\"^\" onclick=\"nav_stepforw('calout')\"></td>");
-		printf("\n<td><input type=button value=\"v\" onclick=\"nav_stepback('calout')\"></td>");
-		printf("\n<td><input type=button value=\".\" onclick=\"nav_turnrght('calout')\"></td>");
-		printf("\n<td><input type=button value=\">\" onclick=\"nav_steprght('calout')\"></td>");
+		printf("\n<td><input type=button value=\"<\" onclick=\"showactive('rentab'); nav_stepleft('calout');\"></td>");
+		printf("\n<td><input type=button value=\".\" onclick=\"showactive('rentab'); nav_turnleft('calout');\"></td>");
+		printf("\n<td><input type=button value=\"^\" onclick=\"showactive('rentab'); nav_stepforw('calout');\"></td>");
+		printf("\n<td><input type=button value=\"v\" onclick=\"showactive('rentab'); nav_stepback('calout');\"></td>");
+		printf("\n<td><input type=button value=\".\" onclick=\"showactive('rentab'); nav_turnrght('calout');\"></td>");
+		printf("\n<td><input type=button value=\">\" onclick=\"showactive('rentab'); nav_steprght('calout');\"></td>");
 		}
 //	if ((isset($_SESSION['uid'])) && ($_SESSION['uid'] == "1") && !isprod()) {
 	if ((isset($_SESSION['uid'])) && ($_SESSION['uid'] == "1")) {
 		if ((isset($_SESSION['username'])) && ($_SESSION['username'] == "rickatech")) {
-			printf("\n<td><input type=button value=\"newmap\" onclick=\"cal_newmap('calout')\"></td>");
+			printf("\n<td><input type=button value=\"newmap\" onclick=\"showactive('rentab'); cal_newmap('calout');\"></td>");
 			}
 //		printf("\n<td><input type=button value=\"list\" onclick=\"list_set('calout')\"></td>");
 //		printf("\n<td><input type=button value=\"to do\" onclick=\"to_do_set('calout')\"></td>");
