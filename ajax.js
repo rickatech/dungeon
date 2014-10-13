@@ -39,13 +39,15 @@ function showtest(which) {
 	if (!document.getElementById)
 		return;
 	document.getElementById(which).innerHTML =
-	  '<center><table style=\"margin: auto;\"><tr><td>[ reset complete  ]</td></tr></table></center>';
+	  '<center><table style=\"margin: auto;\" id=\"rentab\"><tr><td>[ reset complete  ]</td></tr></table></center>';
 	}
 
 function showactive(which) {
+	/*  the table with player view is reloaded upon action request,
+	    change color of table background to indicate a request is in progress  */
 	if (!document.getElementById)
 		return;
-	document.getElementById(which).style.backgroundColor = 'blue';
+	document.getElementById(which).style.backgroundColor = 'yellow';
 	}
 
 function hideshow(which) {

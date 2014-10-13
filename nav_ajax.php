@@ -26,14 +26,15 @@ if ($ajax == 0) {
 echo "<table border=0\n  cellspacing=0 cellpadding=0 style=\"margin-left: auto; margin-right: auto;\";><tr>";
 //  dungeon_render();
 
+	echo "\n<td> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </td>";  //  white space here to balance reset below
 	printf("\n<td><input type=button value=\"refresh\" onclick=\"showactive('rentab'); cal_set('calout');\"></td>");
 	if (isset($_SESSION['uid'])) {
-		printf("\n<td><input type=button value=\"<\" onclick=\"showactive('rentab'); nav_stepleft('calout');\"></td>");
-		printf("\n<td><input type=button value=\".\" onclick=\"showactive('rentab'); nav_turnleft('calout');\"></td>");
-		printf("\n<td><input type=button value=\"^\" onclick=\"showactive('rentab'); nav_stepforw('calout');\"></td>");
-		printf("\n<td><input type=button value=\"v\" onclick=\"showactive('rentab'); nav_stepback('calout');\"></td>");
-		printf("\n<td><input type=button value=\".\" onclick=\"showactive('rentab'); nav_turnrght('calout');\"></td>");
-		printf("\n<td><input type=button value=\">\" onclick=\"showactive('rentab'); nav_steprght('calout');\"></td>");
+		printf("\n<td><input type=button value=\"<-\" onclick=\"showactive('rentab'); nav_stepleft('calout');\"></td>");
+		printf("\n<td><input type=button value=\".o&nbsp;\" onclick=\"showactive('rentab'); nav_turnleft('calout');\"></td>");
+		printf("\n<td><input type=button value=\"&nbsp;^&nbsp;\" onclick=\"showactive('rentab'); nav_stepforw('calout');\"></td>");
+		printf("\n<td><input type=button value=\"&nbsp;v&nbsp;\" onclick=\"showactive('rentab'); nav_stepback('calout');\"></td>");
+		printf("\n<td><input type=button value=\"&nbsp;o.\" onclick=\"showactive('rentab'); nav_turnrght('calout');\"></td>");
+		printf("\n<td><input type=button value=\"->\" onclick=\"showactive('rentab'); nav_steprght('calout');\"></td>");
 		}
 //	if ((isset($_SESSION['uid'])) && ($_SESSION['uid'] == "1") && !isprod()) {
 	if ((isset($_SESSION['uid'])) && ($_SESSION['uid'] == "1")) {
@@ -46,7 +47,7 @@ echo "<table border=0\n  cellspacing=0 cellpadding=0 style=\"margin-left: auto; 
 //		printf("\n<td><input type=button value=\"users\" onclick=\"users_set('calout')\"></td>");
 //		printf("\n<td><input type=button value=\"prev\" onclick=\"cal_prev('calout')\"></td>");
 		}
-	echo "\n<td><a href=\"javascript: showtest('calout');\">reset</a></td>";
+	echo "\n<td>&nbsp;<a href=\"javascript: showtest('calout');\">reset</a></td>";
 
 echo "</tr></table>\n";
 
