@@ -60,6 +60,7 @@ function hideshow(which) {
 	}
 
 function head_set(which) {
+	//  FUTURE, obsolete function?
 	headhq.url = head_display_file+'?ajax=1';
 	headhq.div = "head";
 	headhq.do_hq();
@@ -71,7 +72,7 @@ function head_login() {
 	//alert('username: ' + un + ', ' + pw);
 	headhq.url = head_display_file+'?ajax=1&username='+un+'&password='+pw;
 	headhq.div = "head";
-	headhq.do_hq();
+	headhq.do_now();  //  was .do_hq but, but this works better on slow connections
 	//alert('login 2');
  	navhq.do_now();     // refresh navigation controls
  	cal_set('calout');  // refresh dungeon view
@@ -81,7 +82,7 @@ function head_logout() {
 	//alert('logout');
 	headhq.url = head_display_file+'?ajax=0&logout';
 	headhq.div = "head";
-	headhq.do_hq();
+	headhq.do_now();  //  was .do_hq but, but this works better on slow connections
 	//alert('logout 2');
  	navhq.do_now();     // refresh navigation controls
  	cal_set('calout');  // refresh/clear dungeon view
