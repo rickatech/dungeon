@@ -65,13 +65,13 @@ site brought to you by <A HREF=http://zaptech.com/>zap technologies</A></p>
 	navhq.url = nav_display_file+'?ajax=0';
  	navhq.do_now();
 
- 	head_set('head');
+//	head_set('head');
 
 	var calhq;
- 	calhq = new class_hq('cal');
+ 	calhq = new class_hq('cal');  //  FUTURE why have both div cal wrapped around div calout?
 	calhq.url = dungeon_display_file+'?ajax=0';
  	calhq.do_now();
- 	cal_set('calout');
+ 	cal_set('calout');  //  1st pass (above) provide the 'cal' div with 'calout' div
 // End --></SCRIPT>
 
 </BODY>

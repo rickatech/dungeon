@@ -342,10 +342,15 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['uid']))
 	$v = 20;  // please login
 //  open 'home' map + character info
 //  open 'active' map
-else if (0 && !($m_home = get_map($kkk = $homemap_prefix.sprintf('%08d.txt', $_SESSION['uid'])))) {
+//else if (1 && !($m_home = get_map($kkk = $homemap_prefix.sprintf('%08d.txt', $_SESSION['uid'])))) {
+else if (1 &&
+	  (!($m_home = get_map($kkk = $data_dir.'/'.$homemap_prefix.sprintf('%08d.txt', $_SESSION['uid']))) && 
+	   !($m_home = get_map($kkk = $data_dir.'/'.'home.txt'))) 
+	  ) {
 	$v = 19;  // error
 	$msg = "Could not open home map file: ".$kkk;
 	}
+//  at this point $m_home should be valid home map
 else if (!($m = get_map($filename))) {
 	$v = 19;  // error
 	$msg = "Could not open dungeon map file.";
@@ -618,13 +623,15 @@ else {
 	}
 
 if (isset($msg))
-render($v, $msg, $nearwall, $o, $oo);
+	render($v, $msg, $nearwall, $o, $oo);
 else
-render($v);
+	render($v);
 
-if (isset($m)) {
-	if ($_SESSION['uid'] == 1) // admin/rickatech check
+if ($_SESSION['uid'] == 1) { // admin/rickatech check
+	if (isset($m))
 		print_map($m);
+	if (isset($m_home))
+		print_map($m_home);
 	}
 } ///
 ?>

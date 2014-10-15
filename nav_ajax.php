@@ -47,8 +47,12 @@ echo "<table border=0\n  cellspacing=0 cellpadding=0 style=\"margin-left: auto; 
 //		printf("\n<td><input type=button value=\"users\" onclick=\"users_set('calout')\"></td>");
 //		printf("\n<td><input type=button value=\"prev\" onclick=\"cal_prev('calout')\"></td>");
 		}
-	echo "\n<td>&nbsp;<a href=\"javascript: showtest('calout');\">reset</a></td>";
+	echo "\n<td>&nbsp;<a href=\"javascript: showactive('rentab');  showtest('calout');\">reset</a> !!!</td>";
 
 echo "</tr></table>\n";
 
+	if ($_SESSION['uid'] == 1) {  // admin/rickatech check
+		$msg .= "\n<span style=\"font-size: smaller; color: #ff0000;\">".$_SERVER['REQUEST_URI']."</span>";
+		echo "\n".$msg."\n";
+		}
 ?>
