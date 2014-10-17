@@ -324,19 +324,6 @@ else $y = 2 + $month;
 //  move into a wall, 50% chance player bumped
 //  move into another players position, both player bumped
 //  need to deal with 'torus world' x/y wrap around
-if (isset($_GET["newmap"])) {
-	echo "\nNEW MAP</br>\n";
-	$newfile = $data_dir."/new.txt";
-	$m = gen_map($m);
-	if (put_map($newfile, $m)) {
-		echo "\n<br>write map successful\n";
-		$m2 = get_map($newfile);
-		print_map($m2);
-		}
-	else
-		echo "\n<br>write map error\n";
-	}
-else { ///
 
 if (!isset($_SESSION['username']) || !isset($_SESSION['uid']))
 	$v = 20;  // please login
@@ -402,8 +389,6 @@ else {
 		}
 	else if ($cmd == 'stepback') {
 		//  strobe lock file?
-//		$m['user'][$_SESSION['uid']]['y'] =
-//		  stepwrap($m['user'][$_SESSION['uid']]['y'], $m['size'][2],  1);
 		if ($myaw < 90)        //  0
 			$ny = stepwrap($my, $m['size'][2],  1);
 		else if ($myaw < 180) //  90
@@ -416,8 +401,6 @@ else {
 		}
 	else if ($cmd == 'stepleft') {
 		//  strobe lock file?
-//		$m['user'][$_SESSION['uid']]['x'] =
-//		  stepwrap($m['user'][$_SESSION['uid']]['x'], $m['size'][1], -1);
 		if ($myaw < 90)        //  0
 			$nx = stepwrap($mx, $m['size'][1], -1);
 		else if ($myaw < 180) //  90
@@ -430,8 +413,6 @@ else {
 		}
 	else if ($cmd == 'steprght') {
 		//  strobe lock file?
-//		$m['user'][$_SESSION['uid']]['x'] =
-//		  stepwrap($m['user'][$_SESSION['uid']]['x'], $m['size'][1],  1);
 		if ($myaw < 90)        //  0
 			$nx = stepwrap($mx, $m['size'][1],  1);
 		else if ($myaw < 180) //  90
@@ -445,19 +426,31 @@ else {
 	else if ($cmd == 'turnleft') {
 		//  strobe lock file?
 		$nyaw = stepwrap($myaw, 360, -90);
-//		  stepwrap($m['user'][$_SESSION['uid']]['yaw'], 360, -90);
 		$put = 1;
 		}
 	else if ($cmd == 'turnrght') {
 		//  strobe lock file?
 		$nyaw = stepwrap($myaw, 360,  90);
-//		  stepwrap($m['user'][$_SESSION['uid']]['yaw'], 360,  90);
 		$put = 1;
 		}
 	else if ($cmd == 'passwait') { //  FUTURE
 		//  strobe lock file?
 		//  FUTURE: allow 'no nothing' command, advance map tick
 		$put = 1;
+		}
+	else if ($cmd == 'newmap') {
+		//  skip turn as though 'refresh' cmd
+		$newfile = $data_dir."/new.txt";
+		gen_map($m_new);  //  returns map by reference
+		if (put_map($newfile, $m_new)) {
+			unset($m_new);
+			if ($m_new = get_map($newfile))
+				$msg3 = "write new map successful";
+			else
+				$msg3 = "read new map error";
+			}
+		else
+			$msg3 = "write new map error";
 		}
 	//  player command?
 	$bonk = 0;
@@ -628,10 +621,13 @@ else
 	render($v);
 
 if ($_SESSION['uid'] == 1) { // admin/rickatech check
-	if (isset($m))
-		print_map($m);
-	if (isset($m_home))
-		print_map($m_home);
+	if (isset($m_new))
+		print_map($m_new);
+	else {
+		if (isset($m))
+			print_map($m);
+		if (isset($m_home))
+			print_map($m_home);
+		}
 	}
-} ///
 ?>

@@ -52,7 +52,7 @@ echo "<table border=0\n  cellspacing=0 cellpadding=0 style=\"margin-left: auto; 
 echo "</tr></table>\n";
 
 	if ($_SESSION['uid'] == 1) {  // admin/rickatech check
-		$msg .= "\n<span style=\"font-size: smaller; color: #ff0000;\">".$_SERVER['REQUEST_URI']."</span>";
+		$msg = "\n<span style=\"font-size: smaller; color: #ff0000;\">".$_SERVER['REQUEST_URI']."</span>";
 		echo "\n".$msg."\n";
 		}
 ?>

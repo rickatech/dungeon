@@ -145,7 +145,7 @@ function nav_steprght(which) {
 	}
 
 function cal_newmap(which) {
-	calhq.url = dungeon_display_file+'?ajax=1&newmap';
+	calhq.url = dungeon_display_file+'?ajax=1&cmd=newmap';
 	calhq.div = "calout";
 	calhq.do_hq();
 	}

@@ -36,10 +36,12 @@ function get_map($filename) {
 		}
 	}
 
-function print_map($m) {
+function print_map(&$m) {
 	$map_textpre = NULL;
-	for ($y = 0; $y < 64; $y++) {
-		for ($x = 0; $x < 64; $x++) {
+	$mx = $m['size'][1];
+	$my = $m['size'][2];
+	for ($y = 0; $y < $my; $y++) {
+		for ($x = 0; $x < $mx; $x++) {
 			$o = ord($m[$x][$y]);
 			if ($o == 48)
 				$map_textpre .= '&nbsp;';
@@ -80,6 +82,7 @@ function put_map($newfile, &$a) {
 	}
 
 function gen_map(&$map) {
+	//  $map  reference passed in
 	$mx = 16;
 	$my = 16;
 	// $map  passed in by reference
@@ -97,6 +100,6 @@ function gen_map(&$map) {
 	$map['size'][1] = $mx;
 	$map['size'][2] = $my;
 	//  user lines appended elsewhere
-	return $map;
+	//  return $map;
 	}
 ?>
