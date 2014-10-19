@@ -56,19 +56,19 @@ site brought to you by <A HREF=http://zaptech.com/>zap technologies</A></p>
 
 <SCRIPT LANGUAGE="JavaScript"><!-- Begin
 	var headhq;
- 	headhq = new class_hq('head');
+ 	headhq = new class_hq('head', 0);
 	headhq.url = head_display_file+'?ajax=0';
  	headhq.do_now();
 
 	var navhq;
- 	navhq = new class_hq('calnav');
+ 	navhq = new class_hq('calnav', 0);
 	navhq.url = nav_display_file+'?ajax=0';
  	navhq.do_now();
 
 //	head_set('head');
 
 	var calhq;
- 	calhq = new class_hq('cal');  //  FUTURE why have both div cal wrapped around div calout?
+ 	calhq = new class_hq('cal', function() {  newmap_toggle('map_bits');});  //  FUTURE why have both div cal wrapped around div calout?
 	calhq.url = dungeon_display_file+'?ajax=0';
  	calhq.do_now();
  	cal_set('calout');  //  1st pass (above) provide the 'cal' div with 'calout' div

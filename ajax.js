@@ -14,11 +14,12 @@ function popUp(URL) {
 	window.open(URL);
 	}
 
-function detectKey(event) {
-	if (event.keyCode == 13) { 
-		document['login'].submit();
-		}
-	}
+//deprecated?
+//function detectKey(event) {
+//	if (event.keyCode == 13) { 
+//		document['login'].submit();
+//		}
+//	}
 
 function detectKeyLogin(event) {
 	if (event.keyCode == 13) { 
@@ -40,6 +41,18 @@ function showtest(which) {
 		return;
 	document.getElementById(which).innerHTML =
 	  '<center><table style=\"margin: auto;\" id=\"rentab\"><tr><td>[ reset complete  ]</td></tr></table></center>';
+	}
+
+function newmap_toggle(which) {
+	if (!document.getElementById)
+		return;
+	if (!document.getElementById(which))
+		return;
+	//  alert('newmap ' + document.getElementById(which).value);
+	if (document.getElementById(which).value == 0)
+		newmap.disabled = false;
+	else
+		newmap.disabled = true;
 	}
 
 function showactive(which) {
@@ -204,7 +217,7 @@ function users_set(which) {
 	calhq.do_hq();
 	}
 
-function class_hq(param) {
+function class_hq(param, p2) {
 	/*  this is a 'class' to wrap around http_request  */
 
 	/*  consider adding .prototype?
@@ -212,6 +225,7 @@ function class_hq(param) {
 
 	/*  'constructor' logic goes here  */
 	this.div = param;
+	this.cb = p2;
 	//  delete(this.url);
 	//  delete(this.req);
 	var this_ref = this;  /*  var here makes this a private property  */
@@ -237,6 +251,10 @@ function class_hq(param) {
 			//	alert('do_alert() ' + this.url + ', status' + this.req.status);
 			if (this.req.status == 200) {
 				document.getElementById(this.div).innerHTML = this.req.responseText;
+				//if (this.cb > 0)
+				//	alert('ok');
+				if (this.cb && typeof(this.cb) === "function")
+					this.cb();
 				}
 			else {
 				alert('There was a problem with the request.');

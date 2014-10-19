@@ -325,26 +325,82 @@ else $y = 2 + $month;
 //  move into another players position, both player bumped
 //  need to deal with 'torus world' x/y wrap around
 
-if (!isset($_SESSION['username']) || !isset($_SESSION['uid']))
-	$v = 20;  // please login
+
+// 1  home map loaded
+// 2  play map loaded
+$map_bits = 0;
+
+if (!isset($_SESSION['username']) || !isset($_SESSION['uid'])) {
+	$map_bits |= 8;
+	}
+else {  //****
+
+$msg2 = NULL;
+$put = 0;
+if (isset($_GET['cmd'])) {
+	$cmd = $_GET["cmd"];
+	if ($_SESSION['uid'] == 1) // admin/rickatech check
+		$msg2 = 'cmd: '.$_GET['cmd'];
+	}
+else
+	$cmd = 'refresh';
+
+//  attempt to open existing home map
+//  if file exist but can't open or invalid present error
+// if no file exists, then offer prompt to create new home map
+if ($m_home = get_map($kkk = $filename = $data_dir.'/'.$homemap_prefix.sprintf('%08d.txt', $_SESSION['uid']))) {
+	//  home file was found, read
+	$map_bits |= 1;
+	$m = &$m_home;
+	}
+else {
+	if ($cmd != 'newmap') {
+	//  if (1) {
+		//  check tick, size, ... make part of get_map?
+		$msg = "Could not open home map file: ".$kkk;
+		}
+	else {
+		//  prompt to create new player home map
+	   	if ($m_home = get_map($kkk = $data_dir.'/'.'home.txt')) {
+			$map_bits |= 4;
+			$m = &$m_home;
+			//  $filename = $data_dir.'/'.$homemap_prefix.sprintf('%08d.txt', $_SESSION['uid']);
+         		$m['user'][$_SESSION['uid']]['handle'] = $_SESSION['username'];
+         		$m['user'][$_SESSION['uid']]['x'] =      $m['user'][0]['x'];
+         		$m['user'][$_SESSION['uid']]['y'] =      $m['user'][0]['y'];
+         		$m['user'][$_SESSION['uid']]['yaw'] =    $m['user'][0]['yaw'];
+         		unset($m['user'][0]);
+			//  echo "<pre>"; print_r($m); echo "</pre>";
+			$put = 1;
+			}
+		else
+			$msg = "Could not open new home map file: ".$kkk;
+		}
+	}
+if (0) {  //##
+if ($map_bits & 5) {
+	//  check for play map (non-home) map active
+	//  determine name of map in play (if any map in play)
+	if ($m_play = get_map($filename))
+		$map_bits |= 2;
+	else {
+		//  check tick, size, ... make part of get_map?
+		$msg = "Could not open play map file: ".$kkk;
+		}
+	}
+}  //##
+}  //****
+
 //  open 'home' map + character info
 //  open 'active' map
 //else if (1 && !($m_home = get_map($kkk = $homemap_prefix.sprintf('%08d.txt', $_SESSION['uid'])))) {
-else if (1 &&
-	  (!($m_home = get_map($kkk = $data_dir.'/'.$homemap_prefix.sprintf('%08d.txt', $_SESSION['uid']))) && 
-	   !($m_home = get_map($kkk = $data_dir.'/'.'home.txt'))) 
-	  ) {
+if ($map_bits & 8)
+	$v = 20;  // login please
+else if (($map_bits & 7) == 0)
 	$v = 19;  // error
-	$msg = "Could not open home map file: ".$kkk;
-	}
-//  at this point $m_home should be valid home map
-else if (!($m = get_map($filename))) {
-	$v = 19;  // error
-	$msg = "Could not open dungeon map file.";
-	}
 else if (!isset($m['tick'])) {
 	$v = 19;  // error
-	$msg = "Dungeon has no tick.";
+	$msg = "Dungeon has no tick. ".$map_bits;
 	}
 else if (!isset($m['size'])) {
 	$v = 19;  // error
@@ -360,16 +416,7 @@ else if (!isset($m['user'][$_SESSION['uid']]) ||
 	$msg = "No active dungeon for ".$_SESSION['username'];
 	}
 else {
-	$msg2 = NULL;
-	if (isset($_GET['cmd'])) {
-		$cmd = $_GET["cmd"];
-		if ($_SESSION['uid'] == 1) // admin/rickatech check
-			$msg2 = 'cmd: '.$_GET['cmd'];
-		}
-	else
-		$cmd = 'refresh';
 
-	$put = 0;
 	$msg3 = NULL;
 	//  FUTURE: check ticks, is it user's turn yet?
 	$nyaw = $myaw = $m['user'][$_SESSION['uid']]['yaw'];
@@ -440,8 +487,20 @@ else {
 		}
 	else if ($cmd == 'newmap') {
 		//  skip turn as though 'refresh' cmd
+		if (0) {  //++
 		$newfile = $data_dir."/new.txt";
 		gen_map($m_new);  //  returns map by reference
+		if (put_map($newfile, $m_new)) {
+			unset($m_new);
+			if ($m_new = get_map($newfile))
+				$msg3 = "write new map successful";
+			else
+				$msg3 = "read new map error";
+			}
+		else
+			$msg3 = "write new map error";
+		} //++
+		$newfile = $data_dir.'/'.$homemap_prefix.sprintf('%08d.txt', $_SESSION['uid']);
 		if (put_map($newfile, $m_new)) {
 			unset($m_new);
 			if ($m_new = get_map($newfile))
@@ -455,7 +514,7 @@ else {
 	//  player command?
 	$bonk = 0;
 	if ($put == 1) {
-		$m['tick'][1]++;
+		$m['tick'][1]++;  //  FUTURE: don't increment for home if play map active?
 		//  collide into a block or FUTURE other dynamic element
 		foreach ($m['user'] as $ak => $av) {
 			if ($ak != $_SESSION['uid']) {
@@ -630,4 +689,8 @@ if ($_SESSION['uid'] == 1) { // admin/rickatech check
 			print_map($m_home);
 		}
 	}
+
+//  typically, a javascript callback will be invoked after
+//  this page loads to adjust navigation button elsewhere on the page
+echo "\n\n<input id=\"map_bits\" type=hidden value=\"".$map_bits."\">\n";
 ?>

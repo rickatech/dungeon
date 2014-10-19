@@ -37,17 +37,16 @@ echo "<table border=0\n  cellspacing=0 cellpadding=0 style=\"margin-left: auto; 
 		printf("\n<td><input type=button value=\"->\" onclick=\"showactive('rentab'); nav_steprght('calout');\"></td>");
 		}
 //	if ((isset($_SESSION['uid'])) && ($_SESSION['uid'] == "1") && !isprod()) {
+	printf("\n<td><input id=\"newmap\" type=button value=\"newmap\" disabled=false onclick=\"showactive('rentab'); cal_newmap('calout');\"></td>");
 	if ((isset($_SESSION['uid'])) && ($_SESSION['uid'] == "1")) {
-		if ((isset($_SESSION['username'])) && ($_SESSION['username'] == "rickatech")) {
-			printf("\n<td><input type=button value=\"newmap\" onclick=\"showactive('rentab'); cal_newmap('calout');\"></td>");
-			}
+//		if ((isset($_SESSION['username'])) && ($_SESSION['username'] == "rickatech"))
 //		printf("\n<td><input type=button value=\"list\" onclick=\"list_set('calout')\"></td>");
 //		printf("\n<td><input type=button value=\"to do\" onclick=\"to_do_set('calout')\"></td>");
 //		printf("\n<td><input type=button value=\"book\" onclick=\"book_set('calout')\"></td>");
 //		printf("\n<td><input type=button value=\"users\" onclick=\"users_set('calout')\"></td>");
 //		printf("\n<td><input type=button value=\"prev\" onclick=\"cal_prev('calout')\"></td>");
 		}
-	echo "\n<td>&nbsp;<a href=\"javascript: showactive('rentab');  showtest('calout');\">reset</a> !!!</td>";
+	echo "\n<td>&nbsp;<a href=\"javascript: showactive('rentab');  showtest('calout');\">reset</a></td>";
 
 echo "</tr></table>\n";
 

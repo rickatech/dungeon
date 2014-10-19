@@ -63,6 +63,14 @@ function login_check($u, $p) {
 			$_SESSION['uid'] = 2;
 			return (0);
 			}
+		else if ($u == "b.perfect") {
+			$_SESSION['uid'] = 3;
+			return (0);
+			}
+		else if ($u == "alec") {
+			$_SESSION['uid'] = 4;
+			return (0);
+			}
 		else
 			return ("bad username");
 	} // ***
