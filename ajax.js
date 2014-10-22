@@ -49,10 +49,14 @@ function newmap_toggle(which) {
 	if (!document.getElementById(which))
 		return;
 	//  alert('newmap ' + document.getElementById(which).value);
-	if (document.getElementById(which).value == 0)
+	if ((document.getElementById(which).value & 15) == 0)
 		newmap.disabled = false;
 	else
 		newmap.disabled = true;
+	if (document.getElementById(which).value == 1)
+		dungeon.disabled = false;
+	else
+		dungeon.disabled = true;
 	}
 
 function showactive(which) {
@@ -159,6 +163,12 @@ function nav_steprght(which) {
 
 function cal_newmap(which) {
 	calhq.url = dungeon_display_file+'?ajax=1&cmd=newmap';
+	calhq.div = "calout";
+	calhq.do_hq();
+	}
+
+function cal_dungeon(which) {
+	calhq.url = dungeon_display_file+'?ajax=1&cmd=dungeon';
 	calhq.div = "calout";
 	calhq.do_hq();
 	}

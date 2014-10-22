@@ -191,6 +191,9 @@ if ($ajax == 0) {
 	$w[30][0] = "! * @ ";
 	$w[30][1] = " BONK!";
 	$w[30][2] = " ~ %  ";
+	$w[31][0] = "welcom";
+	$w[31][1] = "e to d";
+	$w[31][2] = "ungeon";
 
 
 	function near_far($f) {
@@ -355,9 +358,10 @@ if ($m_home = get_map($kkk = $filename = $data_dir.'/'.$homemap_prefix.sprintf('
 	}
 else {
 	if ($cmd != 'newmap') {
-	//  if (1) {
 		//  check tick, size, ... make part of get_map?
-		$msg = "Could not open home map file: ".$kkk;
+		//  $msg = "Could not open home map file: ".$kkk;
+//		$msg = "Welcome ";
+		$map_bits |= 16;
 		}
 	else {
 		//  prompt to create new player home map
@@ -396,6 +400,8 @@ if ($map_bits & 5) {
 //else if (1 && !($m_home = get_map($kkk = $homemap_prefix.sprintf('%08d.txt', $_SESSION['uid'])))) {
 if ($map_bits & 8)
 	$v = 20;  // login please
+else if ($map_bits & 16)
+	$v = 31;  // welcome
 else if (($map_bits & 7) == 0)
 	$v = 19;  // error
 else if (!isset($m['tick'])) {

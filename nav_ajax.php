@@ -38,6 +38,7 @@ echo "<table border=0\n  cellspacing=0 cellpadding=0 style=\"margin-left: auto; 
 		}
 //	if ((isset($_SESSION['uid'])) && ($_SESSION['uid'] == "1") && !isprod()) {
 	printf("\n<td><input id=\"newmap\" type=button value=\"newmap\" disabled=false onclick=\"showactive('rentab'); cal_newmap('calout');\"></td>");
+	printf("\n<td><input id=\"dungeon\" type=button value=\"dungeon\" disabled=false onclick=\"showactive('rentab'); cal_dungeon('calout');\"></td>");
 	if ((isset($_SESSION['uid'])) && ($_SESSION['uid'] == "1")) {
 //		if ((isset($_SESSION['username'])) && ($_SESSION['username'] == "rickatech"))
 //		printf("\n<td><input type=button value=\"list\" onclick=\"list_set('calout')\"></td>");
