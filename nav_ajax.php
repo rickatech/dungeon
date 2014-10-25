@@ -28,7 +28,7 @@ echo "<table border=0\n  cellspacing=0 cellpadding=0 style=\"margin-left: auto; 
 
 	echo "\n<td> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </td>";  //  white space here to balance reset below
 	printf("\n<td><input type=button value=\"refresh\" onclick=\"showactive('rentab'); cal_set('calout');\"></td>");
-	if (isset($_SESSION['uid'])) {
+	if (isset($_SESSION['uid_dg'])) {
 		printf("\n<td><input type=button value=\"<-\" onclick=\"showactive('rentab'); nav_stepleft('calout');\"></td>");
 		printf("\n<td><input type=button value=\".o&nbsp;\" onclick=\"showactive('rentab'); nav_turnleft('calout');\"></td>");
 		printf("\n<td><input type=button value=\"&nbsp;^&nbsp;\" onclick=\"showactive('rentab'); nav_stepforw('calout');\"></td>");
@@ -36,11 +36,11 @@ echo "<table border=0\n  cellspacing=0 cellpadding=0 style=\"margin-left: auto; 
 		printf("\n<td><input type=button value=\"&nbsp;o.\" onclick=\"showactive('rentab'); nav_turnrght('calout');\"></td>");
 		printf("\n<td><input type=button value=\"->\" onclick=\"showactive('rentab'); nav_steprght('calout');\"></td>");
 		}
-//	if ((isset($_SESSION['uid'])) && ($_SESSION['uid'] == "1") && !isprod()) {
+//	if ((isset($_SESSION['uid_dg'])) && ($_SESSION['uid_dg'] == "1") && !isprod()) {
 	printf("\n<td><input id=\"newmap\" type=button value=\"newmap\" disabled=false onclick=\"showactive('rentab'); cal_newmap('calout');\"></td>");
 	printf("\n<td><input id=\"dungeon\" type=button value=\"dungeon\" disabled=false onclick=\"showactive('rentab'); cal_dungeon('calout');\"></td>");
-	if ((isset($_SESSION['uid'])) && ($_SESSION['uid'] == "1")) {
-//		if ((isset($_SESSION['username'])) && ($_SESSION['username'] == "rickatech"))
+	if ((isset($_SESSION['uid_dg'])) && ($_SESSION['uid_dg'] == "1")) {
+//		if ((isset($_SESSION['username_dg'])) && ($_SESSION['username'] == "rickatech"))
 //		printf("\n<td><input type=button value=\"list\" onclick=\"list_set('calout')\"></td>");
 //		printf("\n<td><input type=button value=\"to do\" onclick=\"to_do_set('calout')\"></td>");
 //		printf("\n<td><input type=button value=\"book\" onclick=\"book_set('calout')\"></td>");
@@ -51,7 +51,7 @@ echo "<table border=0\n  cellspacing=0 cellpadding=0 style=\"margin-left: auto; 
 
 echo "</tr></table>\n";
 
-	if ($_SESSION['uid'] == 1) {  // admin/rickatech check
+	if ($_SESSION['uid_dg'] == 1) {  // admin/rickatech check
 		$msg = "\n<span style=\"font-size: smaller; color: #ff0000;\">".$_SERVER['REQUEST_URI']."</span>";
 		echo "\n".$msg."\n";
 		}

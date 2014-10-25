@@ -333,7 +333,7 @@ else $y = 2 + $month;
 // 2  play map loaded
 $map_bits = 0;
 
-if (!isset($_SESSION['username']) || !isset($_SESSION['uid'])) {
+if (!isset($_SESSION['username_dg']) || !isset($_SESSION['uid_dg'])) {
 	$map_bits |= 8;
 	}
 else {  //****
@@ -342,7 +342,7 @@ $msg2 = NULL;
 $put = 0;
 if (isset($_GET['cmd'])) {
 	$cmd = $_GET["cmd"];
-	if ($_SESSION['uid'] == 1) // admin/rickatech check
+	if ($_SESSION['uid_dg'] == 1) // admin/rickatech check
 		$msg2 = 'cmd: '.$_GET['cmd'];
 	}
 else
@@ -351,7 +351,7 @@ else
 //  attempt to open existing home map
 //  if file exist but can't open or invalid present error
 // if no file exists, then offer prompt to create new home map
-if ($m_home = get_map($kkk = $filename = $data_dir.'/'.$homemap_prefix.sprintf('%08d.txt', $_SESSION['uid']))) {
+if ($m_home = get_map($kkk = $filename = $data_dir.'/'.$homemap_prefix.sprintf('%08d.txt', $_SESSION['uid_dg']))) {
 	//  home file was found, read
 	$map_bits |= 1;
 	$m = &$m_home;
@@ -368,11 +368,11 @@ else {
 	   	if ($m_home = get_map($kkk = $data_dir.'/'.'home.txt')) {
 			$map_bits |= 4;
 			$m = &$m_home;
-			//  $filename = $data_dir.'/'.$homemap_prefix.sprintf('%08d.txt', $_SESSION['uid']);
-         		$m['user'][$_SESSION['uid']]['handle'] = $_SESSION['username'];
-         		$m['user'][$_SESSION['uid']]['x'] =      $m['user'][0]['x'];
-         		$m['user'][$_SESSION['uid']]['y'] =      $m['user'][0]['y'];
-         		$m['user'][$_SESSION['uid']]['yaw'] =    $m['user'][0]['yaw'];
+			//  $filename = $data_dir.'/'.$homemap_prefix.sprintf('%08d.txt', $_SESSION['uid_dg']);
+         		$m['user'][$_SESSION['uid_dg']]['handle'] = $_SESSION['username_dg'];
+         		$m['user'][$_SESSION['uid_dg']]['x'] =      $m['user'][0]['x'];
+         		$m['user'][$_SESSION['uid_dg']]['y'] =      $m['user'][0]['y'];
+         		$m['user'][$_SESSION['uid_dg']]['yaw'] =    $m['user'][0]['yaw'];
          		unset($m['user'][0]);
 			//  echo "<pre>"; print_r($m); echo "</pre>";
 			$put = 1;
@@ -397,7 +397,7 @@ if ($map_bits & 5) {
 
 //  open 'home' map + character info
 //  open 'active' map
-//else if (1 && !($m_home = get_map($kkk = $homemap_prefix.sprintf('%08d.txt', $_SESSION['uid'])))) {
+//else if (1 && !($m_home = get_map($kkk = $homemap_prefix.sprintf('%08d.txt', $_SESSION['uid_dg'])))) {
 if ($map_bits & 8)
 	$v = 20;  // login please
 else if ($map_bits & 16)
@@ -412,22 +412,22 @@ else if (!isset($m['size'])) {
 	$v = 19;  // error
 	$msg = "Dungeon has no size.";
 	}
-else if (!isset($m['user'][$_SESSION['uid']]) ||
-         !isset($m['user'][$_SESSION['uid']]['handle']) ||
-         !isset($m['user'][$_SESSION['uid']]['x']) ||
-         !isset($m['user'][$_SESSION['uid']]['y']) ||
-         !isset($m['user'][$_SESSION['uid']]['yaw'])) {
-	//  FUTURE: set local variable = $_SESSION['uid']?
+else if (!isset($m['user'][$_SESSION['uid_dg']]) ||
+         !isset($m['user'][$_SESSION['uid_dg']]['handle']) ||
+         !isset($m['user'][$_SESSION['uid_dg']]['x']) ||
+         !isset($m['user'][$_SESSION['uid_dg']]['y']) ||
+         !isset($m['user'][$_SESSION['uid_dg']]['yaw'])) {
+	//  FUTURE: set local variable = $_SESSION['uid_dg']?
 	$v = 19;  // error
-	$msg = "No active dungeon for ".$_SESSION['username'];
+	$msg = "No active dungeon for ".$_SESSION['username_dg'];
 	}
 else {
 
 	$msg3 = NULL;
 	//  FUTURE: check ticks, is it user's turn yet?
-	$nyaw = $myaw = $m['user'][$_SESSION['uid']]['yaw'];
-	$nx   = $mx   = $m['user'][$_SESSION['uid']]['x'];
-	$ny   = $my   = $m['user'][$_SESSION['uid']]['y'];
+	$nyaw = $myaw = $m['user'][$_SESSION['uid_dg']]['yaw'];
+	$nx   = $mx   = $m['user'][$_SESSION['uid_dg']]['x'];
+	$ny   = $my   = $m['user'][$_SESSION['uid_dg']]['y'];
 	if      ($cmd == 'stepforw') {
 		//  strobe lock file?
 		if ($myaw < 90)        //  0
@@ -491,6 +491,12 @@ else {
 		//  FUTURE: allow 'no nothing' command, advance map tick
 		$put = 1;
 		}
+	else if ($cmd == 'dungeon') { //  FUTURE
+		//  strobe lock file?
+		//  FUTURE: allow 'no nothing' command, advance map tick
+		$msg3 = "enter dungeon";
+		//  $put = 1;
+		}
 	else if ($cmd == 'newmap') {
 		//  skip turn as though 'refresh' cmd
 		if (0) {  //++
@@ -506,7 +512,7 @@ else {
 		else
 			$msg3 = "write new map error";
 		} //++
-		$newfile = $data_dir.'/'.$homemap_prefix.sprintf('%08d.txt', $_SESSION['uid']);
+		$newfile = $data_dir.'/'.$homemap_prefix.sprintf('%08d.txt', $_SESSION['uid_dg']);
 		if (put_map($newfile, $m_new)) {
 			unset($m_new);
 			if ($m_new = get_map($newfile))
@@ -523,15 +529,15 @@ else {
 		$m['tick'][1]++;  //  FUTURE: don't increment for home if play map active?
 		//  collide into a block or FUTURE other dynamic element
 		foreach ($m['user'] as $ak => $av) {
-			if ($ak != $_SESSION['uid']) {
+			if ($ak != $_SESSION['uid_dg']) {
 				if ($av['x'] == $nx && $av['y'] == $ny)
 					$bonk = 1;
 				}
 			}
 		if ($bonk == 0 && $m[$nx][$ny] == 0) {
-			$m['user'][$_SESSION['uid']]['yaw'] = $nyaw;
-			$m['user'][$_SESSION['uid']]['x']   = $nx;
-			$m['user'][$_SESSION['uid']]['y']   = $ny;
+			$m['user'][$_SESSION['uid_dg']]['yaw'] = $nyaw;
+			$m['user'][$_SESSION['uid_dg']]['x']   = $nx;
+			$m['user'][$_SESSION['uid_dg']]['y']   = $ny;
 			}
 		else {
 			//  $msg2 = "BONK! ".$msg2;
@@ -550,9 +556,9 @@ else {
 	//  when user clicks move/attack/... button
 	//  it will check map tick vs session before making request
 	$_SESSION['tick'] = $m['tick'][1];
-	$x   = $m['user'][$_SESSION['uid']]['x'];
-	$y   = $m['user'][$_SESSION['uid']]['y'];
-	$yaw = $m['user'][$_SESSION['uid']]['yaw'];
+	$x   = $m['user'][$_SESSION['uid_dg']]['x'];
+	$y   = $m['user'][$_SESSION['uid_dg']]['y'];
+	$yaw = $m['user'][$_SESSION['uid_dg']]['yaw'];
 
 	/*  get_map_players  */
 	//  [ new code goes here ]
@@ -640,7 +646,7 @@ else {
 		$msg .= "\n<br>".$msg3;
 	if ($msg2)
 		$msg .= "\n<br>".$msg2;
-	if ($_SESSION['uid'] == 1) // admin/rickatech check
+	if ($_SESSION['uid_dg'] == 1) // admin/rickatech check
 		$msg .= "\n<br><span style=\"font-size: smaller; color: #ff0000;\">".$_SERVER['REQUEST_URI']."</span>";
 	/*  modifying map for display purposes,
         /*  NEVER SAVE THIS?  */
@@ -685,7 +691,7 @@ if (isset($msg))
 else
 	render($v);
 
-if ($_SESSION['uid'] == 1) { // admin/rickatech check
+if ($_SESSION['uid_dg'] == 1) { // admin/rickatech check
 	if (isset($m_new))
 		print_map($m_new);
 	else {

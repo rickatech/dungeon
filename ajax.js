@@ -84,10 +84,10 @@ function head_set(which) {
 	}
 
 function head_login() {
-	un = document.getElementById("username").value;
+	un = document.getElementById("username_dg").value;
 	pw = document.getElementById("password").value;
 	//alert('username: ' + un + ', ' + pw);
-	headhq.url = head_display_file+'?ajax=1&username='+un+'&password='+pw;
+	headhq.url = head_display_file+'?ajax=1&username_dg='+un+'&password='+pw;
 	headhq.div = "head";
 	headhq.do_now();  //  was .do_hq but, but this works better on slow connections
 	//alert('login 2');

@@ -5,4 +5,6 @@ Checkout dungeon code from git
 mkdir test
 chmod 777 test
 
+These file must be copied from elsewhere to seed the server
 copy home.txt to test/
+copy dungeon.txt to test/
