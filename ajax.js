@@ -44,19 +44,38 @@ function showtest(which) {
 	}
 
 function newmap_toggle(which) {
+	//  typically this is called for map_bits
 	if (!document.getElementById)
 		return;
 	if (!document.getElementById(which))
 		return;
-	//  alert('newmap ' + document.getElementById(which).value);
-	if ((document.getElementById(which).value & 15) == 0)
+	//  new user, no map, welcome
+	if ((mb = document.getElementById(which).value & 15) == 0) {
 		newmap.disabled = false;
-	else
+		document.getElementById('newmap').style.display = '';
+		}
+	else {
 		newmap.disabled = true;
-	if (document.getElementById(which).value == 1)
+		document.getElementById('newmap').style.display = 'none';
+		}
+	//  user on home map
+	if (mb == 1) {
 		dungeon.disabled = false;
-	else
+		document.getElementById('dungeon').style.display = '';
+		}
+	else {
 		dungeon.disabled = true;
+		document.getElementById('dungeon').style.display = 'none';
+		}
+	//  user on away map
+	if (mb & 34) {
+		give_up.disabled = false;
+		document.getElementById('give_up').style.display = '';
+		}
+	else {
+		give_up.disabled = true;
+		document.getElementById('give_up').style.display = 'none';
+		}
 	}
 
 function showactive(which) {
@@ -169,6 +188,12 @@ function cal_newmap(which) {
 
 function cal_dungeon(which) {
 	calhq.url = dungeon_display_file+'?ajax=1&cmd=dungeon';
+	calhq.div = "calout";
+	calhq.do_hq();
+	}
+
+function cal_giveup(which) {
+	calhq.url = dungeon_display_file+'?ajax=1&cmd=giveup';
 	calhq.div = "calout";
 	calhq.do_hq();
 	}

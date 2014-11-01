@@ -12,11 +12,25 @@ function get_map($filename) {
 				}
 			else if ($data[0] == 'size') {
 				$new_map['size'][0] = 'size';
-				$new_map['size'][1] = $data[1];
-				$new_map['size'][2] = $data[2];
+				$new_map['size'][1] = $data[1];  //  x
+				$new_map['size'][2] = $data[2];  //  y
+				}
+			else if ($data[0] == 'away') {
+				$new_map['away'][0] = 'away';
+				$new_map['away'][1] = $data[1];  //  uid
+				$new_map['away'][2] = $data[2];  //  name
+				$new_map['away'][3] = $data[3];  //  map
+				}
+			else if ($data[0] == 'left') {
+				$new_map['left'][0] = 'left';
+				$new_map['left'][1] = $data[1];  //  uid
+				$new_map['left'][2] = $data[2];  //  name
+				$new_map['left'][3] = $data[3];  //  x
+				$new_map['left'][4] = $data[4];  //  y
+				$new_map['left'][5] = $data[5];  //  yaw
 				}
 			else if ($data[0] == 'user') {
-				//  then add extra field for chat name
+				//  then add extra field for chat name, FUTURE use named attibutes above?
 				$new_map['user'][$data[1]]['handle'] = $data[2];
 				$new_map['user'][$data[1]]['x'] =      $data[3];
 				$new_map['user'][$data[1]]['y'] =      $data[4];

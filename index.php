@@ -72,6 +72,20 @@ site brought to you by <A HREF=http://zaptech.com/>zap technologies</A></p>
 	calhq.url = dungeon_display_file+'?ajax=0';
  	calhq.do_now();
  	cal_set('calout');  //  1st pass (above) provide the 'cal' div with 'calout' div
+
+	//  Audio setup - experiemental
+	//  see nav_ajax.php for test buttons
+	//  http://www.online-convert.com/
+	//  http://stackoverflow.com/questions/1933969/sound-effects-in-javascript-html5
+	//  http://www.wavsource.com/sfx/sfx.htm
+	//  http://html5doctor.com/native-audio-in-the-browser/
+	//  http://diveintohtml5.info/detect.html
+//  if (new Audio()).canPlayType("audio/ogg; codecs=vorbis")
+//if (createElement.canPlayType("audio/ogg; codecs=vorbis")
+//    var snd = new Audio("gong.ogg"); // buffers automatically when created
+//else
+//    var snd = new Audio("gong.wav"); // buffers automatically when created
+//snd.play();`
 // End --></SCRIPT>
 
 </BODY>

@@ -11,7 +11,7 @@ session_start();
 
 //  service configuration parameters
 $data_dir = "test";
-$filename = $data_dir."/test.txt";
+//  $filename = $data_dir."/test.txt";
 $homemap_prefix = 'user';
 //  user00000001.txt, 'user' + uid of user + '.txt', player's home map
 //  home.txt,                           new player home map 'template'
@@ -194,6 +194,9 @@ if ($ajax == 0) {
 	$w[31][0] = "welcom";
 	$w[31][1] = "e to d";
 	$w[31][2] = "ungeon";
+	$w[32][0] = "refres";
+	$w[32][1] = "h to p";
+	$w[32][2] = "roceed";
 
 
 	function near_far($f) {
@@ -329,8 +332,13 @@ else $y = 2 + $month;
 //  need to deal with 'torus world' x/y wrap around
 
 
-// 1  home map loaded
-// 2  play map loaded
+//   1  home map loaded, existing
+//   2  play map loaded, existing
+//   4  home map loaded, new default
+//   2  login required
+//  16  new user, no home, welcome
+//  32  play map loaded, new default
+//  ??  generate new map, FUTURE
 $map_bits = 0;
 
 if (!isset($_SESSION['username_dg']) || !isset($_SESSION['uid_dg'])) {
@@ -340,6 +348,7 @@ else {  //****
 
 $msg2 = NULL;
 $put = 0;
+
 if (isset($_GET['cmd'])) {
 	$cmd = $_GET["cmd"];
 	if ($_SESSION['uid_dg'] == 1) // admin/rickatech check
@@ -351,9 +360,11 @@ else
 //  attempt to open existing home map
 //  if file exist but can't open or invalid present error
 // if no file exists, then offer prompt to create new home map
-if ($m_home = get_map($kkk = $filename = $data_dir.'/'.$homemap_prefix.sprintf('%08d.txt', $_SESSION['uid_dg']))) {
+$file_home = $data_dir.'/'.$homemap_prefix.sprintf('%08d.txt', $_SESSION['uid_dg']);
+if ($m_home = get_map($kkk = $file_home)) {
 	//  home file was found, read
 	$map_bits |= 1;
+	//  THIS IS IT, mark home map is in play
 	$m = &$m_home;
 	}
 else {
@@ -367,8 +378,8 @@ else {
 		//  prompt to create new player home map
 	   	if ($m_home = get_map($kkk = $data_dir.'/'.'home.txt')) {
 			$map_bits |= 4;
+			//  THIS IS IT, mark home map is in play
 			$m = &$m_home;
-			//  $filename = $data_dir.'/'.$homemap_prefix.sprintf('%08d.txt', $_SESSION['uid_dg']);
          		$m['user'][$_SESSION['uid_dg']]['handle'] = $_SESSION['username_dg'];
          		$m['user'][$_SESSION['uid_dg']]['x'] =      $m['user'][0]['x'];
          		$m['user'][$_SESSION['uid_dg']]['y'] =      $m['user'][0]['y'];
@@ -381,18 +392,69 @@ else {
 			$msg = "Could not open new home map file: ".$kkk;
 		}
 	}
-if (0) {  //##
 if ($map_bits & 5) {
-	//  check for play map (non-home) map active
-	//  determine name of map in play (if any map in play)
-	if ($m_play = get_map($filename))
-		$map_bits |= 2;
-	else {
-		//  check tick, size, ... make part of get_map?
-		$msg = "Could not open play map file: ".$kkk;
+	if (isset($m_home['away']) && isset($m_home['away'][3])) {  //  8888
+		//  check for play map (non-home) map active
+		//  determine name of map in play (if any map in play)
+		$file_dungeon = $data_dir.'/'.$m_home['away'][3].'.txt';
+		if ($m_play = get_map($file_dungeon))
+			$map_bits |= 2;
+		else {
+			//  prompt to create new player home map
+		   	if ($m_play = get_map($kkk = $data_dir.'/'.'dungeon.txt'))
+				$map_bits |= 32;
+			else
+				$msg = "Could not open play map file: ".$kkk;
+			}
+		if ($map_bits & 34) {
+			//  THIS IS IT, mark dungeon map is in play
+			$m = &$m_play;
+			if (!isset($m_play['user'][$_SESSION['uid_dg']])) {
+	       	  		$m['user'][$_SESSION['uid_dg']]['handle'] = $_SESSION['username_dg'];
+				if (isset($m['left'])) {
+					//  PLACE USER IN MAP AT LAST LOCATION, FUTURE, collision?
+	       				$m['user'][$_SESSION['uid_dg']]['x'] =      $m['left'][3];
+	      		 		$m['user'][$_SESSION['uid_dg']]['y'] =      $m['left'][4];
+	       				$m['user'][$_SESSION['uid_dg']]['yaw'] =    $m['left'][5];
+					//  REMOVE LEFT USER FROM AWAY MAP
+					unset($m['left']);
+					}
+				else {
+					//  FUTURE: new location hints, algorytm?
+		       			$m['user'][$_SESSION['uid_dg']]['x'] =      7;
+		       			$m['user'][$_SESSION['uid_dg']]['y'] =      7;
+		       			$m['user'][$_SESSION['uid_dg']]['yaw'] =    0;
+					}
+				$put = 1;
+				}
+			}
+	//  !!! check play map tick, size, ... make part of get_map?
+	//  !!! check play map tick, size, ... make part of get_map?
+	//  !!! check play map tick, size, ... make part of get_map?
+	//  !!! check play map tick, size, ... make part of get_map?
+	//  !!! check play map tick, size, ... make part of get_map?
+	//  !!! check play map tick, size, ... make part of get_map?
+	//  !!! check play map tick, size, ... make part of get_map?
+	//  !!! check play map tick, size, ... make part of get_map?
+	//  !!! check play map tick, size, ... make part of get_map?
+	//  !!! check play map tick, size, ... make part of get_map?
+	//  if give up command
+	//    - dungeon map, unset user location, set put = 1 (maybe place NPC?)
+	//    - home map,    unset away, unset last, set player location, set home put = 1
+		}  //  8888
+	else if (isset($m['left'])) {
+		//  enter here if user returning from away map, i.e. recently gave up
+		//  PLACE USER IN MAP AT LAST LOCATION, FUTURE, collision?
+       	  	$m['user'][$_SESSION['uid_dg']]['handle'] = $_SESSION['username_dg'];
+       		$m['user'][$_SESSION['uid_dg']]['x'] =      $m['left'][3];
+       		$m['user'][$_SESSION['uid_dg']]['y'] =      $m['left'][4];
+       		$m['user'][$_SESSION['uid_dg']]['yaw'] =    $m['left'][5];
+		//  REMOVE LEFT USER FROM AWAY MAP
+		unset($m['left']);
+		$put = 1;
 		}
 	}
-}  //##
+
 }  //****
 
 //  open 'home' map + character info
@@ -402,8 +464,10 @@ if ($map_bits & 8)
 	$v = 20;  // login please
 else if ($map_bits & 16)
 	$v = 31;  // welcome
-else if (($map_bits & 7) == 0)
-	$v = 19;  // error
+else if (($map_bits & 5) == 0)
+	$v = 19;  // error, couldn't load home map
+else if (isset($m_home['away']) && ($map_bits & 34) == 0)
+	$v = 19;  // error, couldn't load away map 
 else if (!isset($m['tick'])) {
 	$v = 19;  // error
 	$msg = "Dungeon has no tick. ".$map_bits;
@@ -419,15 +483,18 @@ else if (!isset($m['user'][$_SESSION['uid_dg']]) ||
          !isset($m['user'][$_SESSION['uid_dg']]['yaw'])) {
 	//  FUTURE: set local variable = $_SESSION['uid_dg']?
 	$v = 19;  // error
-	$msg = "No active dungeon for ".$_SESSION['username_dg'];
+	$msg = "No active dungeon for ".$_SESSION['username_dg'].", ".$map_bits;
 	}
 else {
-
+	$put_home_return = 0;
+	$bonk_1 = 0;
 	$msg3 = NULL;
 	//  FUTURE: check ticks, is it user's turn yet?
 	$nyaw = $myaw = $m['user'][$_SESSION['uid_dg']]['yaw'];
 	$nx   = $mx   = $m['user'][$_SESSION['uid_dg']]['x'];
 	$ny   = $my   = $m['user'][$_SESSION['uid_dg']]['y'];
+
+	//  player commands, after maps loaded and validated
 	if      ($cmd == 'stepforw') {
 		//  strobe lock file?
 		if ($myaw < 90)        //  0
@@ -493,9 +560,36 @@ else {
 		}
 	else if ($cmd == 'dungeon') { //  FUTURE
 		//  strobe lock file?
-		//  FUTURE: allow 'no nothing' command, advance map tick
+		//  away, user is no longer active in home map, instead at named map
+		$m['away'] = array('away', $_SESSION['uid_dg'], $_SESSION['username_dg'], 'test');
+		//  left, location user was last active on home map
+		$m['left'] = array('left', $_SESSION['uid_dg'], $_SESSION['username_dg'],
+		  $m['user'][$_SESSION['uid_dg']]['x'],
+		  $m['user'][$_SESSION['uid_dg']]['y'],
+		  $m['user'][$_SESSION['uid_dg']]['yaw']);
+		$bonk_1 = 1;
+		//  echo "0 <pre>"; print_r($m['user']); echo "</pre>";
+		//  REMOVE USE FROM HOME MAP
+		unset($m['user'][$_SESSION['uid_dg']]);
 		$msg3 = "enter dungeon";
-		//  $put = 1;
+		$put = 1;
+		//  echo "1 <pre>"; print_r($m['user']); echo "</pre>";
+		}
+	else if ($cmd == 'giveup') { //  FUTURE
+		//  strobe lock file?
+		//  away, user is no longer active in away map, return user to home map
+		$m['left'] = array('left', $_SESSION['uid_dg'], $_SESSION['username_dg'],
+		  $m['user'][$_SESSION['uid_dg']]['x'],
+		  $m['user'][$_SESSION['uid_dg']]['y'],
+		  $m['user'][$_SESSION['uid_dg']]['yaw']);
+		$bonk_1 = 1;
+		//  REMOVE USE FROM AWAY MAP
+		unset($m['user'][$_SESSION['uid_dg']]);
+		$msg3 = "give up";
+		$put = 1;
+		//  REMOVE USE FROM AWAY MAP
+		unset($m_home['away']);
+		$put_home_return = 1;
 		}
 	else if ($cmd == 'newmap') {
 		//  skip turn as though 'refresh' cmd
@@ -523,33 +617,81 @@ else {
 		else
 			$msg3 = "write new map error";
 		}
-	//  player command?
+
 	$bonk = 0;
 	if ($put == 1) {
 		$m['tick'][1]++;  //  FUTURE: don't increment for home if play map active?
-		//  collide into a block or FUTURE other dynamic element
+		//  collide into another user or FUTURE other dynamic element
 		foreach ($m['user'] as $ak => $av) {
 			if ($ak != $_SESSION['uid_dg']) {
 				if ($av['x'] == $nx && $av['y'] == $ny)
 					$bonk = 1;
 				}
 			}
-		if ($bonk == 0 && $m[$nx][$ny] == 0) {
+		//  echo "2 <pre>"; print_r($m['user']); echo "</pre>";
+		// collide into environment (i.e. static object)
+		if ($bonk_1 == 1) {
+			$v = 8;  //  show blank wall, entering dungeon!
+			//  FUTURE: load in new non-home map?
+			}
+		else if ($bonk == 0 && $m[$nx][$ny] == 0) {
 			$m['user'][$_SESSION['uid_dg']]['yaw'] = $nyaw;
 			$m['user'][$_SESSION['uid_dg']]['x']   = $nx;
 			$m['user'][$_SESSION['uid_dg']]['y']   = $ny;
 			}
-		else {
+		else  {
 			//  $msg2 = "BONK! ".$msg2;
 			$bonk = 1;
 			$v = 30;
 			}
-		if (put_map($filename, $m))
-			$msg3 = 'write map successful';
+		//  echo "3 <pre>"; print_r($m['user']); echo "</pre>";
+		if ($map_bits & 34)
+			$file_put = $file_dungeon;
+		else
+			$file_put = $file_home;
+		if (put_map($file_put, $m))
+			$msg3 = 'write map successful: '.$file_put;
 		else {
 			//  FUTURE, revert session updating x,y,yaw?
-			$msg3 = 'write map error';
+			$msg3 = 'write map error: '.$file_put;
 			}
+		}
+
+	//  player leaving away map, returning to home map
+	if ($put_home_return == 1) {
+		if ($cmd == 'giveup') {
+			$file_put = $file_home;
+			if (put_map($file_put, $m_home))
+				$msg3 .= 'write map successful: '.$file_put;
+			else {
+				//  FUTURE, revert session updating x,y,yaw?
+				$msg3 .= 'write map error: '.$file_put;
+				}
+			}
+		}
+
+	$put_away_chain = 0;
+	//  FUTURE: proceed from one away map to another away map
+	if ($put_away_chain == 1) {
+		}
+
+	if ($bonk_1 == 1) {
+		$v = 32;  //  show blank wall, entering dungeon!
+		//  FUTURE: load in new non-home map?
+		}
+
+	if ($map_bits & 34) {
+		//  give up button
+		//  any hmoe map updates needed?
+		//  any hmoe map updates needed?
+		//  any hmoe map updates needed?
+		//  any hmoe map updates needed?
+		//  any hmoe map updates needed?
+		//  any hmoe map updates needed?
+		//  any hmoe map updates needed?
+		//  any hmoe map updates needed?
+		//  any hmoe map updates needed?
+		//  any hmoe map updates needed?
 		}
 
 	//  setting session here is very important
@@ -638,7 +780,7 @@ else {
 	if ($view['b'][1] == 1) { $f = $f +  2;  $z[1] = 1; }
 	if ($view['c'][1] == 1) { $f = $f +  1;  $z[2] = 1; }
 
-	if ($bonk != 1)
+	if ($bonk != 1 && $bonk_1 != 1)
 		$v = near_far($f);
 	//  $msg = "view: ".$v.", field: ".$f." tick: ".$m['tick']." x, y = ".$x.", ".$y;
 	$msg = "view: ".$v.", field: ".$f." tick: ".$_SESSION['tick']." x, y = ".$x.", ".$y." ".$yaw;
@@ -691,12 +833,15 @@ if (isset($msg))
 else
 	render($v);
 
-if ($_SESSION['uid_dg'] == 1) { // admin/rickatech check
+//  echo "<pre>"; print_r($m['user']); echo "</pre>";
+if (isset($_SESSION['uid_dg']) && ($_SESSION['uid_dg'] == 1)) { // admin/rickatech check
 	if (isset($m_new))
 		print_map($m_new);
 	else {
-		if (isset($m))
+		if (isset($m)) {
 			print_map($m);
+			//  echo "<pre>"; print_r($m); echo "</pre>";
+			}
 		if (isset($m_home))
 			print_map($m_home);
 		}
