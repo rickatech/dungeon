@@ -1,4 +1,5 @@
 <?PHP	date_default_timezone_set('America/Los_Angeles');  // otherwise PHP warnings
+	include "config.php";
 	include "session.php";  // identical session code used for daytimer?
 	//include "dungeon_nav.php";  /// MUST pair with ajax.js 
 	//  FUTURE: change session from ID to ID_DG so that daytimer doesn't use same session?
@@ -31,11 +32,19 @@ UL.ALT {
 
 <script type="text/JavaScript" src="ajax.js"></script> 
 </HEAD>
+<?PHP
+	if (isset($isprod) && $isprod)
+		echo "<body style=\"-webkit-text-size-adjust:none;\">";
+	else
+		echo "<body style=\"-webkit-text-size-adjust:none; background: #ffdfdf;\">";  ?>
 
-<body style="-webkit-text-size-adjust:none">
 <TABLE WIDTH=100% BORDER=1><TR>
 <TD VALIGN=TOP id="today" id="head-today"><?php  printf("%s today", date('Y-m-d'));  ?></TD>
-<TD VALIGN=TOP ALIGN=CENTER id="head-title"><B>Dungeon</B></TD>
+<TD VALIGN=TOP ALIGN=CENTER id="head-title"><B><?PHP
+	if (isset($title))
+		echo $title; 
+	else
+		echo "Test Instance";  ?></B></TD>
 <TD ALIGN=RIGHT><div id="head">[ loading ... ]</div></td>
 </TR></TABLE>
 

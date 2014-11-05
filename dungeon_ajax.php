@@ -269,7 +269,7 @@ if ($ajax == 0) {
 				$r1[2] = $oo; $r1[3] = $oo;
 				$r2[2] = $oo; $r2[3] = $oo; }
 			}
-		echo "<center><table style=\"margin: auto:\"><tr>\n<td id=\"rentab\" style=\"".$bs."\">\n";
+		echo "<center><table style=\"margin: auto;  background: #ffffff;\"><tr>\n<td id=\"rentab\" style=\"".$bs."\">\n";
 		printf("<pre style=\"font-size: 72px; margin-bottom: 0px;\">%s\n%s\n%s</pre>",
 		    $r0, $r1, $r2);
 		echo "</td>\n</tr></table>\n";
