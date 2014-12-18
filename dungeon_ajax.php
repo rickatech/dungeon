@@ -299,12 +299,14 @@ else if (isset($_GET["view"]))
 else
 	$v = 4;
 
-if (isset($_GET["x"]))
-	$x = $_GET["x"];
-else $x = 2 + $day;
-if (isset($_GET["y"]))
-	$y = $_GET["y"];
-else $y = 2 + $month;
+if (0) {
+	if (isset($_GET["x"]))
+		$x = $_GET["x"];
+	else $x = 2 + $day;
+	if (isset($_GET["y"]))
+		$y = $_GET["y"];
+	else $y = 2 + $month;
+	}
 
 //  HEY, here's where we detect display no action refresh, or command + display refresh!!!
 //  if no command ... skip command processing ... get map, return display
@@ -564,8 +566,7 @@ else {
 		}
 	else if ($cmd == 'dungeon') { //  FUTURE
 		//  strobe lock file?
-		//  away, user is no longer active in home map, instead at named map
-		//  place away in home map
+		//  PLACE USER AWAY FROM HOME MAP, CITE AWAY MAP
 		$m_home['away'] = array('away', $_SESSION['uid_dg'], $_SESSION['username_dg'], 'test');
 		//  left, location user was last active on home map
 		//  SSS
@@ -577,7 +578,7 @@ else {
 		  'yaw'    => $m['user'][$_SESSION['uid_dg']]['yaw']);
 		$bonk_1 = 1;
 		//  echo "0 <pre>"; print_r($m['user']); echo "</pre>";
-		//  REMOVE USE FROM HOME MAP
+		//  REMOVE USER FROM HOME MAP
 		unset($m['user'][$_SESSION['uid_dg']]);
 		$msg3 = "enter dungeon";
 		$put = 1;
@@ -596,7 +597,7 @@ else {
 		unset($m['user'][$_SESSION['uid_dg']]);
 		$msg3 = "give up";
 		$put = 1;
-		//  REMOVE USER FROM AWAY MAP
+		//  REMOVE USER AWAY FROM HOME MAP
 		unset($m_home['away']);
 		$put_home_return = 1;
 		}
@@ -683,7 +684,7 @@ else {
 			$file_put = $file_dungeon;
 		else
 			$file_put = $file_home;
-		echo "\n[active]\n<pre>"; print_r($m); echo "</pre>";
+		//  echo "\n[active]\n<pre>"; print_r($m); echo "</pre>";
 		if (put_map($file_put, $m))
 			$msg3 = 'write map successful: '.$file_put;
 		else {
@@ -696,7 +697,7 @@ else {
 	if ($put_home_return == 1) {
 		if ($cmd == 'giveup') {
 			$file_put = $file_home;
-			echo "\n[home]\n<pre>"; print_r($m_home); echo "</pre>";
+			//  echo "\n[home]\n<pre>"; print_r($m_home); echo "</pre>";
 			if (put_map($file_put, $m_home))
 				$msg3 .= 'write map successful: '.$file_put;
 			else {
@@ -732,10 +733,21 @@ else {
 		//  any hmoe map updates needed?
 		}
 
-	//  setting session here is very important
+	//  setting session here is very important, FUTURE: is it?  backend will catch anyway?
 	//  when user clicks move/attack/... button
 	//  it will check map tick vs session before making request
 	$_SESSION['tick'] = $m['tick'][1];
+	$nearwall = 0;
+	if (!isset($m['user'][$_SESSION['uid_dg']])) {
+		//  when player is switching maps, player has 'no location' until they refresh
+		//  echo "<pre> you are not active </pre>";
+		$mapchanging = 1;
+		}
+
+	else {
+		$mapchanging = 0;
+		//  ZZZZ
+
 	$x   = $m['user'][$_SESSION['uid_dg']]['x'];
 	$y   = $m['user'][$_SESSION['uid_dg']]['y'];
 	$yaw = $m['user'][$_SESSION['uid_dg']]['yaw'];
@@ -753,7 +765,6 @@ else {
 	//           x+1,y+1 | x,y+1 | x-1,y+1
 	//  yaw 270: x-2,y+1 | x-2,y | x-2,y-1
 	//           x-1,y+1 | x-1,y | x-1,y-1
-	$nearwall = 0;
 	if ($yaw < 90) {  //   0
 		$nearwall |= $m[$x                             ][stepwrap($y, $m['size'][2], -1)] ? 1 : 0;
 		$nearwall |= $m[stepwrap($x, $m['size'][1], -1)][$y                             ] ? 2 : 0;
@@ -820,14 +831,22 @@ else {
 
 	if ($bonk != 1 && $bonk_1 != 1)
 		$v = near_far($f);
+
+		//  ZZZZ
+		}
 	//  $msg = "view: ".$v.", field: ".$f." tick: ".$m['tick']." x, y = ".$x.", ".$y;
-	$msg = "view: ".$v.", field: ".$f." tick: ".$_SESSION['tick']." x, y = ".$x.", ".$y." ".$yaw;
+	$msg = "view: ".(isset($v) ? $v : 'N/A').
+               ", field: ".(isset($f) ? $f : 'N/A').
+               " tick: ".$_SESSION['tick']." x, y = 
+	       ".(isset($x) ? $x : 'N/A').", ".(isset($y) ? $y : 'N/A').
+	       " ".(isset($yaw) ? $yaw : 'N/A');
 	if ($msg3)
 		$msg .= "\n<br>".$msg3;
 	if ($msg2)
 		$msg .= "\n<br>".$msg2;
 	if ($_SESSION['uid_dg'] == 1) // admin/rickatech check
 		$msg .= "\n<br><span style=\"font-size: smaller; color: #ff0000;\">".$_SERVER['REQUEST_URI']."</span>";
+
 	/*  modifying map for display purposes,
         /*  NEVER SAVE THIS?  */
 	//  $m[$x][$y] = '*';
@@ -835,33 +854,35 @@ else {
 	$oo = NULL;
 	foreach ($m['user'] as $ak => $av) {
 		//  FUTURE: user scan is done in code prior to here, consolidate?
-		if ($av['x'] == $x && $av['y'] == $y)
+		if (!$mapchanging && $av['x'] == $x && $av['y'] == $y)
 			$m[$x][$y] = '*';
 		else {
 			$m[$av['x']][$av['y']] = '+';
-			if ($yaw < 90) {
-				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -2))	
-					$o = $av['handle'][0];
-				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -1))	
-					$oo = $av['handle'][0];
-				}
-			else if ($yaw < 180) {
-				if ($av['y'] == $y && $av['x'] == stepwrap($x, $m['size'][1],  2))	
-					$o = $av['handle'][0];
-				if ($av['y'] == $y && $av['x'] == stepwrap($x, $m['size'][1],  1))	
-					$oo = $av['handle'][0];
-				}
-			else if ($yaw < 270) {
-				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  2))	
-					$o = $av['handle'][0];
-				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  1))	
-					$oo = $av['handle'][0];
-				}
-			else {
-				if ($av['y'] == $y && $av['x'] == stepwrap($x, $m['size'][1], -2))	
-					$o = $av['handle'][0];
-				if ($av['y'] == $y && $av['x'] == stepwrap($x, $m['size'][1], -1))	
-					$oo = $av['handle'][0];
+			if (!$mapchanging) {
+				if ($yaw < 90) {
+					if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+						$o = $av['handle'][0];
+					if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -1))	
+						$oo = $av['handle'][0];
+					}
+				else if ($yaw < 180) {
+					if ($av['y'] == $y && $av['x'] == stepwrap($x, $m['size'][1],  2))	
+						$o = $av['handle'][0];
+					if ($av['y'] == $y && $av['x'] == stepwrap($x, $m['size'][1],  1))	
+						$oo = $av['handle'][0];
+					}
+				else if ($yaw < 270) {
+					if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+						$o = $av['handle'][0];
+					if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  1))	
+						$oo = $av['handle'][0];
+					}
+				else {
+					if ($av['y'] == $y && $av['x'] == stepwrap($x, $m['size'][1], -2))	
+						$o = $av['handle'][0];
+					if ($av['y'] == $y && $av['x'] == stepwrap($x, $m['size'][1], -1))	
+						$oo = $av['handle'][0];
+					}
 				}
 			}
 		}
@@ -874,8 +895,8 @@ else
 
 //  echo "<pre>"; print_r($m['user']); echo "</pre>";
 if (isset($_SESSION['uid_dg']) && ($_SESSION['uid_dg'] == 1)) { // admin/rickatech check
-	//  echo "\n<div style=\"display: none;\" id=\"map_hidden_0\">\n";
-	echo "\n<div style=\"display: block;\" id=\"map_hidden_0\">\n";
+	echo "\n<div style=\"display: none;\" id=\"map_hidden_0\">\n";
+	//  echo "\n<div style=\"display: block;\" id=\"map_hidden_0\">\n";
 	if (isset($m_new)) {
 		print_map($m_new);
 		}
