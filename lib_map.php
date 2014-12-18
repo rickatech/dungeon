@@ -22,19 +22,26 @@ function get_map($filename) {
 				$new_map['away'][3] = $data[3];  //  map
 				}
 			else if ($data[0] == 'left') {
-				$new_map['left'][0] = 'left';
-				$new_map['left'][1] = $data[1];  //  uid
-				$new_map['left'][2] = $data[2];  //  name
-				$new_map['left'][3] = $data[3];  //  x
-				$new_map['left'][4] = $data[4];  //  y
-				$new_map['left'][5] = $data[5];  //  yaw
+				//  FUTURE use named attibutes above?
+				$new_map['left'][$data[1]]['handle'] = $data[2];  //  name
+				$new_map['left'][$data[1]]['x'] =      $data[3];  //  x
+				$new_map['left'][$data[1]]['y'] =      $data[4];  //  y
+				$new_map['left'][$data[1]]['yaw'] =    $data[5];  //  yaw
+				//$new_map['left'][0] = 'left';
+				//$new_map['left'][1] = $data[1];  //  uid
+				//$new_map['left'][2] = $data[2];  //  name
+				//$new_map['left'][3] = $data[3];  //  x
+				//$new_map['left'][4] = $data[4];  //  y
+				//$new_map['left'][5] = $data[5];  //  yaw
 				}
 			else if ($data[0] == 'user') {
 				//  then add extra field for chat name, FUTURE use named attibutes above?
-				$new_map['user'][$data[1]]['handle'] = $data[2];
-				$new_map['user'][$data[1]]['x'] =      $data[3];
-				$new_map['user'][$data[1]]['y'] =      $data[4];
-				$new_map['user'][$data[1]]['yaw'] =    $data[5];
+				$new_map['user'][$data[1]]['handle'] = $data[2];  //  name
+				$new_map['user'][$data[1]]['x'] =      $data[3];  //  x
+				$new_map['user'][$data[1]]['y'] =      $data[4];  //  y
+				$new_map['user'][$data[1]]['yaw'] =    $data[5];  //  yaw
+				if (isset($data[6]))
+					$new_map['user'][$data[1]]['hit'] =    $data[6];
 				$user++;
 				}
 			else
@@ -80,6 +87,14 @@ function put_map($newfile, &$a) {
 			if ($ak === 'user') {
 				foreach ($av as $bv) {
 					$user = array('user', key($av), $bv['handle'],
+					  $bv['x'], $bv['y'], $bv['yaw']);
+					next($av);
+					fputcsv($fh, $user);
+					}
+				}
+			else if ($ak === 'left') {
+				foreach ($av as $bv) {
+					$user = array('left', key($av), $bv['handle'],
 					  $bv['x'], $bv['y'], $bv['yaw']);
 					next($av);
 					fputcsv($fh, $user);

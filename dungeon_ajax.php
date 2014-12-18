@@ -411,13 +411,13 @@ if ($map_bits & 5) {
 			$m = &$m_play;
 			if (!isset($m_play['user'][$_SESSION['uid_dg']])) {
 	       	  		$m['user'][$_SESSION['uid_dg']]['handle'] = $_SESSION['username_dg'];
-				if (isset($m['left'])) {
+				if (isset($m['left'][$_SESSION['uid_dg']])) {
 					//  PLACE USER IN MAP AT LAST LOCATION, FUTURE, collision?
-	       				$m['user'][$_SESSION['uid_dg']]['x'] =      $m['left'][3];
-	      		 		$m['user'][$_SESSION['uid_dg']]['y'] =      $m['left'][4];
-	       				$m['user'][$_SESSION['uid_dg']]['yaw'] =    $m['left'][5];
+	       				$m['user'][$_SESSION['uid_dg']]['x'] =      $m['left'][$_SESSION['uid_dg']]['x'];
+	      		 		$m['user'][$_SESSION['uid_dg']]['y'] =      $m['left'][$_SESSION['uid_dg']]['y'];
+	       				$m['user'][$_SESSION['uid_dg']]['yaw'] =    $m['left'][$_SESSION['uid_dg']]['yaw'];
 					//  REMOVE LEFT USER FROM AWAY MAP
-					unset($m['left']);
+					unset($m['left'][$_SESSION['uid_dg']]);
 					}
 				else {
 					//  FUTURE: new location hints, algorytm?
@@ -442,15 +442,16 @@ if ($map_bits & 5) {
 	//    - dungeon map, unset user location, set put = 1 (maybe place NPC?)
 	//    - home map,    unset away, unset last, set player location, set home put = 1
 		}  //  8888
-	else if (isset($m['left'])) {
+	else if (isset($m['left'][$_SESSION['uid_dg']])) {
 		//  enter here if user returning from away map, i.e. recently gave up
 		//  PLACE USER IN MAP AT LAST LOCATION, FUTURE, collision?
-       	  	$m['user'][$_SESSION['uid_dg']]['handle'] = $_SESSION['username_dg'];
-       		$m['user'][$_SESSION['uid_dg']]['x'] =      $m['left'][3];
-       		$m['user'][$_SESSION['uid_dg']]['y'] =      $m['left'][4];
-       		$m['user'][$_SESSION['uid_dg']]['yaw'] =    $m['left'][5];
+       	  	$m['user'][$_SESSION['uid_dg']]['handle'] = $m['left'][$_SESSION['uid_dg']]['handle'];
+       		$m['user'][$_SESSION['uid_dg']]['x'] =      $m['left'][$_SESSION['uid_dg']]['x'];
+       		$m['user'][$_SESSION['uid_dg']]['y'] =      $m['left'][$_SESSION['uid_dg']]['y'];
+       		$m['user'][$_SESSION['uid_dg']]['yaw'] =    $m['left'][$_SESSION['uid_dg']]['yaw'];
 		//  REMOVE LEFT USER FROM AWAY MAP
-		unset($m['left']);
+		//  unset($m['left']);
+		unset($m['left'][$_SESSION['uid_dg']]);
 		$put = 1;
 		}
 	}
@@ -493,6 +494,9 @@ else {
 	$nyaw = $myaw = $m['user'][$_SESSION['uid_dg']]['yaw'];
 	$nx   = $mx   = $m['user'][$_SESSION['uid_dg']]['x'];
 	$ny   = $my   = $m['user'][$_SESSION['uid_dg']]['y'];
+
+	//  opponent, check if opponent is targeted AND action command
+	//  load up opponent home map
 
 	//  player commands, after maps loaded and validated
 	if      ($cmd == 'stepforw') {
@@ -561,12 +565,16 @@ else {
 	else if ($cmd == 'dungeon') { //  FUTURE
 		//  strobe lock file?
 		//  away, user is no longer active in home map, instead at named map
-		$m['away'] = array('away', $_SESSION['uid_dg'], $_SESSION['username_dg'], 'test');
+		//  place away in home map
+		$m_home['away'] = array('away', $_SESSION['uid_dg'], $_SESSION['username_dg'], 'test');
 		//  left, location user was last active on home map
-		$m['left'] = array('left', $_SESSION['uid_dg'], $_SESSION['username_dg'],
-		  $m['user'][$_SESSION['uid_dg']]['x'],
-		  $m['user'][$_SESSION['uid_dg']]['y'],
-		  $m['user'][$_SESSION['uid_dg']]['yaw']);
+		//  SSS
+		//  FUTURE: left needs to be like user, allow mulitple lefts/map
+		$m_home['left'][$_SESSION['uid_dg']] = array(
+		  'handle' => $_SESSION['username_dg'],
+		  'x'      => $m['user'][$_SESSION['uid_dg']]['x'],
+		  'y'      => $m['user'][$_SESSION['uid_dg']]['y'],
+		  'yaw'    => $m['user'][$_SESSION['uid_dg']]['yaw']);
 		$bonk_1 = 1;
 		//  echo "0 <pre>"; print_r($m['user']); echo "</pre>";
 		//  REMOVE USE FROM HOME MAP
@@ -578,16 +586,17 @@ else {
 	else if ($cmd == 'giveup') { //  FUTURE
 		//  strobe lock file?
 		//  away, user is no longer active in away map, return user to home map
-		$m['left'] = array('left', $_SESSION['uid_dg'], $_SESSION['username_dg'],
-		  $m['user'][$_SESSION['uid_dg']]['x'],
-		  $m['user'][$_SESSION['uid_dg']]['y'],
-		  $m['user'][$_SESSION['uid_dg']]['yaw']);
+		$m['left'][$_SESSION['uid_dg']] = array(
+		  'handle' => $_SESSION['username_dg'],
+		  'x'      => $m['user'][$_SESSION['uid_dg']]['x'],
+		  'y'      => $m['user'][$_SESSION['uid_dg']]['y'],
+		  'yaw'    => $m['user'][$_SESSION['uid_dg']]['yaw']);
 		$bonk_1 = 1;
-		//  REMOVE USE FROM AWAY MAP
+		//  REMOVE USER FROM AWAY MAP
 		unset($m['user'][$_SESSION['uid_dg']]);
 		$msg3 = "give up";
 		$put = 1;
-		//  REMOVE USE FROM AWAY MAP
+		//  REMOVE USER FROM AWAY MAP
 		unset($m_home['away']);
 		$put_home_return = 1;
 		}
@@ -617,38 +626,64 @@ else {
 		else
 			$msg3 = "write new map error";
 		}
+	else if ($cmd == 'doaction') {
+		//  else if (isset($_POST['username_dg']) && isset($_POST['password']) && (!isset($_SESSION['username_dg']))) {
+		$msg3 = "do action";
+		//  we should already have play map loaded, which means all active players and NPC's too
+		//    - confirm the target is present in play map
+		//    - check target range
+		//    - if tag, increment target tag count:
+		//      next tick for that characer they should get processed as giveup with appropriate messaging
+		}
 
 	$bonk = 0;
-	if ($put == 1) {
-		$m['tick'][1]++;  //  FUTURE: don't increment for home if play map active?
-		//  collide into another user or FUTURE other dynamic element
-		foreach ($m['user'] as $ak => $av) {
-			if ($ak != $_SESSION['uid_dg']) {
+	//  Dynamic objects
+	//  Check if collide into another user or FUTURE other dynamic element
+	//  TTTT, prepare list of available 'targets'
+	foreach ($m['user'] as $ak => $av) {
+		if ($ak != $_SESSION['uid_dg']) {
+			if ($put == 1) {
 				if ($av['x'] == $nx && $av['y'] == $ny)
 					$bonk = 1;
 				}
 			}
-		//  echo "2 <pre>"; print_r($m['user']); echo "</pre>";
-		// collide into environment (i.e. static object)
-		if ($bonk_1 == 1) {
-			$v = 8;  //  show blank wall, entering dungeon!
-			//  FUTURE: load in new non-home map?
-			}
-		else if ($bonk == 0 && $m[$nx][$ny] == 0) {
+		}
+	$rx = $mx;  $ry = $my;
+	//  Static objects
+	//  Check if collide into environment
+	if ($bonk == 0 && $put == 1 && $bonk_1 == 0) {
+		//  if not already collided, and put request, and not proactively leaving map
+		if ($m[$nx][$ny] == 0) {
 			$m['user'][$_SESSION['uid_dg']]['yaw'] = $nyaw;
-			$m['user'][$_SESSION['uid_dg']]['x']   = $nx;
-			$m['user'][$_SESSION['uid_dg']]['y']   = $ny;
+			$m['user'][$_SESSION['uid_dg']]['x']   = $rx = $nx;
+			$m['user'][$_SESSION['uid_dg']]['y']   = $ry = $ny;
 			}
-		else  {
-			//  $msg2 = "BONK! ".$msg2;
+		else
 			$bonk = 1;
-			$v = 30;
+		}
+	if ($bonk > 0)
+		$v = 30;  //  $msg2 = "BONK! ".$msg2;
+	//  Calculate targets ranges
+	$trgt_qty = 0;
+	foreach ($m['user'] as $ak => $av) {
+		if ($ak != $_SESSION['uid_dg']) {
+			//  echo $ak.": ".print_r($av, true)."\n";
+			$rv = abs($av['x'] - $rx) + abs($av['y'] - $ry);  //  FUTURE: fast Pythagorean Theorem
+			//    abs($MAX + $av['x] - $rx) ...
+			//  FUTURE: what about wrap around range edge case?
+			//          dungeon flag if no wrap around?
+			$trgt_val[$trgt_qty] = $ak.",".$av['handle'].",".$rv;
+			$trgt_qty++;
 			}
-		//  echo "3 <pre>"; print_r($m['user']); echo "</pre>";
+		}
+
+	if ($put == 1) {
+		$m['tick'][1]++;  //  FUTURE: don't increment for home if play map active?
 		if ($map_bits & 34)
 			$file_put = $file_dungeon;
 		else
 			$file_put = $file_home;
+		echo "\n[active]\n<pre>"; print_r($m); echo "</pre>";
 		if (put_map($file_put, $m))
 			$msg3 = 'write map successful: '.$file_put;
 		else {
@@ -661,6 +696,7 @@ else {
 	if ($put_home_return == 1) {
 		if ($cmd == 'giveup') {
 			$file_put = $file_home;
+			echo "\n[home]\n<pre>"; print_r($m_home); echo "</pre>";
 			if (put_map($file_put, $m_home))
 				$msg3 .= 'write map successful: '.$file_put;
 			else {
@@ -669,6 +705,8 @@ else {
 				}
 			}
 		}
+
+	//  opponent map, update (only allow one for now)
 
 	$put_away_chain = 0;
 	//  FUTURE: proceed from one away map to another away map
@@ -796,6 +834,7 @@ else {
 	$o = NULL;
 	$oo = NULL;
 	foreach ($m['user'] as $ak => $av) {
+		//  FUTURE: user scan is done in code prior to here, consolidate?
 		if ($av['x'] == $x && $av['y'] == $y)
 			$m[$x][$y] = '*';
 		else {
@@ -835,19 +874,36 @@ else
 
 //  echo "<pre>"; print_r($m['user']); echo "</pre>";
 if (isset($_SESSION['uid_dg']) && ($_SESSION['uid_dg'] == 1)) { // admin/rickatech check
-	if (isset($m_new))
+	//  echo "\n<div style=\"display: none;\" id=\"map_hidden_0\">\n";
+	echo "\n<div style=\"display: block;\" id=\"map_hidden_0\">\n";
+	if (isset($m_new)) {
 		print_map($m_new);
+		}
 	else {
 		if (isset($m)) {
 			print_map($m);
 			//  echo "<pre>"; print_r($m); echo "</pre>";
 			}
-		if (isset($m_home))
-			print_map($m_home);
+	//	if (isset($m_home))
+	//		print_map($m_home);
 		}
+	echo "\n</div>\n";
 	}
 
 //  typically, a javascript callback will be invoked after
 //  this page loads to adjust navigation button elsewhere on the page
 echo "\n\n<input id=\"map_bits\" type=hidden value=\"".$map_bits."\">\n";
+//  available targets
+echo "\n\n<input id=\"trgt_qty\" type0=hidden value=\"".$trgt_qty."\">\n";
+for ($i = 0; $i < $trgt_qty; $i++)
+	echo "\n\n<input id=\"trgt_val_".$i."\" type0=hidden value=\"".$trgt_val[$i]."\">\n";
+echo "\n\n<input id=\"actn_qty\" type0=hidden value=\"1\">\n";
+echo "\n\n<input id=\"actn_val_0\" type0=hidden value=\"tag\">\n";
+//  FUTURE: add additional elements for:
+//    - active players on this map (including range/stats?
+//    - available actions
+//  FUTURE: replace input, with JSON?
+//  http://viralpatel.net/blogs/dynamic-add-textbox-input-button-radio-element-html-javascript/
+//  http://stackoverflow.com/questions/9338205/javascript-explode-equivilent
+//  FUTURE: target: id,handle,range
 ?>

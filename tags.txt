@@ -1,0 +1,6 @@
+Annotated tags
+201412a
+Reasonably stable version before actions (e.g. tag) development started.
+Note, 'left' past player state change soon after this to behave like
+the multiple capable 'user' player state.
+

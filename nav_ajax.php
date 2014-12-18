@@ -23,19 +23,44 @@ if ($ajax == 0) {
 //	echo "[ calnav ]</div><!--  calnav  -->";
 //	return;
 	}
+
 echo "<table border=0\n  cellspacing=0 cellpadding=0 style=\"margin-left: auto; margin-right: auto;\";><tr>";
 //  dungeon_render();
 
-	echo "\n<td> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </td>";  //  white space here to balance reset below
+//echo "\n<td> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </td>";  //  white space here to balance reset below
+if (isset($_GET['nav'])) {  //  nav=2 only for now, yes?
+	if (isset($_SESSION['uid_dg'])) {
+		//  http://www.elated.com/articles/html-checkboxes-radio-buttons-select-form-fields/
+		//  show nearby objects radio buttons, followed by actions drop down
+		//  Actions
+		echo "<td><select id=\"toy\" name=\"toy\" style=\"display0: inline;\">";
+		echo "  <optgroup label=\"Actions\">";
+		echo "  <option>tag</option>";
+		echo "  <option disabled=disabled>dungeon</option>";
+		echo "  <option disabled=disabled>give up</option>";
+		echo "  <option disabled=disabled>new map</option>";
+		echo "  <option disabled=disabled>pass</option>";
+		echo "  </optgroup>";
+		echo "</select>";
+		//  Targets, not all action need targets
+echo "\n<br><input type=\"radio\" name=\"favourite_colour\" value=\"red\" checked> henauker
+<br><input type=\"radio\" name=\"favourite_colour\" value=\"orange\"> Orange
+<br><input type=\"radio\" name=\"favourite_colour\" value=\"pink\"> Pink ";
+//	echo "\n<br><input type=button value=\"tag henauker\" onclick=\"showactive('rentab'); cal_set('calout');\">".rand(0, 4);."</td>";
+	echo "\n<br><input type=button value=\"action\" onclick=\"showactive('rentab'); cal_set('calout');\">".$_GET['nav'].mt_rand()."</td>";
+		}
+	}
+	
+else {  //  @@@@
 	printf("\n<td><input type=button value=\"refresh\" onclick=\"showactive('rentab'); cal_set('calout');\"></td>");
 //	printf("\n<td><input type=button value=\"gong\" onclick=\"snd.play();\"></td>");
 	if (isset($_SESSION['uid_dg'])) {
-		printf("\n<td><input type=button value=\"<-\" onclick=\"showactive('rentab'); nav_stepleft('calout');\"></td>");
-		printf("\n<td><input type=button value=\".o&nbsp;\" onclick=\"showactive('rentab'); nav_turnleft('calout');\"></td>");
-		printf("\n<td><input type=button value=\"&nbsp;^&nbsp;\" onclick=\"showactive('rentab'); nav_stepforw('calout');\"></td>");
-		printf("\n<td><input type=button value=\"&nbsp;v&nbsp;\" onclick=\"showactive('rentab'); nav_stepback('calout');\"></td>");
-		printf("\n<td><input type=button value=\"&nbsp;o.\" onclick=\"showactive('rentab'); nav_turnrght('calout');\"></td>");
-		printf("\n<td><input type=button value=\"->\" onclick=\"showactive('rentab'); nav_steprght('calout');\"></td>");
+		printf("\n<td><input type=button value=\".o&nbsp;\"      onclick=\"showactive('rentab'); nav_turnleft('calout');\">");
+		printf("\n<br><input type=button value=\"<-\"            onclick=\"showactive('rentab'); nav_stepleft('calout');\"></td>");
+		printf("\n<td><input type=button value=\"&nbsp;^&nbsp;\" onclick=\"showactive('rentab'); nav_stepforw('calout');\">");
+		printf("\n<br><input type=button value=\"&nbsp;v&nbsp;\" onclick=\"showactive('rentab'); nav_stepback('calout');\"></td>");
+		printf("\n<td><input type=button value=\"&nbsp;o.\"      onclick=\"showactive('rentab'); nav_turnrght('calout');\">");
+		printf("\n<br><input type=button value=\"->\"            onclick=\"showactive('rentab'); nav_steprght('calout');\"></td>");
 		echo "\n  <td><input id=\"newmap\"  type=button value=\"newmap\"";
 		echo "\n    disabled=false onclick=\"showactive('rentab'); cal_newmap('calout');\"  style=\"display: none;\"></td>";
 		echo "\n  <td><input id=\"dungeon\" type=button value=\"dungeon\"";
@@ -45,7 +70,6 @@ echo "<table border=0\n  cellspacing=0 cellpadding=0 style=\"margin-left: auto; 
 		}
 	if ((isset($_SESSION['uid_dg'])) && ($_SESSION['uid_dg'] == "1")) {
 //		if ((isset($_SESSION['username_dg'])) && ($_SESSION['username'] == "rickatech"))
-//		printf("\n<td><input type=button value=\"list\" onclick=\"list_set('calout')\"></td>");
 //		printf("\n<td><input type=button value=\"to do\" onclick=\"to_do_set('calout')\"></td>");
 //		printf("\n<td><input type=button value=\"book\" onclick=\"book_set('calout')\"></td>");
 //		printf("\n<td><input type=button value=\"users\" onclick=\"users_set('calout')\"></td>");
@@ -53,10 +77,12 @@ echo "<table border=0\n  cellspacing=0 cellpadding=0 style=\"margin-left: auto; 
 		}
 	echo "\n<td>&nbsp;<a href=\"javascript: showactive('rentab');  showtest('calout');\">reset</a></td>";
 
+	}  //  @@@@
 echo "</tr></table>\n";
 
-	if (isset($_SESSION['uid_dg']) && $_SESSION['uid_dg'] == 1) {  // admin/rickatech check
-		$msg = "\n<span style=\"font-size: smaller; color: #ff0000;\">".$_SERVER['REQUEST_URI']."</span>";
-		echo "\n".$msg."\n";
-		}
+if (isset($_SESSION['uid_dg']) && $_SESSION['uid_dg'] == 1) {  // admin/rickatech check
+	if (!isset($msg)) $msg ='';
+	$msg .= "\n<span style=\"font-size: smaller; color: #ff0000;\">".$_SERVER['REQUEST_URI']."</span>";
+	echo "\n".$msg."\n";
+	}
 ?>

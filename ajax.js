@@ -1,11 +1,13 @@
 //  http://www.crockford.com/javascript/private.html
 
+//  global, creation defered until use
+//  FUTURE: prefix var, allocated during prepocessor?
+//  FYI: without var prefix variables are global, allocated when invokation
 dungeon_display_file = 'dungeon_ajax.php';
 head_display_file =    'head_ajax.php';
 nav_display_file =     'nav_ajax.php';
 
 function popUp(URL) {
-
 	day = new Date();
 	id = day.getTime();
 //	args = 'toolbar = 0, scrollbars = 0, location = 0, statusbar = 0, menubar = 0';
@@ -41,41 +43,6 @@ function showtest(which) {
 		return;
 	document.getElementById(which).innerHTML =
 	  '<center><table style=\"margin: auto;\" id=\"rentab\"><tr><td>[ reset complete  ]</td></tr></table></center>';
-	}
-
-function newmap_toggle(which) {
-	//  typically this is called for map_bits
-	if (!document.getElementById)
-		return;
-	if (!document.getElementById(which))
-		return;
-	//  new user, no map, welcome
-	if ((mb = document.getElementById(which).value & 15) == 0) {
-		newmap.disabled = false;
-		document.getElementById('newmap').style.display = '';
-		}
-	else {
-		newmap.disabled = true;
-		document.getElementById('newmap').style.display = 'none';
-		}
-	//  user on home map
-	if (mb == 1) {
-		dungeon.disabled = false;
-		document.getElementById('dungeon').style.display = '';
-		}
-	else {
-		dungeon.disabled = true;
-		document.getElementById('dungeon').style.display = 'none';
-		}
-	//  user on away map
-	if (mb & 34) {
-		give_up.disabled = false;
-		document.getElementById('give_up').style.display = '';
-		}
-	else {
-		give_up.disabled = true;
-		document.getElementById('give_up').style.display = 'none';
-		}
 	}
 
 function showactive(which) {
@@ -124,6 +91,43 @@ function head_logout() {
  	cal_set('calout');  // refresh/clear dungeon view
 	}
 
+function nav_refresh_alt(which) {
+	//navhq.url = nav_display_file+'?ajax=1&cmd=stepforw';
+	navhq.url = nav_display_file+'?ajax=0&nav=2';
+	navhq.div = "dgnav2";
+	navhq.do_now();
+	}
+
+function nav_stepback(which) {
+	calhq.url = dungeon_display_file+'?ajax=1&cmd=stepback';
+	calhq.div = "calout";
+	calhq.do_hq();
+	}
+
+function nav_stepleft(which) {
+	calhq.url = dungeon_display_file+'?ajax=1&cmd=stepleft';
+	calhq.div = "calout";
+	calhq.do_hq();
+	}
+
+function nav_steprght(which) {
+	calhq.url = dungeon_display_file+'?ajax=1&cmd=steprght';
+	calhq.div = "calout";
+	calhq.do_hq();
+	}
+
+function cal_newmap(which) {
+	calhq.url = dungeon_display_file+'?ajax=1&cmd=newmap';
+	calhq.div = "calout";
+	calhq.do_hq();
+	}
+
+function cal_dungeon(which) {
+	calhq.url = dungeon_display_file+'?ajax=1&cmd=dungeon';
+	calhq.div = "calout";
+	calhq.do_hq();
+	}
+
 function cal_set(which) {
 	//  future: supported GET parameters should be in a config file
 	//  future: ghost set/prev buttons until refresh is complete
@@ -152,6 +156,30 @@ function cal_set(which) {
 		if (f.value.length != 0)
 			calhq.url = calhq.url + '&filter=' + f.value;
 		}
+	calhq.div = "calout";
+	calhq.do_hq();
+	}
+
+function nav_doaction(which, a, b, c) {
+	var as;
+	var ax;
+	var ae;                 //  local, preprocessor allocated immediately
+	var axc = [];
+	var av = 'none';
+	var tv = 'none';
+	//  FUTURE: convert to post request?
+	if (as = document.getElementById('nav2_sel'))
+		av = as.value;
+	if (ax = document.getElementsByName('target')) {
+		for (var i = 0; i < ax.length; i++) {
+			if (ax[i].checked) {
+				if (ae = document.getElementById('trgt_inp_'+i)) {
+					tv = ae.value;
+					}
+				}
+			}
+		}
+	calhq.url = dungeon_display_file+'?ajax=1&cmd=doaction&act='+av+'&han='+tv;
 	calhq.div = "calout";
 	calhq.do_hq();
 	}
@@ -225,12 +253,6 @@ function cal_prev(which) {
 			}
 		cal_set(which);
 		}
-	}
-
-function list_set(which) {
-	calhq.url = 'ajax_list.php?offset=0&range=400';
-	calhq.div = "calout";
-	calhq.do_hq();
 	}
 
 function to_do_set(which) {
@@ -329,6 +351,127 @@ function formpop(appt) {
 	else {
 		newWindow = window.open("popup/appt.php?appt="+appt,
 		  "newWin", "status=yes, width=300, height=360");
+		}
+	}
+
+function newmap_toggle(which) {
+	//  typically this is called for map_bits
+	if (!document.getElementById)
+		return;
+	if (!document.getElementById(which))
+		return;
+	//  new user, no map, welcome
+	if ((mb = document.getElementById(which).value & 15) == 0) {
+		newmap.disabled = false;
+		document.getElementById('newmap').style.display = '';
+		}
+	else {
+		newmap.disabled = true;
+		document.getElementById('newmap').style.display = 'none';
+		}
+	//  user on home map
+	if (mb == 1) {
+		dungeon.disabled = false;
+		document.getElementById('dungeon').style.display = '';
+		}
+	else {
+		dungeon.disabled = true;
+		document.getElementById('dungeon').style.display = 'none';
+		}
+	//  user on away map
+	if (mb & 34) {
+		give_up.disabled = false;
+		document.getElementById('give_up').style.display = '';
+		}
+	else {
+		give_up.disabled = true;
+		document.getElementById('give_up').style.display = 'none';
+		}
+	//  JJJJ, instead of ajaxing in server side alt nav, look at cal hidden elements, then dynamic javascript to replace/overwrite the nav2 html?
+	nav2_div = document.getElementById("dgnav2");  //  FUTURE: what if undefined?
+	while (nav2_div.firstChild) {
+		//  alert('remove sel');
+		nav2_div.removeChild(nav2_div.firstChild);  //  does this handle nested children too?
+		}
+	if (document.getElementById('nav2_sel')) {
+		nav2_sel0 = document.getElementById("nav2_sel");
+//		alert('remove sel');
+//		while (nav2_sel0.firstChild) {
+//			alert('remove sel');
+//			nav2_sel0.removeChild(nav2_sel0.firstChild);
+//			}
+		}
+	else {
+  	 	nav2_sel0 = document.createElement("select");
+		nav2_sel0.setAttribute("id", "nav2_sel");
+		}
+//	div: nav2_div
+//	  select: nav2_sel0
+//	    optgroup: nav2_sel_og0
+//	      option: nav2_sel_opt
+//	nav2_div = document.getElementById("dgnav2");
+	nav2_div.appendChild(nav2_sel0);
+    	nav2_sel_og0 = document.createElement("optgroup");
+	  nav2_sel_og0.setAttribute("label", "Actions");
+	  nav2_sel0.appendChild(nav2_sel_og0);
+    	nav2_sel_opt = document.createElement("option");
+	  nav2_sel_opt.setAttribute("text", "tag");
+	  nav2_sel_opt.setAttribute("id", "tag");
+	  nav2_sel_opt.text = 'tag';
+	  nav2_sel_opt.value = 'tag';
+	  nav2_sel_og0.appendChild(nav2_sel_opt);
+//	nav2_sel0.appendChild(nav2_sel_opt);
+//	delete nav2_sel0;
+	if (document.getElementById('trgt_qty')) {
+		ajax_test = document.getElementById('trgt_qty').value;
+		for (i = 0; i < ajax_test; i++) {
+			if (i == 0) {
+				if (document.getElementById('nav2_sel')) {
+					nav2_sel0 = document.getElementById("nav2_sel");
+		//			alert('remove sel');
+		//			while (nav2_sel0.firstChild) {
+		//				alert('remove sel');
+		//				nav2_sel0.removeChild(nav2_sel0.firstChild);
+		//				}
+					}
+				}
+			if (document.getElementById('trgt_val_'+i)) {
+				ajax_test2 = document.getElementById('trgt_val_'+i).value;
+    				new_inpt = document.createElement("br");
+				  nav2_div.appendChild(new_inpt);
+    				new_inpt = document.createElement("input");
+				  new_inpt.setAttribute("type", "radio");
+				  new_inpt.setAttribute("value", ajax_test2);
+				  new_inpt.setAttribute("id", 'trgt_inp_'+i);
+				  new_inpt.setAttribute("name", 'target');
+				  if (i == 0) new_inpt.setAttribute("checked", "");
+				  nav2_div.appendChild(new_inpt);
+    				  new_inpt = document.createTextNode(ajax_test2);
+				  nav2_div.appendChild(new_inpt);
+				}
+			}
+		}
+    	new_inpt = document.createElement("br");
+	nav2_div.appendChild(new_inpt);
+    	new_inpt = document.createElement("input");
+	new_inpt.setAttribute("type", "button");
+	new_inpt.setAttribute("value", 'action');
+//	new_inpt.setAttribute("onclick", "showactive('rentab'); nav_doaction('calout');");
+	new_inpt.setAttribute("onclick", "showactive('rentab'); nav_doaction('calout', 'tag', 0, 0);");
+//	QQQQ
+//	http://stackoverflow.com/questions/133925/javascript-post-request-like-a-form-submit
+//	new_inpt.setAttribute("onclick", "showactive('rentab'); cal_set('calout');");
+//	type=button value=\"&nbsp;^&nbsp;\" onclick=\"showactive('rentab'); nav_stepforw('calout');\">");
+	nav2_div.appendChild(new_inpt);
+	if (0) {
+		nav_refresh_alt('dgnav2');
+		//  alert('poo');
+		//  ajax_test = "test javascript div contents set";
+		if (document.getElementById('map_hidden_0')) {
+			ajax_test = document.getElementById('map_hidden_0').innerHTML;
+			document.getElementById('dgnav3').innerHTML = ajax_test;
+			}
+		alert('poo 2');
 		}
 	}
 

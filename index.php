@@ -5,8 +5,19 @@
 	//  FUTURE: change session from ID to ID_DG so that daytimer doesn't use same session?
 	//  rename ajax.js?
 ?><HTML>
-<HEAD>
-<meta name = "viewport" content = "width = 600"><!--  iPhone hint  -->
+<HEAD><?PHP
+if (!isset($_GET['debug'])) {
+	//  iPhone hint
+//	$meta_viewport = "width=600";
+//	$meta_viewport = "width=600, minimal-ui, user-scalable=no";
+//	$meta_viewport = "width=520, minimal-ui, user-scalable=no>";
+//	$meta_viewport = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
+//	$meta_viewport = "width=600, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
+//	$meta_viewport = "width=520,          initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui";
+        $meta_viewport = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui";
+	echo "\n<meta name=\"viewport\" content=\"".$meta_viewport."\">";
+	}  ?>
+
 <TITLE>Dungeon</TITLE>
 <STYLE TYPE="TEXT/CSS"><!--
 BODY {
@@ -58,6 +69,12 @@ echo "\n\n<!--  calnav  --><div id=\"calnav\" style=\"display: block; text-align
 
 // main display div
 echo "\n\n<!--  cal  --><div id=\"cal\" style=\"display: block;\">[ calendar ]</div><!--  cal  -->\n";
+
+// lower navigation, controls
+echo "\n\n<div id=\"dgnav2\" style=\"display: block; text-align: center;\">[ loading ... ]</div>\n";
+
+// lower map display
+echo "\n\n<div id=\"dgnav3\" style=\"display: block; text-align: center;\">[ map loading ... ]</div>\n";
 ?>
 
 <p style="font-size: smaller; font-style: italic; margin: 0px; text-align: center;">this
@@ -81,6 +98,16 @@ site brought to you by <A HREF=http://zaptech.com/>zap technologies</A></p>
 	calhq.url = dungeon_display_file+'?ajax=0';
  	calhq.do_now();
  	cal_set('calout');  //  1st pass (above) provide the 'cal' div with 'calout' div
+
+//	var nv2hq;
+// 	navhq = new class_hq('dgnav2', 0);
+//	navhq.url = nav_display_file+'?ajax=0&nav=2';
+	//  JJJJ
+ 	// navhq.do_now();
+
+	//  FUTURE: put 'map' in seperate div
+	//  have main dungaon ... php place map in hideen div, then copy if to this div?
+	//  http://stackoverflow.com/questions/921290/is-it-possible-to-clone-html-element-objects-in-javascript-jquery
 
 	//  Audio setup - experiemental
 	//  see nav_ajax.php for test buttons
