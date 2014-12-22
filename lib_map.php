@@ -87,7 +87,7 @@ function put_map($newfile, &$a) {
 			if ($ak === 'user') {
 				foreach ($av as $bv) {
 					$user = array('user', key($av), $bv['handle'],
-					  $bv['x'], $bv['y'], $bv['yaw']);
+					  $bv['x'], $bv['y'], $bv['yaw'], isset($bv['hit']) ? $bv['hit'] : 0);
 					next($av);
 					fputcsv($fh, $user);
 					}

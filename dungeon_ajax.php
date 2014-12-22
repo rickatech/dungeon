@@ -13,6 +13,7 @@ session_start();
 $data_dir = "test";
 //  $filename = $data_dir."/test.txt";
 $homemap_prefix = 'user';
+$maxhit = 3;
 //  user00000001.txt, 'user' + uid of user + '.txt', player's home map
 //  home.txt,                           new player home map 'template'
 
@@ -418,6 +419,7 @@ if ($map_bits & 5) {
 	       				$m['user'][$_SESSION['uid_dg']]['x'] =      $m['left'][$_SESSION['uid_dg']]['x'];
 	      		 		$m['user'][$_SESSION['uid_dg']]['y'] =      $m['left'][$_SESSION['uid_dg']]['y'];
 	       				$m['user'][$_SESSION['uid_dg']]['yaw'] =    $m['left'][$_SESSION['uid_dg']]['yaw'];
+		       			$m['user'][$_SESSION['uid_dg']]['hit'] =  $maxhit;
 					//  REMOVE LEFT USER FROM AWAY MAP
 					unset($m['left'][$_SESSION['uid_dg']]);
 					}
@@ -426,6 +428,7 @@ if ($map_bits & 5) {
 		       			$m['user'][$_SESSION['uid_dg']]['x'] =      7;
 		       			$m['user'][$_SESSION['uid_dg']]['y'] =      7;
 		       			$m['user'][$_SESSION['uid_dg']]['yaw'] =    0;
+		       			$m['user'][$_SESSION['uid_dg']]['hit'] =  $maxhit;
 					}
 				$put = 1;
 				}
@@ -629,7 +632,13 @@ else {
 		}
 	else if ($cmd == 'doaction') {
 		//  else if (isset($_POST['username_dg']) && isset($_POST['password']) && (!isset($_SESSION['username_dg']))) {
-		$msg3 = "do action";
+		$trginf = explode(',', $_GET['han']);
+		$msg3 = "do action: ".$_GET['act'].", ".$trginf[0];
+		if ($trginf[0] > 0)
+			$trg_id = $trginf[0];
+		else
+			$trg_id = 0;
+		$trgact = $_GET['act'];
 		//  we should already have play map loaded, which means all active players and NPC's too
 		//    - confirm the target is present in play map
 		//    - check target range
@@ -643,6 +652,7 @@ else {
 	//  TTTT, prepare list of available 'targets'
 	foreach ($m['user'] as $ak => $av) {
 		if ($ak != $_SESSION['uid_dg']) {
+			//  FYI, if collide/bonk happens, unlikely a non-move is action has occurred
 			if ($put == 1) {
 				if ($av['x'] == $nx && $av['y'] == $ny)
 					$bonk = 1;
@@ -668,8 +678,33 @@ else {
 	$trgt_qty = 0;
 	foreach ($m['user'] as $ak => $av) {
 		if ($ak != $_SESSION['uid_dg']) {
-			//  echo $ak.": ".print_r($av, true)."\n";
 			$rv = abs($av['x'] - $rx) + abs($av['y'] - $ry);  //  FUTURE: fast Pythagorean Theorem
+			if ($trgact == 'tag' && $ak == $trg_id) {
+				if ($rv < 2) {
+					if (!isset($m['user'][$trg_id]['tag']))
+						$m['user'][$trg_id]['tag'] = 0;
+					if ($m['user'][$trg_id]['tag'] > 0)
+						$m['user'][$trg_id]['tag']--;
+					if ($m['user'][$trg_id]['tag'] < 1) {
+						$put = 1;
+						$msg3 .= " KNOCK OUT HIT! ".$m['user'][$trg_id]['tag']." put: ".$put;
+						//  make target user no longer active in away map
+						//  target user next turn, detect hit < 1, return them to their home map
+						$m['left'][$trg_id] = array(
+						  'handle' => $m['user'][$trg_id]['handle'],
+						  'x'      => $m['user'][$trg_id]['x'],
+						  'y'      => $m['user'][$trg_id]['y'],
+						  'yaw'    => $m['user'][$trg_id]['yaw'],
+						  'tag'    => 0);
+						//  REMOVE USER FROM AWAY MAP
+						unset($m['user'][$trg_id]);
+						}
+					else
+						$msg3 .= " HIT! ".$m['user'][$trg_id]['tag'];
+					}
+				else
+					$msg3 .= " MISS! ";
+				}
 			//    abs($MAX + $av['x] - $rx) ...
 			//  FUTURE: what about wrap around range edge case?
 			//          dungeon flag if no wrap around?
@@ -751,6 +786,7 @@ else {
 	$x   = $m['user'][$_SESSION['uid_dg']]['x'];
 	$y   = $m['user'][$_SESSION['uid_dg']]['y'];
 	$yaw = $m['user'][$_SESSION['uid_dg']]['yaw'];
+	$hit = $m['user'][$_SESSION['uid_dg']]['hit'];
 
 	/*  get_map_players  */
 	//  [ new code goes here ]
@@ -839,7 +875,8 @@ else {
                ", field: ".(isset($f) ? $f : 'N/A').
                " tick: ".$_SESSION['tick']." x, y = 
 	       ".(isset($x) ? $x : 'N/A').", ".(isset($y) ? $y : 'N/A').
-	       " ".(isset($yaw) ? $yaw : 'N/A');
+	       " ".(isset($yaw) ? $yaw : 'N/A').
+	       " ".(isset($hit) ? $hit : 'N/A');
 	if ($msg3)
 		$msg .= "\n<br>".$msg3;
 	if ($msg2)
