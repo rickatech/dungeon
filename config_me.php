@@ -3,8 +3,9 @@
 $isprod = false;
 $title =  'Dungeon Test'
 
-const DEBUG_FOO =   1;
 //  uncomment to enable various debug output
-//  $debug_mask =  0;
-
+//  const DEBUG_FOO =   1;
+//  const DEBUG_USR =  2;
+//  const DEBUG_FRM = 4;
+$debug_mask = DEBUG_FOO | DEBUG_USR | DEBUG_FRM | 0; 
 ?>

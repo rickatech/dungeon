@@ -4,9 +4,12 @@
 /*  FUTURE
   - use case: user logged in and active, steps away from computer, back after an hour, clicks a command
     javascript timer to idle screen, reset session?  server side, invalid session after x minutes
-    should refresh display, ignore command, indicate your next command will be ohonored if you don't step away again  */
+    should refresh display, ignore command, indicate your next command will be ohonored if you don't step away again
+  - use use: [ need more, build test plan ]
+  - code coverage: lots of obsolete code, how to enable source code report that show what code is still active  */
 
 /*  Invalid session okay here since login prompt if no user is detected  */
+include "config.php";
 session_start();
 
 //  service configuration parameters
@@ -362,7 +365,7 @@ else
 
 //  attempt to open existing home map
 //  if file exist but can't open or invalid present error
-// if no file exists, then offer prompt to create new home map
+//  if no file exists, then offer prompt to create new home map
 $file_home = $data_dir.'/'.$homemap_prefix.sprintf('%08d.txt', $_SESSION['uid_dg']);
 if ($m_home = get_map($kkk = $file_home)) {
 	//  home file was found, read
@@ -396,6 +399,7 @@ else {
 		}
 	}
 if ($map_bits & 5) {
+	//  got here because, existing home map or or new home map loaded
 	if (isset($m_home['away']) && isset($m_home['away'][3])) {  //  8888
 		//  check for play map (non-home) map active
 		//  determine name of map in play (if any map in play)
@@ -410,9 +414,15 @@ if ($map_bits & 5) {
 				$msg = "Could not open play map file: ".$kkk;
 			}
 		if ($map_bits & 34) {
+			//  got here because, existing away map or or new away map loaded
 			//  THIS IS IT, mark dungeon map is in play
 			$m = &$m_play;
 			if (!isset($m_play['user'][$_SESSION['uid_dg']])) {
+				if (isset($m['left'][$_SESSION['uid_dg']]['hit'])) {
+					if ($m['left'][$_SESSION['uid_dg']]['hit'] < 1)
+						$msg2 .= "YOU HAVE BEEN KICKED HOME!";
+					//  ZZZZ
+					}
 	       	  		$m['user'][$_SESSION['uid_dg']]['handle'] = $_SESSION['username_dg'];
 				if (isset($m['left'][$_SESSION['uid_dg']])) {
 					//  PLACE USER IN MAP AT LAST LOCATION, FUTURE, collision?
@@ -425,8 +435,8 @@ if ($map_bits & 5) {
 					}
 				else {
 					//  FUTURE: new location hints, algorytm?
-		       			$m['user'][$_SESSION['uid_dg']]['x'] =      7;
-		       			$m['user'][$_SESSION['uid_dg']]['y'] =      7;
+		       			$m['user'][$_SESSION['uid_dg']]['x'] = $m['size'][1] >> 1;  //   7
+		       			$m['user'][$_SESSION['uid_dg']]['y'] = $m['size'][2] >> 1;  //  7;
 		       			$m['user'][$_SESSION['uid_dg']]['yaw'] =    0;
 		       			$m['user'][$_SESSION['uid_dg']]['hit'] =  $maxhit;
 					}
@@ -482,6 +492,7 @@ else if (!isset($m['size'])) {
 	$v = 19;  // error
 	$msg = "Dungeon has no size.";
 	}
+//  ZZZZ
 else if (!isset($m['user'][$_SESSION['uid_dg']]) ||
          !isset($m['user'][$_SESSION['uid_dg']]['handle']) ||
          !isset($m['user'][$_SESSION['uid_dg']]['x']) ||
@@ -679,15 +690,23 @@ else {
 	foreach ($m['user'] as $ak => $av) {
 		if ($ak != $_SESSION['uid_dg']) {
 			$rv = abs($av['x'] - $rx) + abs($av['y'] - $ry);  //  FUTURE: fast Pythagorean Theorem
-			if ($trgact == 'tag' && $ak == $trg_id) {
-				if ($rv < 2) {
-					if (!isset($m['user'][$trg_id]['tag']))
-						$m['user'][$trg_id]['tag'] = 0;
-					if ($m['user'][$trg_id]['tag'] > 0)
-						$m['user'][$trg_id]['tag']--;
-					if ($m['user'][$trg_id]['tag'] < 1) {
-						$put = 1;
-						$msg3 .= " KNOCK OUT HIT! ".$m['user'][$trg_id]['tag']." put: ".$put;
+			if (isset($trgact) && $trgact == 'tag' && $ak == $trg_id) {
+				if ($debug_mask & DEBUG_USR) {
+				echo "trg_id: ".$trg_id." <pre style=\"font-size: smaller;\">"; print_r($m['user']); echo "</pre>"; }
+				if ($ak < 1) {
+					$msg2 .= " WEIRD :-/ ";
+					}
+				else if ($rv < 2) {  //  tag range is 1
+					//  ZZZZ
+					$put = 1;
+					if (!isset($m['user'][$trg_id]['hit'])) {
+						$m['user'][$trg_id]['hit'] = 0;
+						}
+					if ($m['user'][$trg_id]['hit'] > 0) {
+						$m['user'][$trg_id]['hit']--;
+						}
+					if ($m['user'][$trg_id]['hit'] < 1) {
+						$msg2 .= " KNOCK OUT HIT! ".$m['user'][$trg_id]['hit']." put: ".$put;
 						//  make target user no longer active in away map
 						//  target user next turn, detect hit < 1, return them to their home map
 						$m['left'][$trg_id] = array(
@@ -695,16 +714,18 @@ else {
 						  'x'      => $m['user'][$trg_id]['x'],
 						  'y'      => $m['user'][$trg_id]['y'],
 						  'yaw'    => $m['user'][$trg_id]['yaw'],
-						  'tag'    => 0);
+						  'hit'    => 0);
 						//  REMOVE USER FROM AWAY MAP
 						unset($m['user'][$trg_id]);
 						}
 					else
-						$msg3 .= " HIT! ".$m['user'][$trg_id]['tag'];
+						$msg2 .= " HIT! ".$m['user'][$trg_id]['hit']." put: ".$put;
 					}
 				else
-					$msg3 .= " MISS! ";
+					$msg2 .= " MISS! ";
 				}
+			if ($debug_mask & DEBUG_USR) {
+			echo "1 <pre style=\"font-size: smaller;\">"; print_r($m['user']); echo "</pre>"; }
 			//    abs($MAX + $av['x] - $rx) ...
 			//  FUTURE: what about wrap around range edge case?
 			//          dungeon flag if no wrap around?
@@ -715,6 +736,8 @@ else {
 
 	if ($put == 1) {
 		$m['tick'][1]++;  //  FUTURE: don't increment for home if play map active?
+		if ($debug_mask & DEBUG_USR) {
+		echo "2 <pre style=\"font-size: smaller;\">"; print_r($m['user']); echo "</pre>"; }
 		if ($map_bits & 34)
 			$file_put = $file_dungeon;
 		else
@@ -858,17 +881,26 @@ else {
 	$f = 0;
 	//  crude z-bufffer
 	$z = array(9, 9, 9);
+	//  echo "<pre style=\"font-size: smaller;\">"; print_r($view); echo "</pre>";
+	if (0) {
 	if ($view['a'][2] == 1) { $f = $f + 40;  $z[0] = 2; }
 	if ($view['b'][2] == 1) { $f = $f + 20;  $z[1] = 2; }
 	if ($view['c'][2] == 1) { $f = $f + 10;  $z[2] = 2; }
 	if ($view['a'][1] == 1) { $f = $f +  4;  $z[0] = 1; }
 	if ($view['b'][1] == 1) { $f = $f +  2;  $z[1] = 1; }
 	if ($view['c'][1] == 1) { $f = $f +  1;  $z[2] = 1; }
+	} else {
+		//  FUTURE: map value > 1, < 8 obstruction block for now
+		if ($view['a'][2] & 7) { $f = $f + 40;  $z[0] = 2; }
+		if ($view['b'][2] & 7) { $f = $f + 20;  $z[1] = 2; }
+		if ($view['c'][2] & 7) { $f = $f + 10;  $z[2] = 2; }
+		if ($view['a'][1] & 7) { $f = $f +  4;  $z[0] = 1; }
+		if ($view['b'][1] & 7) { $f = $f +  2;  $z[1] = 1; }
+		if ($view['c'][1] & 7) { $f = $f +  1;  $z[2] = 1; }
+	}
 
 	if ($bonk != 1 && $bonk_1 != 1)
 		$v = near_far($f);
-
-		//  ZZZZ
 		}
 	//  $msg = "view: ".$v.", field: ".$f." tick: ".$m['tick']." x, y = ".$x.", ".$y;
 	$msg = "view: ".(isset($v) ? $v : 'N/A').
@@ -931,9 +963,11 @@ else
 	render($v);
 
 //  echo "<pre>"; print_r($m['user']); echo "</pre>";
-if (isset($_SESSION['uid_dg']) && ($_SESSION['uid_dg'] == 1)) { // admin/rickatech check
-	echo "\n<div style=\"display: none;\" id=\"map_hidden_0\">\n";
-	//  echo "\n<div style=\"display: block;\" id=\"map_hidden_0\">\n";
+if (0) {
+//if (isset($_SESSION['uid_dg']) && ($_SESSION['uid_dg'] == 1)) { // admin/rickatech check
+//if (isset($_SESSION['uid_dg']) && ($_SESSION['uid_dg'] < 3)) { // admin/rickatech check
+	//echo "\n<div style=\"display: none;\" id=\"map_hidden_0\">\n";
+	echo "\n<div style=\"display: block;\" id=\"map_hidden_0\">\n";
 	if (isset($m_new)) {
 		print_map($m_new);
 		}
@@ -942,21 +976,22 @@ if (isset($_SESSION['uid_dg']) && ($_SESSION['uid_dg'] == 1)) { // admin/rickate
 			print_map($m);
 			//  echo "<pre>"; print_r($m); echo "</pre>";
 			}
-	//	if (isset($m_home))
-	//		print_map($m_home);
+		if (isset($m_home))
+			print_map($m_home);
 		}
 	echo "\n</div>\n";
 	}
 
+if ($debug_mask & DEBUG_FRM) $form_show = 'block'; else $form_show = 'hidden';
 //  typically, a javascript callback will be invoked after
 //  this page loads to adjust navigation button elsewhere on the page
-echo "\n\n<input id=\"map_bits\" type=hidden value=\"".$map_bits."\">\n";
+echo "\n\n<input id=\"map_bits\" type=".$form_show." value=\"".$map_bits."\">\n";
 //  available targets
-echo "\n\n<input id=\"trgt_qty\" type0=hidden value=\"".$trgt_qty."\">\n";
+echo "\n\n<input id=\"trgt_qty\" type=".$form_show." value=\"".$trgt_qty."\">\n";
 for ($i = 0; $i < $trgt_qty; $i++)
-	echo "\n\n<input id=\"trgt_val_".$i."\" type0=hidden value=\"".$trgt_val[$i]."\">\n";
-echo "\n\n<input id=\"actn_qty\" type0=hidden value=\"1\">\n";
-echo "\n\n<input id=\"actn_val_0\" type0=hidden value=\"tag\">\n";
+	echo "\n\n<input id=\"trgt_val_".$i."\" type=".$form_show." value=\"".$trgt_val[$i]."\">\n";
+echo "\n\n<input id=\"actn_qty\" type=".$form_show." value=\"1\">\n";
+echo "\n\n<input id=\"actn_val_0\" type=".$form_show." value=\"tag\">\n";
 //  FUTURE: add additional elements for:
 //    - active players on this map (including range/stats?
 //    - available actions

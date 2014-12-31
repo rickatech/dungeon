@@ -2,15 +2,28 @@ for dungeon
 
 grep FUTURE in code enahncement suggestions
 
-2014-10
+Use Cases - handy for smoke testing before release
+  - fresh install, make sure home and dungeon maps establish okay when logged
+    in player starts to play
+      - new player, create home map
+      - new player, enter dungeon, move around, return to home map
+  - inconsistent map state
+    if more than two players are moving on same map simultaneously, player
+    writes will force their latest position, reverting other player position
+      - FUTURE: start tracking tick/player/map?  .. consider using flock?
   - backups
-    need daily static file backups!
+    need daily static file backups!  build into normal activity?
+
+Ideas (no particular order)
+  - javascript client side 'local map' + dynamic view refresh
+    (mostly independent of actions menu, perhaps use target selected session)
+  - debug map is rotated, how to make it so vi edit,
+    debug output are right x / down y increasing
   - security levels for different maps
     map    sec 10, if innactive just stay put (home map)
            sec  9, if innactive, minor bounty to return you to home map
     player sec 10, no unsolicted harm to other players or NPC's
            sec  9, < 2 unsolited acts of aggresssion, +1 wander unfriendly NPC's        
-
 aggresor bount tax, any character accrues bounty upon entering a new map if
 their player secuirty level is less that that of the map level.
   - bounty is decreased if player is defeated by NPC or other charavter

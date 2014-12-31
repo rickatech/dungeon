@@ -27,6 +27,8 @@ function get_map($filename) {
 				$new_map['left'][$data[1]]['x'] =      $data[3];  //  x
 				$new_map['left'][$data[1]]['y'] =      $data[4];  //  y
 				$new_map['left'][$data[1]]['yaw'] =    $data[5];  //  yaw
+				if (isset($data[6]))
+					$new_map['left'][$data[1]]['hit'] =    $data[6];
 				//$new_map['left'][0] = 'left';
 				//$new_map['left'][1] = $data[1];  //  uid
 				//$new_map['left'][2] = $data[2];  //  name
@@ -77,6 +79,7 @@ function print_map(&$m) {
 	}
 
 function put_map($newfile, &$a) {
+	global $debug_mask;
 //	$a[ 0][ 0] = 2;
 //	$a[63][ 0] = 4;
 //	$a[ 0][63] = 6;
@@ -85,8 +88,11 @@ function put_map($newfile, &$a) {
 	if ($fh = fopen($newfile, 'w')) {
 		foreach ($a as $ak => $av) {
 			if ($ak === 'user') {
-				foreach ($av as $bv) {
-					$user = array('user', key($av), $bv['handle'],
+				//  foreach ($av as $bv) {
+				foreach ($av as $bk => $bv) {
+					if ($debug_mask & DEBUG_FOO) echo "<br>".$bk;
+					//  $user = array('user', key($av), $bv['handle'],
+					$user = array('user', $bk, $bv['handle'],
 					  $bv['x'], $bv['y'], $bv['yaw'], isset($bv['hit']) ? $bv['hit'] : 0);
 					next($av);
 					fputcsv($fh, $user);
@@ -95,7 +101,7 @@ function put_map($newfile, &$a) {
 			else if ($ak === 'left') {
 				foreach ($av as $bv) {
 					$user = array('left', key($av), $bv['handle'],
-					  $bv['x'], $bv['y'], $bv['yaw']);
+					  $bv['x'], $bv['y'], $bv['yaw'], isset($bv['hit']) ? $bv['hit'] : 0);
 					next($av);
 					fputcsv($fh, $user);
 					}
