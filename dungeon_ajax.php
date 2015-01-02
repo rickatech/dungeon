@@ -344,6 +344,7 @@ if (0) {
 //   2  login required
 //  16  new user, no home, welcome
 //  32  play map loaded, new default
+const FLAG_KICKED = 64;  //  player was kicked from map
 //  ??  generate new map, FUTURE
 $map_bits = 0;
 
@@ -399,7 +400,7 @@ else {
 		}
 	}
 if ($map_bits & 5) {
-	//  got here because, existing home map or or new home map loaded
+	//  got here because, existing home map or new home map loaded
 	if (isset($m_home['away']) && isset($m_home['away'][3])) {  //  8888
 		//  check for play map (non-home) map active
 		//  determine name of map in play (if any map in play)
@@ -419,28 +420,33 @@ if ($map_bits & 5) {
 			$m = &$m_play;
 			if (!isset($m_play['user'][$_SESSION['uid_dg']])) {
 				if (isset($m['left'][$_SESSION['uid_dg']]['hit'])) {
-					if ($m['left'][$_SESSION['uid_dg']]['hit'] < 1)
+					if ($m['left'][$_SESSION['uid_dg']]['hit'] < 1) {
 						$msg2 .= "YOU HAVE BEEN KICKED HOME!";
-					//  ZZZZ
+						$cmd = "giveup";  //  OVERRIDE USER COMMAND
+						$map_bits |= FLAG_KICKED;
+						unset($m['user'][$_SESSION['uid_dg']]);  //  ???
+						}
 					}
-	       	  		$m['user'][$_SESSION['uid_dg']]['handle'] = $_SESSION['username_dg'];
-				if (isset($m['left'][$_SESSION['uid_dg']])) {
-					//  PLACE USER IN MAP AT LAST LOCATION, FUTURE, collision?
-	       				$m['user'][$_SESSION['uid_dg']]['x'] =      $m['left'][$_SESSION['uid_dg']]['x'];
-	      		 		$m['user'][$_SESSION['uid_dg']]['y'] =      $m['left'][$_SESSION['uid_dg']]['y'];
-	       				$m['user'][$_SESSION['uid_dg']]['yaw'] =    $m['left'][$_SESSION['uid_dg']]['yaw'];
-		       			$m['user'][$_SESSION['uid_dg']]['hit'] =  $maxhit;
-					//  REMOVE LEFT USER FROM AWAY MAP
-					unset($m['left'][$_SESSION['uid_dg']]);
+				if (!($map_bits & FLAG_KICKED)) {
+	       	  			$m['user'][$_SESSION['uid_dg']]['handle'] = $_SESSION['username_dg'];
+					if (isset($m['left'][$_SESSION['uid_dg']])) {
+						//  PLACE USER IN MAP AT LAST LOCATION, FUTURE, collision?
+	       					$m['user'][$_SESSION['uid_dg']]['x'] =      $m['left'][$_SESSION['uid_dg']]['x'];
+	      			 		$m['user'][$_SESSION['uid_dg']]['y'] =      $m['left'][$_SESSION['uid_dg']]['y'];
+	       					$m['user'][$_SESSION['uid_dg']]['yaw'] =    $m['left'][$_SESSION['uid_dg']]['yaw'];
+			       			$m['user'][$_SESSION['uid_dg']]['hit'] =  $maxhit;
+						//  REMOVE LEFT USER FROM AWAY MAP
+						unset($m['left'][$_SESSION['uid_dg']]);
+						}
+					else {
+						//  FUTURE: new location hints, algorytm?
+			       			$m['user'][$_SESSION['uid_dg']]['x'] = $m['size'][1] >> 1;  //   7
+			       			$m['user'][$_SESSION['uid_dg']]['y'] = $m['size'][2] >> 1;  //  7;
+			       			$m['user'][$_SESSION['uid_dg']]['yaw'] =    0;
+			       			$m['user'][$_SESSION['uid_dg']]['hit'] =  $maxhit;
+						}
+					$put = 1;
 					}
-				else {
-					//  FUTURE: new location hints, algorytm?
-		       			$m['user'][$_SESSION['uid_dg']]['x'] = $m['size'][1] >> 1;  //   7
-		       			$m['user'][$_SESSION['uid_dg']]['y'] = $m['size'][2] >> 1;  //  7;
-		       			$m['user'][$_SESSION['uid_dg']]['yaw'] =    0;
-		       			$m['user'][$_SESSION['uid_dg']]['hit'] =  $maxhit;
-					}
-				$put = 1;
 				}
 			}
 	//  !!! check play map tick, size, ... make part of get_map?
@@ -493,11 +499,13 @@ else if (!isset($m['size'])) {
 	$msg = "Dungeon has no size.";
 	}
 //  ZZZZ
-else if (!isset($m['user'][$_SESSION['uid_dg']]) ||
+else if (!($map_bits & FLAG_KICKED) && (
+	 !isset($m['user'][$_SESSION['uid_dg']]) ||
          !isset($m['user'][$_SESSION['uid_dg']]['handle']) ||
          !isset($m['user'][$_SESSION['uid_dg']]['x']) ||
          !isset($m['user'][$_SESSION['uid_dg']]['y']) ||
-         !isset($m['user'][$_SESSION['uid_dg']]['yaw'])) {
+         !isset($m['user'][$_SESSION['uid_dg']]['yaw']))
+	 ) {
 	//  FUTURE: set local variable = $_SESSION['uid_dg']?
 	$v = 19;  // error
 	$msg = "No active dungeon for ".$_SESSION['username_dg'].", ".$map_bits;
@@ -590,7 +598,7 @@ else {
 		  'x'      => $m['user'][$_SESSION['uid_dg']]['x'],
 		  'y'      => $m['user'][$_SESSION['uid_dg']]['y'],
 		  'yaw'    => $m['user'][$_SESSION['uid_dg']]['yaw']);
-		$bonk_1 = 1;
+		$bonk_1 = 1;  //  OVERRIDE VIEW, user is switching maps
 		//  echo "0 <pre>"; print_r($m['user']); echo "</pre>";
 		//  REMOVE USER FROM HOME MAP
 		unset($m['user'][$_SESSION['uid_dg']]);
@@ -599,17 +607,24 @@ else {
 		//  echo "1 <pre>"; print_r($m['user']); echo "</pre>";
 		}
 	else if ($cmd == 'giveup') { //  FUTURE
+		//  in some cases user command will be overrided with this (e.g. kicked), see above
 		//  strobe lock file?
-		//  away, user is no longer active in away map, return user to home map
-		$m['left'][$_SESSION['uid_dg']] = array(
-		  'handle' => $_SESSION['username_dg'],
-		  'x'      => $m['user'][$_SESSION['uid_dg']]['x'],
-		  'y'      => $m['user'][$_SESSION['uid_dg']]['y'],
-		  'yaw'    => $m['user'][$_SESSION['uid_dg']]['yaw']);
 		$bonk_1 = 1;
 		//  REMOVE USER FROM AWAY MAP
 		unset($m['user'][$_SESSION['uid_dg']]);
-		$msg3 = "give up";
+		if ($map_bits & FLAG_KICKED) {
+			unset($m['left'][$_SESSION['uid_dg']]);
+			$msg3 = "kicked";
+			}
+		else {
+			//  away, user is no longer active in away map, return user to home map
+			$m['left'][$_SESSION['uid_dg']] = array(
+			  'handle' => $_SESSION['username_dg'],
+			  'x'      => $m['user'][$_SESSION['uid_dg']]['x'],
+			  'y'      => $m['user'][$_SESSION['uid_dg']]['y'],
+			  'yaw'    => $m['user'][$_SESSION['uid_dg']]['yaw']);
+			$msg3 = "give up";
+			}
 		$put = 1;
 		//  REMOVE USER AWAY FROM HOME MAP
 		unset($m_home['away']);
@@ -642,6 +657,8 @@ else {
 			$msg3 = "write new map error";
 		}
 	else if ($cmd == 'doaction') {
+		//  FUTURE: enable logging for all actions
+		//          [timedate stamp][map file name][tick][uid][action][notes]
 		//  else if (isset($_POST['username_dg']) && isset($_POST['password']) && (!isset($_SESSION['username_dg']))) {
 		$trginf = explode(',', $_GET['han']);
 		$msg3 = "do action: ".$_GET['act'].", ".$trginf[0];

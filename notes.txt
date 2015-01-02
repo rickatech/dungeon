@@ -9,14 +9,26 @@ Use Cases - handy for smoke testing before release
       - new player, enter dungeon, move around, return to home map
   - inconsistent map state
     if more than two players are moving on same map simultaneously, player
-    writes will force their latest position, reverting other player position
+    writes will force their latest position, (should not revert other player position)
       - FUTURE: start tracking tick/player/map?  .. consider using flock?
   - backups
     need daily static file backups!  build into normal activity?
 
 Ideas (no particular order)
+  - stategic vs action maps
+    strategic map forces strict turn based play, though troll player could
+    lock a strategic map by entering and not moving?  active players could
+    vote to kick (mark as left) a troll player
+    action map is essential FIFO action based (w/minimal flood/flock control)
   - javascript client side 'local map' + dynamic view refresh
     (mostly independent of actions menu, perhaps use target selected session)
+      - view / mini-map / target/actions / chat
+  - map doormat locations, a way to dedicate certain map space to spawning
+    players to appear upon entering map.  Ideally multiple doormats
+    for hanlding different entrances.  If all doormat space occupied,
+    player enter will fail (entrance obstructed)
+  - chat
+    global, map, player to player (which may benefit from friend lists too)
   - debug map is rotated, how to make it so vi edit,
     debug output are right x / down y increasing
   - security levels for different maps
