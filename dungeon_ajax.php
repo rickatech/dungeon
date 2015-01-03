@@ -252,7 +252,7 @@ if ($ajax == 0) {
 		return $v;
 		}
 
-	function render($v, $message = NULL, $b = 0, $o = NULL, $oo = NULL) {
+	function render($v, $message = NULL, $b = 0, $o = NULL, $oo = NULL, $or = 0) {
 		/*  this may be client side javascript at some point?  */
 		global $w;
 		global $z;
@@ -273,7 +273,17 @@ if ($ajax == 0) {
 				$r1[2] = $oo; $r1[3] = $oo;
 				$r2[2] = $oo; $r2[3] = $oo; }
 			}
-		echo "<center><table style=\"margin: auto;  background: #ffffff;\"><tr>\n<td id=\"rentab\" style=\"".$bs."\">\n";
+		//  change background based on player orientation, FUTURE: 3D background map
+		if ($or < 90)
+			$bg_tc = '#ffffff';  //  'south', bright
+		else if ($or < 180)
+			$bg_tc = '#ffefff';  //  'west', purple
+		else if ($or < 270)
+			$bg_tc = '#dfdfff';  //  'north', bluish/periwinkle/cyan
+		else
+			$bg_tc = '#efffff';  //  'east', green/mint
+		echo "<center><table style=\"margin: auto;  background: ".$bg_tc."\"><tr>\n<td id=\"rentab\" style=\"".$bs."\">\n";
+		//  echo "<center><table style=\"margin: auto;  background: #ffffff;\"><tr>\n<td id=\"rentab\" style=\"".$bs."\">\n";
 		printf("<pre style=\"font-size: 72px; margin-bottom: 0px;\">%s\n%s\n%s</pre>",
 		    $r0, $r1, $r2);
 		echo "</td>\n</tr></table>\n";
@@ -302,15 +312,6 @@ else if (isset($_GET["view"]))
 	$v = $_GET["view"];
 else
 	$v = 4;
-
-if (0) {
-	if (isset($_GET["x"]))
-		$x = $_GET["x"];
-	else $x = 2 + $day;
-	if (isset($_GET["y"]))
-		$y = $_GET["y"];
-	else $y = 2 + $month;
-	}
 
 //  HEY, here's where we detect display no action refresh, or command + display refresh!!!
 //  if no command ... skip command processing ... get map, return display
@@ -632,19 +633,6 @@ else {
 		}
 	else if ($cmd == 'newmap') {
 		//  skip turn as though 'refresh' cmd
-		if (0) {  //++
-		$newfile = $data_dir."/new.txt";
-		gen_map($m_new);  //  returns map by reference
-		if (put_map($newfile, $m_new)) {
-			unset($m_new);
-			if ($m_new = get_map($newfile))
-				$msg3 = "write new map successful";
-			else
-				$msg3 = "read new map error";
-			}
-		else
-			$msg3 = "write new map error";
-		} //++
 		$newfile = $data_dir.'/'.$homemap_prefix.sprintf('%08d.txt', $_SESSION['uid_dg']);
 		if (put_map($newfile, $m_new)) {
 			unset($m_new);
@@ -899,22 +887,13 @@ else {
 	//  crude z-bufffer
 	$z = array(9, 9, 9);
 	//  echo "<pre style=\"font-size: smaller;\">"; print_r($view); echo "</pre>";
-	if (0) {
-	if ($view['a'][2] == 1) { $f = $f + 40;  $z[0] = 2; }
-	if ($view['b'][2] == 1) { $f = $f + 20;  $z[1] = 2; }
-	if ($view['c'][2] == 1) { $f = $f + 10;  $z[2] = 2; }
-	if ($view['a'][1] == 1) { $f = $f +  4;  $z[0] = 1; }
-	if ($view['b'][1] == 1) { $f = $f +  2;  $z[1] = 1; }
-	if ($view['c'][1] == 1) { $f = $f +  1;  $z[2] = 1; }
-	} else {
-		//  FUTURE: map value > 1, < 8 obstruction block for now
-		if ($view['a'][2] & 7) { $f = $f + 40;  $z[0] = 2; }
-		if ($view['b'][2] & 7) { $f = $f + 20;  $z[1] = 2; }
-		if ($view['c'][2] & 7) { $f = $f + 10;  $z[2] = 2; }
-		if ($view['a'][1] & 7) { $f = $f +  4;  $z[0] = 1; }
-		if ($view['b'][1] & 7) { $f = $f +  2;  $z[1] = 1; }
-		if ($view['c'][1] & 7) { $f = $f +  1;  $z[2] = 1; }
-	}
+	//  FUTURE: map value > 1, < 8 obstruction block for now
+	if ($view['a'][2] & 7) { $f = $f + 40;  $z[0] = 2; }
+	if ($view['b'][2] & 7) { $f = $f + 20;  $z[1] = 2; }
+	if ($view['c'][2] & 7) { $f = $f + 10;  $z[2] = 2; }
+	if ($view['a'][1] & 7) { $f = $f +  4;  $z[0] = 1; }
+	if ($view['b'][1] & 7) { $f = $f +  2;  $z[1] = 1; }
+	if ($view['c'][1] & 7) { $f = $f +  1;  $z[2] = 1; }
 
 	if ($bonk != 1 && $bonk_1 != 1)
 		$v = near_far($f);
@@ -975,7 +954,7 @@ else {
 	}
 
 if (isset($msg))
-	render($v, $msg, $nearwall, $o, $oo);
+	render($v, $msg, $nearwall, $o, $oo, isset($yaw) ? $yaw : 0);
 else
 	render($v);
 
