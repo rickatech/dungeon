@@ -79,6 +79,10 @@ function login_check($u, $p) {
 			$_SESSION['uid_dg'] = 6;
 			return (0);
 			}
+		else if ($u == "yohan") {
+			$_SESSION['uid_dg'] = 7;
+			return (0);
+			}
 		else
 			return ("bad username");
 	} // ***
