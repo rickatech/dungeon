@@ -73,7 +73,7 @@ function print_map(&$m) {
 			}
 		$map_textpre .= "\n";
 		}
-	echo "<pre>".$map_textpre;
+	echo "<pre style=\"margin: 0px;\">".$map_textpre;
 	//  echo print_r($m);
 	echo "</pre>\n";
 	}
