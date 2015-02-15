@@ -1,0 +1,101 @@
+for dungeon
+
+grep FUTURE in code enahncement suggestions
+
+Use Cases - handy for smoke testing before release
+  - fresh install, make sure home and dungeon maps establish okay when logged
+    in player starts to play
+      - new player, create home map
+      - new player, enter dungeon, move around, return to home map
+  - inconsistent map state
+    if more than two players are moving on same map simultaneously, player
+    writes will force their latest position, (should not revert other player position)
+      - FUTURE: start tracking tick/player/map?  .. consider using flock?
+  - backups
+    need daily static file backups!  build into normal activity?
+
+Ideas (no particular order)
+  - stategic vs action maps
+    strategic map forces strict turn based play, though troll player could
+    lock a strategic map by entering and not moving?  active players could
+    vote to kick (mark as left) a troll player
+    action map is essential FIFO action based (w/minimal flood/flock control)
+  - javascript client side 'local map' + dynamic view refresh
+    (mostly independent of actions menu, perhaps use target selected session)
+      - view / mini-map / target/actions / chat
+  - map doormat locations, a way to dedicate certain map space to spawning
+    players to appear upon entering map.  Ideally multiple doormats
+    for hanlding different entrances.  If all doormat space occupied,
+    player enter will fail (entrance obstructed)
+  - chat
+    global, map, player to player (which may benefit from friend lists too)
+  - debug map is rotated, how to make it so vi edit,
+    debug output are right x / down y increasing
+  - security levels for different maps
+    map    sec 10, if innactive just stay put (home map)
+           sec  9, if innactive, minor bounty to return you to home map
+    player sec 10, no unsolicted harm to other players or NPC's
+           sec  9, < 2 unsolited acts of aggresssion, +1 wander unfriendly NPC's        
+aggresor bount tax, any character accrues bounty upon entering a new map if
+their player secuirty level is less that that of the map level.
+  - bounty is decreased if player is defeated by NPC or other charavter
+
+skill
+  -
+tools
+  - 
+materials
+  - 
+forts (player created maps?)
+  - 
+groups/gangs/guilds/...
+  - ...
+
+defeated
+  - returned 1 map closer to home map, or home map
+
+bounty karma, how much bounty a char has collected or caused
+faction currency, related to char home map region
+  - certain advanced char can create new regions/currency
+  - currency conversion between regions is NOT 1:1, inflation?
+
+gametable play mode
+  - reports generated to allow Dungeon Master and characers printouts
+    basic rules, and even online DM assist to complete, or work thorugh a map
+  - campaign paper form to record player progress made, dungeon new state
+    includes a online, freeze map, gametable queue funciton to
+    insure only gametable play is allowed until online play is enabled
+
+background time
+  - a php driven cron will run (every 5 minutes launch, but will sleep every
+    20 secs and rerun ... 15 runs), will always check a lock file
+    the cron will relaunch every 5 minutes
+      - background dungeon/map cleanup
+      - NPC activity
+      - FUTURE: player 'retreat'scripts, minion actions
+      - contract experation
+
+2014-07-06
+general game activity log file (admin's only can see)
+transaction lock files
+  - server transaction
+  - player transaction
+state files
+  - map (done)
+    wall state, turn tick, player/NPC position
+  - player/NPC info, inventory, account association, which map active
+  - account info, password
+
+git tips
+- - - -
+git clone fredness@mini.local.zaptech.org:/git_alt/dungeon
+git status -s
+git --no-pager diff -b 
+git add [ file name ]    // for new file, or just changes to existing file
+git commit               // [ file name ] optional, -m optional
+git push origin
+- - - -
+git fetch
+git diff origin
+git merge origin
+
