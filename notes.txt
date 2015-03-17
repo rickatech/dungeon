@@ -15,6 +15,9 @@ Use Cases - handy for smoke testing before release
     need daily static file backups!  build into normal activity?
 
 Ideas (no particular order)
+  - user mananager, CRUD for user admin
+    some form of limited self signup (random dungeon, get to the end)
+  - basic level editor
   - stategic vs action maps
     strategic map forces strict turn based play, though troll player could
     lock a strategic map by entering and not moving?  active players could

@@ -80,9 +80,10 @@ else {  //  @@@@
 	}  //  @@@@
 echo "</tr></table>\n";
 
-if (isset($_SESSION['uid_dg']) && $_SESSION['uid_dg'] == 1) {  // admin/rickatech check
-	if (!isset($msg)) $msg ='';
-	$msg .= "\n<span style=\"font-size: smaller; color: #ff0000;\">".$_SERVER['REQUEST_URI']."</span>";
-	echo "\n".$msg."\n";
+
+if (($debug_mask & DEBUG_ADM) && isset($_SESSION['uid_dg']) && $_SESSION['uid_dg'] == 1) {  // admin/rickatech check
+       if (!isset($msg)) $msg ='';
+       $msg .= "\n<span style=\"font-size: smaller; color: #ff0000;\">".$_SERVER['REQUEST_URI']."</span>";
+       echo "\n".$msg."\n";
 	}
 ?>

@@ -428,11 +428,6 @@ function newmap_toggle(which) {
 			if (i == 0) {
 				if (document.getElementById('nav2_sel')) {
 					nav2_sel0 = document.getElementById("nav2_sel");
-		//			alert('remove sel');
-		//			while (nav2_sel0.firstChild) {
-		//				alert('remove sel');
-		//				nav2_sel0.removeChild(nav2_sel0.firstChild);
-		//				}
 					}
 				}
 			if (document.getElementById('trgt_val_'+i)) {
@@ -456,22 +451,13 @@ function newmap_toggle(which) {
     	new_inpt = document.createElement("input");
 	new_inpt.setAttribute("type", "button");
 	new_inpt.setAttribute("value", 'action');
-//	new_inpt.setAttribute("onclick", "showactive('rentab'); nav_doaction('calout');");
 	new_inpt.setAttribute("onclick", "showactive('rentab'); nav_doaction('calout', 'tag', 0, 0);");
-//	QQQQ
-//	http://stackoverflow.com/questions/133925/javascript-post-request-like-a-form-submit
-//	new_inpt.setAttribute("onclick", "showactive('rentab'); cal_set('calout');");
-//	type=button value=\"&nbsp;^&nbsp;\" onclick=\"showactive('rentab'); nav_stepforw('calout');\">");
 	nav2_div.appendChild(new_inpt);
-	if (0) {
-		nav_refresh_alt('dgnav2');
-		//  alert('poo');
-		//  ajax_test = "test javascript div contents set";
-		if (document.getElementById('map_hidden_0')) {
-			ajax_test = document.getElementById('map_hidden_0').innerHTML;
-			document.getElementById('dgnav3').innerHTML = ajax_test;
-			}
-		alert('poo 2');
+//	http://stackoverflow.com/questions/133925/javascript-post-request-like-a-form-submit  //  CITATION
+	//  document.getElementById('dgnav3').innerHTML = "test";
+	if (document.getElementById('log_activity')) {
+		ajax_test = document.getElementById('log_activity').innerHTML;
+		document.getElementById('dgnav3').innerHTML = ajax_test;
 		}
 	}
 

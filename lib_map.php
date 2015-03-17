@@ -44,7 +44,7 @@ function get_map($filename) {
 				$new_map['user'][$data[1]]['yaw'] =    $data[5];  //  yaw
 				if (isset($data[6]))
 					$new_map['user'][$data[1]]['hit'] =    $data[6];
-				$user++;
+				$user++;  //  FUTURE: this is bogus, unneeded?
 				}
 			else
 				$new_map[$row] = $data;
@@ -137,4 +137,77 @@ function gen_map(&$map) {
 	//  user lines appended elsewhere
 	//  return $map;
 	}
+
+function append_map_log($logfile, &$action) {
+	//  append a given map log with values from action array
+	//  return: true if successful
+	//  FUTURE: prefix with date time tick stamp
+	//  FUTURE: should there be one map log file, with a field for which map?
+	if ($fh = fopen($logfile, 'a')) {
+		fputcsv($fh, $action);
+		fclose($fh);
+        	return true;
+		}
+	return false;
+	}
+
+function get_map_recent($logfile, &$actions) {
+	//  pass in empty array
+	//  build array of latest map action from map recent actions state file
+	//  if error, passed in array will 
+	$result = false;
+	if ($fh = fopen($logfile, 'r')) {
+		while (($data = fgetcsv($fh, 1000, ",")) !== FALSE) {
+			//echo "<pre>"; print_r($data); echo "</pre>";
+			$i = 0;
+			foreach ($data as $av) {
+				if ($i < 1)
+					$actions[$data[0]] = array();
+				else
+					array_push($actions[$data[0]], $data[$i]);
+				$i++;
+				}
+			}
+			$result = true;
+		fclose($fh);
+		}
+	return $result;
+	}
+
+function put_map_recent($logfile, &$actions) {
+	//  pass in tick sorted array of latest map actions, rewrite recent actions state file
+	//  if ($fh = fopen($logfile, 'a')) {
+	if ($fh = fopen($logfile, 'w')) {
+		foreach ($actions as $ak => $av) {
+			$va = array($ak);
+			foreach ($av as $avv)
+				array_push($va, $avv);
+			fputcsv($fh, $va);
+			}
+		fclose($fh);
+        	return true;
+		}
+	return false;
+	}
+
+function report_map_log($logfile) {
+	//  collect and return selected log activity
+	//  FUTURE: this will become obsolete, replaced by get/put_map_recent
+	$out = '';
+	if ($fh = fopen($logfile, 'r')) {
+		while (($data = fgetcsv($fh, 1000, ",")) !== FALSE) {
+			//  echo "\ndata[0]: ".$data[0]."\n";
+			if ($data[1]) $out .= $data[1];
+			if ($data[3]) $out .= ' -> '.$data[3];
+			if (isset($data[4])) $out .= ' = '.$data[4];
+			$out .= "\n<br>";
+			}
+		fclose($fh);
+		return ($out);
+		}
+	else {
+		return (NULL);
+		}
+	}
+
 ?>

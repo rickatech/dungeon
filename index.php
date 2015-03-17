@@ -74,11 +74,12 @@ echo "\n\n<!--  cal  --><div id=\"cal\" style=\"display: block;\">[ calendar ]</
 echo "\n\n<div id=\"dgnav2\" style=\"display: block; text-align: center;\">[ loading ... ]</div>\n";
 
 // lower map display
-echo "\n\n<div id=\"dgnav3\" style=\"display: block; text-align: center;\">[ map loading ... ]</div>\n";
-?>
+echo "\n\n<div id=\"dgnav3\" style=\"display: block; text-align: center;\">[ map loading ... ]</div>\n\n";
 
-<p style="font-size: smaller; font-style: italic; margin: 0px; text-align: center;">this
-site brought to you by <A HREF=http://zaptech.com/>zap technologies</A></p>
+echo "<hr><p style=\"font-size: smaller; font-style: italic; margin: 0px; text-align: center;\">";
+echo "v".$version." <a href=http://arcticfire.net/>arcticfire</a> / ";
+echo "<a href=http://zaptech.com/>zap technologies</a></p>\n\n";
+?>
 
 <SCRIPT LANGUAGE="JavaScript"><!-- Begin
 	var headhq;
@@ -98,6 +99,19 @@ site brought to you by <A HREF=http://zaptech.com/>zap technologies</A></p>
 	calhq.url = dungeon_display_file+'?ajax=0';
  	calhq.do_now();
  	cal_set('calout');  //  1st pass (above) provide the 'cal' div with 'calout' div
+
+<?PHP	if ($debug_mask & DEBUG_KEY) {  //  CRUFT, entire if block  ?>
+	//  desktop browser, detect keypress
+	//  FUTURE: diable Firefox page search triggering for non-control keys, make this config enabled?
+	//  http://stackoverflow.com/questions/3369593/  CITATION
+	//  http://stackoverflow.com/questions/4602277/  CITATION
+	document.onkeydown = function(evt) {
+		evt = evt || window.event;
+		if (evt.keyCode == 27) {
+			alert("Escape");
+			}
+		};
+<?PHP		}  ?>
 
 //	var nv2hq;
 // 	navhq = new class_hq('dgnav2', 0);

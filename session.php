@@ -36,7 +36,7 @@ function login_check($u, $p) {
 	/*            use AJAX https call to authentication service  */
 	if (0) {  // ***
 	$query = "select * from users where login=\"".$u."\"";
-	if (!mysql_connect("localhost", "subscribe", "sub2008"))
+	if (!mysql_connect("localhost", "subscribe", "..."))
 		return ( "no db login, no db subscription ");
 	else {
 		if (!mysql_select_db("subscription"))

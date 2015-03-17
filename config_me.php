@@ -1,5 +1,6 @@
 <?PHP
 //  copy this to config.php, then customize to taste
+$version = '0.1.5';
 $isprod = false;
 $title =  'Dungeon Test'
 
@@ -22,8 +23,8 @@ $debug_mask = 0;
 //  trade_chat
 
 //  action log map file suffix: player tags, player kicks
-//  _log
+//  .recent, .log
 
 //  available non-player maps
-//  test
+//  dungeon
 ?>

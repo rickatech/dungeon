@@ -13,8 +13,8 @@ include "config.php";
 session_start();
 
 //  service configuration parameters
-$data_dir = "test";
-//  $filename = $data_dir."/test.txt";
+$data_dir = "data";
+$dungeons = array('dungeon');
 $homemap_prefix = 'user';
 $maxhit = 3;
 //  user00000001.txt, 'user' + uid of user + '.txt', player's home map
@@ -340,17 +340,17 @@ else
 
 
 //   1  home map loaded, existing
-//   2  play map loaded, existing
 //   4  home map loaded, new default
-//   2  login required
+const FLAG_LOGIN_NO =  8;  //  login required
 //  16  new user, no home, welcome
-//  32  play map loaded, new default
-const FLAG_KICKED = 64;  //  player was kicked from map
+const FLAG_PLAY_OK =   2;  //  play map loaded, existing
+const FLAG_PLAY_NEW = 32;  //  play map loaded, new
+const FLAG_KICKED =   64;  //  player was kicked from map
 //  ??  generate new map, FUTURE
 $map_bits = 0;
 
 if (!isset($_SESSION['username_dg']) || !isset($_SESSION['uid_dg'])) {
-	$map_bits |= 8;
+	$map_bits |= FLAG_LOGIN_NO;
 	}
 else {  //****
 
@@ -408,15 +408,15 @@ if ($map_bits & 5) {
 		//  determine name of map in play (if any map in play)
 		$file_dungeon = $data_dir.'/'.$m_home['away'][3].'.txt';
 		if ($m_play = get_map($file_dungeon))
-			$map_bits |= 2;
+			$map_bits |= FLAG_PLAY_OK;
 		else {
 			//  prompt to create new player home map
 		   	if ($m_play = get_map($kkk = $data_dir.'/'.'dungeon.txt'))
-				$map_bits |= 32;
+				$map_bits |= FLAG_PLAY_NEW;
 			else
 				$msg = "Could not open play map file: ".$kkk;
 			}
-		if ($map_bits & 34) {
+		if ($map_bits & (FLAG_PLAY_OK | FLAG_PLAY_NEW)) {
 			//  got here because, existing away map or or new away map loaded
 			//  THIS IS IT, mark dungeon map is in play
 			$m = &$m_play;
@@ -485,7 +485,7 @@ else if ($map_bits & 16)
 	$v = 31;  // welcome
 else if (($map_bits & 5) == 0)
 	$v = 19;  // error, couldn't load home map
-else if (isset($m_home['away']) && ($map_bits & 34) == 0)
+else if (isset($m_home['away']) && ($map_bits & (FLAG_PLAY_OK | FLAG_PLAY_NEW)) == 0)
 	$v = 19;  // error, couldn't load away map 
 else if (!isset($m['tick'])) {
 	$v = 19;  // error
@@ -580,13 +580,13 @@ else {
 		}
 	else if ($cmd == 'passwait') { //  FUTURE
 		//  strobe lock file?
-		//  FUTURE: allow 'no nothing' command, advance map tick
+		//  FUTURE: allow 'do nothing' command, advance map tick
 		$put = 1;
 		}
 	else if ($cmd == 'dungeon') { //  FUTURE
 		//  strobe lock file?
 		//  PLACE USER AWAY FROM HOME MAP, CITE AWAY MAP
-		$m_home['away'] = array('away', $_SESSION['uid_dg'], $_SESSION['username_dg'], 'test');
+		$m_home['away'] = array('away', $_SESSION['uid_dg'], $_SESSION['username_dg'], $dungeons[0]);
 		//  left, location user was last active on home map
 		//  SSS
 		//  FUTURE: left needs to be like user, allow mulitple lefts/map
@@ -722,6 +722,48 @@ else {
 						  'hit'    => 0);
 						//  REMOVE USER FROM AWAY MAP
 						unset($m['user'][$trg_id]);
+						//  LOG knockout action
+						//  FUTURE, do this later, after tick has been updated (see below)
+						$action = array(
+						  date('Y-m-d'),
+						  date('H:i:s'),
+						  $m['tick'][1],
+						  $_SESSION['uid_dg'],
+						  $_SESSION['username_dg'],
+						  $trg_id,
+						  $av['handle'],
+						  'knock out');
+						$log_dungeon = $data_dir.'/'.$dungeons[0].'.log';
+						append_map_log($log_dungeon, &$action);
+						//  get number of players active
+						$actions = array();
+						$action2 = array();
+						$rec_dungeon = $data_dir.'/'.$dungeons[0].'.recent';  //  FUTURE, this is set twice :-(
+						get_map_recent($rec_dungeon, &$actions);
+						//  append action
+						//  FUTURE: edge case, this tick already has been recorded, just overwrites?
+						$actions[$m['tick'][1]] = array(
+						  $_SESSION['uid_dg'],
+						  $_SESSION['username_dg'],
+						  $trg_id,
+						  $av['handle'],
+						  'knock out');
+						count($actions2);
+						/* array_push($actions,
+						  $m['tick'][1],
+						  $_SESSION['uid_dg'],
+						  $_SESSION['username_dg'],
+						  $trg_id,
+						  $av['handle'],
+						  'knock out');  */
+						$max_count = count($actions);
+						//  echo "<pre>past actions: ".$max_count.", targets: ".$trgt_qty."\n"; print_r($actions); echo "</pre>";
+						//  sort action by tick
+						krsort($actions);  //  most recent first
+						if ($max_count > 3)
+							array_pop($actions);
+						//  snip off oldest action
+						put_map_recent($rec_dungeon, &$actions);
 						}
 					else
 						$msg2 .= " HIT! ".$m['user'][$trg_id]['hit']." put: ".$put;
@@ -743,7 +785,7 @@ else {
 		$m['tick'][1]++;  //  FUTURE: don't increment for home if play map active?
 		if ($debug_mask & DEBUG_USR) {
 		echo "2 <pre style=\"font-size: smaller;\">"; print_r($m['user']); echo "</pre>"; }
-		if ($map_bits & 34)
+		if ($map_bits & (FLAG_PLAY_OK | FLAG_PLAY_NEW))
 			$file_put = $file_dungeon;
 		else
 			$file_put = $file_home;
@@ -772,6 +814,8 @@ else {
 
 	//  opponent map, update (only allow one for now)
 
+	//  FUTURE, if possible consolidate log file writing to occur here, after tick may have been incremented
+
 	$put_away_chain = 0;
 	//  FUTURE: proceed from one away map to another away map
 	if ($put_away_chain == 1) {
@@ -782,17 +826,8 @@ else {
 		//  FUTURE: load in new non-home map?
 		}
 
-	if ($map_bits & 34) {
+	if ($map_bits & (FLAG_PLAY_OK | FLAG_PLAY_NEW)) {
 		//  give up button
-		//  any hmoe map updates needed?
-		//  any hmoe map updates needed?
-		//  any hmoe map updates needed?
-		//  any hmoe map updates needed?
-		//  any hmoe map updates needed?
-		//  any hmoe map updates needed?
-		//  any hmoe map updates needed?
-		//  any hmoe map updates needed?
-		//  any hmoe map updates needed?
 		//  any hmoe map updates needed?
 		}
 
@@ -899,17 +934,18 @@ else {
 		$v = near_far($f);
 		}
 	//  $msg = "view: ".$v.", field: ".$f." tick: ".$m['tick']." x, y = ".$x.", ".$y;
-	$msg = "view: ".(isset($v) ? $v : 'N/A').
-               ", field: ".(isset($f) ? $f : 'N/A').
-               " tick: ".$_SESSION['tick']." x, y = 
-	       ".(isset($x) ? $x : 'N/A').", ".(isset($y) ? $y : 'N/A').
+	$msg = "tick: ".$_SESSION['tick']." x:".(isset($x) ? $x : 'N/A')." y:".(isset($y) ? $y : 'N/A').
 	       " ".(isset($yaw) ? $yaw : 'N/A').
-	       " ".(isset($hit) ? $hit : 'N/A');
-	if ($msg3)
-		$msg .= "\n<br>".$msg3;
-	if ($msg2)
-		$msg .= "\n<br>".$msg2;
-	if ($_SESSION['uid_dg'] == 1) // admin/rickatech check
+	       "&deg; hp:".(isset($hit) ? $hit : 'N/A');
+	if ($debug_mask & DEBUG_ADM) {
+		$msg = "view: ".(isset($v) ? $v : 'N/A').
+	               ", field: ".(isset($f) ? $f : 'N/A')." ".$msg;
+		if ($msg3)
+			$msg .= "\n<br>".$msg3;
+		if ($msg2)
+			$msg .= "\n<br>".$msg2;
+		}
+	if (($debug_mask & DEBUG_ADM) && ($_SESSION['uid_dg'] == 1)) // admin/rickatech check
 		$msg .= "\n<br><span style=\"font-size: smaller; color: #ff0000;\">".$_SERVER['REQUEST_URI']."</span>";
 
 	/*  modifying map for display purposes,
@@ -958,12 +994,30 @@ if (isset($msg))
 else
 	render($v);
 
-//  echo "<pre>"; print_r($m['user']); echo "</pre>";
+	echo "\n<div style=\"display: none;\" id=\"log_activity\">\n";
+if ($map_bits & (FLAG_PLAY_OK | FLAG_PLAY_NEW)) {
+	//  report log knockout action, partially based on previous call to append_map_log
+	//  FUTURE, if no away map, show log for home map?
+	$rec_dungeon = $data_dir.'/'.$dungeons[0].'.recent';  //  FUTURE, this is set twice :-(
+	get_map_recent($rec_dungeon, &$actions);
+	$log_report = "recent activity";
+	foreach ($actions as $ak => $av) {
+		$log_report .= "\n<br>";
+		$log_report .= $ak;
+		$log_report .= ", ".$av[1]." > ".$av[3].": ".$av[4];
+		}
+	echo "\n<p style=\"margin: 0px;\">".$log_report."</p>\n";
+	}
+else {
+	echo "\n<p style=\"margin: 0px;\"> ... </p>\n";
+	}
+	echo "</div>\n";
+
 if (0) {
 //if (isset($_SESSION['uid_dg']) && ($_SESSION['uid_dg'] == 1)) { // admin/rickatech check
 //if (isset($_SESSION['uid_dg']) && ($_SESSION['uid_dg'] < 3)) { // admin/rickatech check
 	//echo "\n<div style=\"display: none;\" id=\"map_hidden_0\">\n";
-	echo "\n<div style=\"display: block;\" id=\"map_hidden_0\">\n";
+	echo "\n<div style=\"display: table; margin: 0px auto; border: 1px solid;\" id=\"map_hidden_0\">\n";
 	if (isset($m_new)) {
 		print_map($m_new);
 		}
@@ -971,9 +1025,11 @@ if (0) {
 		if (isset($m)) {
 			print_map($m);
 			//  echo "<pre>"; print_r($m); echo "</pre>";
+		//	if (isset($m_home)) {
+		//		if ($m != $m_home)
+		//		print_map($m_home);
+		//		}
 			}
-		if (isset($m_home))
-			print_map($m_home);
 		}
 	echo "\n</div>\n";
 	}
