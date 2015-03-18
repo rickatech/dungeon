@@ -1,6 +1,6 @@
 <?PHP
 //  copy this to config.php, then customize to taste
-$version = '0.1.5';
+$version = '0.1.6';
 $isprod = false;
 $title =  'Dungeon Test'
 
