@@ -6,6 +6,7 @@
 dungeon_display_file = 'dungeon_ajax.php';
 head_display_file =    'head_ajax.php';
 nav_display_file =     'nav_ajax.php';
+hiscore_display_file = 'hiscr_ajax.php';
 
 function popUp(URL) {
 	day = new Date();
@@ -42,7 +43,14 @@ function showtest(which) {
 	if (!document.getElementById)
 		return;
 	document.getElementById(which).innerHTML =
-	  '<center><table style=\"margin: auto;\" id=\"rentab\"><tr><td>[ reset complete  ]</td></tr></table></center>';
+	  '<center><table style=\"margin: auto;\" id=\"rentab\"><tr><td>[ reset complete  ]</td></tr></table></center>\n' +
+	  '<div id=\"dv_hiscore\" style=\"margin: auto; width: 8em;\">high score</div>\n' +
+	  '<div id=\"dv_options\" style=\"margin: auto; width: 8em;\">options</div>\n';
+	//  utilhq defined in index.php currenlty
+	utilhq.div = "dv_hiscore";
+	utilhq.url = hiscore_display_file+'?ajax=0';
+	utilhq.do_now();
+        //
 	}
 
 function showactive(which) {

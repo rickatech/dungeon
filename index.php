@@ -95,10 +95,16 @@ echo "<a href=http://zaptech.com/>zap technologies</a></p>\n\n";
 //	head_set('head');
 
 	var calhq;
- 	calhq = new class_hq('cal', function() {  newmap_toggle('map_bits');});  //  FUTURE why have both div cal wrapped around div calout?
+	//  FUTURE why have both div cal wrapped around div calout?
+ 	calhq = new class_hq('cal', function() {  newmap_toggle('map_bits');});
 	calhq.url = dungeon_display_file+'?ajax=0';
  	calhq.do_now();
  	cal_set('calout');  //  1st pass (above) provide the 'cal' div with 'calout' div
+
+	var utilhq;  //  attempt to reuse this for misc ajax loads: high score, options
+ 	utilhq = new class_hq(null, 0);
+	//  utilhq.url = nav_display_file+'?ajax=0';
+ 	//  utilhq.do_now();
 
 <?PHP	if ($debug_mask & DEBUG_KEY) {  //  CRUFT, entire if block  ?>
 	//  desktop browser, detect keypress
