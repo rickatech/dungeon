@@ -3,6 +3,7 @@
 $version = '0.1.7';
 $isprod = false;
 $title =  'Dungeon Test'
+$data_dir = "data";
 
 //  uncomment to enable various debug output
 const DEBUG_FOO = 1;

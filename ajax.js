@@ -39,18 +39,26 @@ function hideshow0(which) {
 		which.style.display = "none";
 	}
 
-function showtest(which) {
+function showtest(which, did) {
+	/*  which, div ID to update innerHTML  */
+	/*  did, Dungeon ID :-)  */
 	if (!document.getElementById)
 		return;
+		
+	var did_note;
+	if (typeof did == 'undefined')
+		did_note = 'high score: N/A';
+	else
+		did_note = 'high score: ' + did;
 	document.getElementById(which).innerHTML =
 	  '<center><table style=\"margin: auto;\" id=\"rentab\"><tr><td>[ reset complete  ]</td></tr></table></center>\n' +
-	  '<div id=\"dv_hiscore\" style=\"margin: auto; width: 8em;\">high score</div>\n' +
+	  '<div id=\"dv_hiscore\" style=\"margin: auto; width: 8em;\">' + did_note + '</div>\n' +
 	  '<div id=\"dv_options\" style=\"margin: auto; width: 8em;\">options</div>\n';
-	//  utilhq defined in index.php currenlty
-	utilhq.div = "dv_hiscore";
-	utilhq.url = hiscore_display_file+'?ajax=0';
-	utilhq.do_now();
-        //
+	if (typeof did != 'undefined') {
+		utilhq.div = "dv_hiscore";  /*  utilhq defined in index.php currenlty  */
+		utilhq.url = hiscore_display_file+'?ajax=0&did=' + did;
+		utilhq.do_now();
+		}
 	}
 
 function showactive(which) {

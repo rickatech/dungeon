@@ -13,7 +13,6 @@ include "config.php";
 session_start();
 
 //  service configuration parameters
-$data_dir = "data";
 $dungeons = array('dungeon');
 $homemap_prefix = 'user';
 $maxhit = 3;
@@ -339,8 +338,8 @@ else
 //  need to deal with 'torus world' x/y wrap around
 
 
-//   1  home map loaded, existing
-//   4  home map loaded, new default
+const FLAG_HOME_LOAD = 1;  //  home map loaded, existing
+const FLAG_HOME_NEW =  4;  //  home map loaded, new default
 const FLAG_LOGIN_NO =  8;  //  login required
 //  16  new user, no home, welcome
 const FLAG_PLAY_OK =   2;  //  play map loaded, existing
@@ -401,7 +400,8 @@ else {
 			$msg = "Could not open new home map file: ".$kkk;
 		}
 	}
-if ($map_bits & 5) {
+if ($map_bits & (FLAG_HOME_LOAD + FLAG_HOME_NEW)) {
+//  if ($map_bits & 5) {
 	//  got here because, existing home map or new home map loaded
 	if (isset($m_home['away']) && isset($m_home['away'][3])) {  //  8888
 		//  check for play map (non-home) map active
@@ -737,7 +737,6 @@ else {
 						append_map_log($log_dungeon, &$action);
 						//  get number of players active
 						$actions = array();
-						$action2 = array();
 						$rec_dungeon = $data_dir.'/'.$dungeons[0].'.recent';  //  FUTURE, this is set twice :-(
 						get_map_recent($rec_dungeon, &$actions);
 						//  append action
