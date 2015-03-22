@@ -19,8 +19,11 @@ if (isset($_GET['did'])) {  /*  did, Dungeon ID :-)  */
 	}
 
 $actions = array();
-$rec_dungeon = $data_dir.'/'.$dungeon_id.'.recent';
-echo "\n<p style=\"margin-top: 0px;\">".$dungeon_id." high scores</p> \n";
-get_map_recent($rec_dungeon, &$actions);
-echo "<pre>";  print_r($actions);  echo "</pre>\n";
+$rec_dungeon = $data_dir.'/'.$dungeon_id.'.score';
+echo "\n<p style=\"margin-top: 0px;\">".$dungeon_id." high scores";
+get_map_score($rec_dungeon, &$actions);
+foreach ($actions['scores'] as $ak =>$av) {
+	echo "\n<br>&nbsp; ".$av.", ".$actions['names'][$ak];
+	}
+echo "\n</p> \n";
 ?>

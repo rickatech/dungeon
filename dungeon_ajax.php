@@ -21,68 +21,31 @@ $maxhit = 3;
 
 include "lib_map.php";
 
-function checkevent($y, $m, $d, $row) {
-	//  return -1 too soon
-	//          0 ready
-	//          1 not yet
-	$t = strtotime($row);
-	$ey = date('Y', $t);
-	$em = date('m', $t);
-	$ed = date('d', $t);
-	if ($ey > $y)
-		$r = 1;
-	else if ($ey < $y)
-		$r = -1;
-	else if ($em > $m)
-		$r = 1;
-	else if ($em < $m)
-		$r = -1;
-	else if ($ed > $d)
-		$r = 1;
-	else if ($ed < $d)
-		$r = -1;
-	else
-		$r = 0;
-	return ($r);
-	};
-
-function previous_week($DY, $WD, $MO, $YR, $PM, $PY) {
-	if ($DY - $WD - 7 >= 1) {
-	        $SD = mktime(0, 0, 0, $MO, $DY - $WD - 7, $YR);
-	        }
-	else {
-	        $ML = mktime(0, 0, 0, $PM, 1, $PY);
-	        $SD = mktime(0, 0, 0, $PM, date("t", $ML) + $DY - $WD - 7, $PY);
-	        }
-    //  echo "\n  <BR>".date('Y-m-d', $SD)." previous week";
-        return $SD;
-	};
-
-function event($row) {
-	echo "\n<BR>. .";
-	};
-
 date_default_timezone_set('America/Los_Angeles');
-if (isset($_GET['bill']))
-	$bill = $_GET['bill'];
-else
-	$bill = 0;
-if (isset($_GET['year']))
-	$year = $_GET['year'];
-else
-	$year = 0;
-if (isset($_GET['month']))
-	$month = $_GET['month'];
-else
-	$month = 0;
-if (isset($_GET['day']))
-	$day = $_GET['day'];
-else
-	$day = 0;
-if (isset($_GET['filter']))
-	$filter = $_GET['filter'];
-else
-	$filter = 0;
+
+if (0) {  //  CRUFT
+	if (isset($_GET['bill']))
+		$bill = $_GET['bill'];
+	else
+		$bill = 0;
+	if (isset($_GET['year']))
+		$year = $_GET['year'];
+	else
+		$year = 0;
+	if (isset($_GET['month']))
+		$month = $_GET['month'];
+	else
+		$month = 0;
+	if (isset($_GET['day']))
+		$day = $_GET['day'];
+	else
+		$day = 0;
+	if (isset($_GET['filter']))
+		$filter = $_GET['filter'];
+	else
+		$filter = 0;
+	}
+
 if (isset($_GET['ajax']))
 	/*  0 render full cal div, 1 render just the calout div, unset ajax disabled  */
 	$ajax = $_GET['ajax'];
@@ -98,6 +61,7 @@ if ($ajax == 0) {
 	return;
 	}
 
+//  FUTURE: next two sections should be placed in a external asclofi file or class
 	//  lofi ASC viewpoint patterns,
 	//  FUTURE z buffer matching array to allow easier composting of dynamic elements?
 	$w[ 0][0] = "\    /";
@@ -303,14 +267,16 @@ if ($ajax == 0) {
 		//  what if s > m?
 		}
 
-if (isset($_GET["field"])) {
-	$f = $_GET["field"];
-	$v = near_far($f);
-		}
-else if (isset($_GET["view"]))
-	$v = $_GET["view"];
-else
-	$v = 4;
+if (0) {  //  CRUFT
+	if (isset($_GET["field"])) {
+		$f = $_GET["field"];
+		$v = near_far($f);
+			}
+	else if (isset($_GET["view"]))
+		$v = $_GET["view"];
+	else
+		$v = 4;
+	}
 
 //  HEY, here's where we detect display no action refresh, or command + display refresh!!!
 //  if no command ... skip command processing ... get map, return display
@@ -339,10 +305,10 @@ else
 
 
 const FLAG_HOME_LOAD = 1;  //  home map loaded, existing
+const FLAG_PLAY_OK =   2;  //  play map loaded, existing
 const FLAG_HOME_NEW =  4;  //  home map loaded, new default
 const FLAG_LOGIN_NO =  8;  //  login required
-//  16  new user, no home, welcome
-const FLAG_PLAY_OK =   2;  //  play map loaded, existing
+const FLAG_WELCOME =  16;  //  new user, no home, welcome
 const FLAG_PLAY_NEW = 32;  //  play map loaded, new
 const FLAG_KICKED =   64;  //  player was kicked from map
 //  ??  generate new map, FUTURE
@@ -379,12 +345,12 @@ else {
 		//  check tick, size, ... make part of get_map?
 		//  $msg = "Could not open home map file: ".$kkk;
 //		$msg = "Welcome ";
-		$map_bits |= 16;
+		$map_bits |= FLAG_WELCOME;
 		}
 	else {
 		//  prompt to create new player home map
 	   	if ($m_home = get_map($kkk = $data_dir.'/'.'home.txt')) {
-			$map_bits |= 4;
+			$map_bits |= FLAG_HOME_NEW;
 			//  THIS IS IT, mark home map is in play
 			$m = &$m_home;
          		$m['user'][$_SESSION['uid_dg']]['handle'] = $_SESSION['username_dg'];
@@ -401,7 +367,6 @@ else {
 		}
 	}
 if ($map_bits & (FLAG_HOME_LOAD + FLAG_HOME_NEW)) {
-//  if ($map_bits & 5) {
 	//  got here because, existing home map or new home map loaded
 	if (isset($m_home['away']) && isset($m_home['away'][3])) {  //  8888
 		//  check for play map (non-home) map active
@@ -447,6 +412,8 @@ if ($map_bits & (FLAG_HOME_LOAD + FLAG_HOME_NEW)) {
 			       			$m['user'][$_SESSION['uid_dg']]['yaw'] =    0;
 			       			$m['user'][$_SESSION['uid_dg']]['hit'] =    $m_home['left'][$_SESSION['uid_dg']]['hit'];
 						}
+					//  FUTURE: if another player or dynamic object already at spawn location
+					//          lower occupying objects hit points (damage from being in the way of door)
 					$put = 1;
 					}
 				}
@@ -512,9 +479,11 @@ else {
 	$bonk_1 = 0;
 	$msg3 = NULL;
 	//  FUTURE: check ticks, is it user's turn yet?
+	if (!($map_bits & FLAG_KICKED)) {  //  PILOT
 	$nyaw = $myaw = $m['user'][$_SESSION['uid_dg']]['yaw'];
 	$nx   = $mx   = $m['user'][$_SESSION['uid_dg']]['x'];
 	$ny   = $my   = $m['user'][$_SESSION['uid_dg']]['y'];
+		}
 
 	//  opponent, check if opponent is targeted AND action command
 	//  load up opponent home map
@@ -608,13 +577,14 @@ else {
 		//  in some cases user command will be overrided with this (e.g. kicked), see above
 		//  strobe lock file?
 		$bonk_1 = 1;
-		$hit_save = $m['user'][$_SESSION['uid_dg']]['hit'];
 		if ($map_bits & FLAG_KICKED) {
+			$hit_save = 0;
 			unset($m['left'][$_SESSION['uid_dg']]);
 			$msg3 = "kicked";
 			}
 		else {
 			//  away, user is no longer active in away map, return user to home map
+			$hit_save = $m['user'][$_SESSION['uid_dg']]['hit'];  //  PILOT, moving this 7 lines down
 			$m['left'][$_SESSION['uid_dg']] = array(
 			  'handle' => $_SESSION['username_dg'],
 			  'x'      => $m['user'][$_SESSION['uid_dg']]['x'],
@@ -622,6 +592,7 @@ else {
 			  'yaw'    => $m['user'][$_SESSION['uid_dg']]['yaw'],
 			  'hit'    => $hit_save);
 			$msg3 = "give up";
+			$m_home['left'][$_SESSION['uid_dg']]['hit'] = $hit_save;  //  PILOT
 			}
 		//  REMOVE USER FROM AWAY MAP
 		unset($m['user'][$_SESSION['uid_dg']]);
@@ -663,6 +634,8 @@ else {
 		}
 
 	$bonk = 0;
+	$trgt_qty = 0;
+/**/	if (!($map_bits & FLAG_KICKED)) {  //  PILOT, when kicked player in in limbo, has no location
 	//  Dynamic objects
 	//  Check if collide into another user or FUTURE other dynamic element
 	//  TTTT, prepare list of available 'targets'
@@ -690,8 +663,8 @@ else {
 		}
 	if ($bonk > 0)
 		$v = 30;  //  $msg2 = "BONK! ".$msg2;
+
 	//  Calculate targets ranges
-	$trgt_qty = 0;
 	foreach ($m['user'] as $ak => $av) {
 		if ($ak != $_SESSION['uid_dg']) {
 			$rv = abs($av['x'] - $rx) + abs($av['y'] - $ry);  //  FUTURE: fast Pythagorean Theorem
@@ -735,6 +708,7 @@ else {
 						  'knock out');
 						$log_dungeon = $data_dir.'/'.$dungeons[0].'.log';
 						append_map_log($log_dungeon, &$action);
+						//  RECENT activity update, FUTURE: refector into a call to a single new function?
 						//  get number of players active
 						$actions = array();
 						$rec_dungeon = $data_dir.'/'.$dungeons[0].'.recent';  //  FUTURE, this is set twice :-(
@@ -747,22 +721,29 @@ else {
 						  $trg_id,
 						  $av['handle'],
 						  'knock out');
-						count($actions2);
-						/* array_push($actions,
-						  $m['tick'][1],
-						  $_SESSION['uid_dg'],
-						  $_SESSION['username_dg'],
-						  $trg_id,
-						  $av['handle'],
-						  'knock out');  */
 						$max_count = count($actions);
-						//  echo "<pre>past actions: ".$max_count.", targets: ".$trgt_qty."\n"; print_r($actions); echo "</pre>";
 						//  sort action by tick
 						krsort($actions);  //  most recent first
 						if ($max_count > 3)
 							array_pop($actions);
 						//  snip off oldest action
 						put_map_recent($rec_dungeon, &$actions);
+						//  HI SCORE update
+						//    - read in players score array
+						//    - increment dominant player knock out tally
+						//      resort
+						//    - write out players score array
+						$scr_dungeon = $data_dir.'/'.$dungeons[0].'.score';
+						$actions = array();
+						get_map_score($scr_dungeon, &$actions);
+						$actions['names'][$_SESSION['uid_dg']] = $_SESSION['username_dg'];
+						if (isset($actions['scores'][$_SESSION['uid_dg']]))
+							$actions['scores'][$_SESSION['uid_dg']]++;
+						else
+							$actions['scores'][$_SESSION['uid_dg']] = 1;
+						//$actions['scores'][1]++;
+						arsort($actions['scores']);
+						put_map_score($scr_dungeon, &$actions);
 						}
 					else
 						$msg2 .= " HIT! ".$m['user'][$trg_id]['hit']." put: ".$put;
@@ -779,6 +760,7 @@ else {
 			$trgt_qty++;
 			}
 		}
+/**/	}
 
 	if ($put == 1) {
 		$m['tick'][1]++;  //  FUTURE: don't increment for home if play map active?
@@ -998,12 +980,17 @@ if ($map_bits & (FLAG_PLAY_OK | FLAG_PLAY_NEW)) {
 	//  report log knockout action, partially based on previous call to append_map_log
 	//  FUTURE, if no away map, show log for home map?
 	$rec_dungeon = $data_dir.'/'.$dungeons[0].'.recent';  //  FUTURE, this is set twice :-(
+	$actions = array();
 	get_map_recent($rec_dungeon, &$actions);
 	$log_report = "recent activity";
 	foreach ($actions as $ak => $av) {
 		$log_report .= "\n<br>";
+//		$log_report .= "\n<br>".$cmd." / ".$map_bits." / ";
 		$log_report .= $ak;
+//		if (isset($av[3]))
 		$log_report .= ", ".$av[1]." > ".$av[3].": ".$av[4];
+//		else
+//		$log_report .= ", ".$av[1]." > N/A";
 		}
 	echo "\n<p style=\"margin: 0px;\">".$log_report."</p>\n";
 	}
