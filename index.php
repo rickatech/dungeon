@@ -5,7 +5,10 @@
 	//  FUTURE: change session from ID to ID_DG so that daytimer doesn't use same session?
 	//  rename ajax.js?
 ?><HTML>
-<HEAD><?PHP
+<HEAD>
+<!--  this CAN NOT be hosted from HTTPS, must be from HTTP  -->
+<link rel="apple-touch-icon" href="http://public.zaptech.org/apple-touch-icon.png">
+<?PHP
 if (!isset($_GET['debug'])) {
 	//  iPhone hint
 //	$meta_viewport = "width=600";
@@ -50,7 +53,7 @@ UL.ALT {
 		echo "<body style=\"-webkit-text-size-adjust:none; background: #ffdfdf;\">";  ?>
 
 <TABLE WIDTH=100% BORDER=1><TR>
-<TD VALIGN=TOP id="today" id="head-today"><?php  printf("%s today", date('Y-m-d'));  ?></TD>
+<TD VALIGN=TOP id="head-today"><?php  printf("%s today", date('Y-m-d'));  ?></TD>
 <TD VALIGN=TOP ALIGN=CENTER id="head-title"><B><?PHP
 	if (isset($title))
 		echo $title; 
