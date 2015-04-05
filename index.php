@@ -6,7 +6,7 @@
 	//  rename ajax.js?
 ?><HTML>
 <HEAD><?PHP
-	//  this CAN NOT be hosted from HTTPS, must be from HTTP  -->
+	//  this CAN NOT be hosted from HTTPS with self-signed certificate
 	//ho "\n<link rel=\"apple-touch-icon\" href=".$appleurl."apple-touch-icon.png">;
 	echo "\n<link rel=\"apple-touch-icon\" href=".$appleurl."dungeon.png>";
 
