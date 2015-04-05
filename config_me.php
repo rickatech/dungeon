@@ -1,16 +1,17 @@
 <?PHP
 //  copy this to config.php, then customize to taste
-$version = '0.1.7';
+$version = '0.1.8';
 $isprod = false;
 $title =  'Dungeon Test'
 $data_dir = "data";
+$appleurl = 'http://public.zaptech.org/';
 
 //  uncomment to enable various debug output
-const DEBUG_FOO = 1;
-const DEBUG_USR =  2;
-const DEBUG_FRM =   4;
-const DEBUG_ADM =    8;         //  rickatech extra status
-const DEBUG_KEY =    16;        //  experiment for direct keyboard control
+const DEBUG_FOO =      1;
+const DEBUG_USR =     2;
+const DEBUG_FRM =    4;
+const DEBUG_ADM =   8;  //  rickatech extra status
+const DEBUG_KEY =  16;  //  experiment for direct keyboard control
 //$debug_mask = DEBUG_ADM; 
 $debug_mask = 0; 
 
