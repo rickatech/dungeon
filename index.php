@@ -5,11 +5,12 @@
 	//  FUTURE: change session from ID to ID_DG so that daytimer doesn't use same session?
 	//  rename ajax.js?
 ?><HTML>
-<HEAD>
-<!--  this CAN NOT be hosted from HTTPS with self-signed certificate  -->
-<link rel="apple-touch-icon" href="http://public.zaptech.org/dungeon.png">
-<?PHP
-if (!isset($_GET['debug'])) {
+<HEAD><?PHP
+	//  this CAN NOT be hosted from HTTPS with self-signed certificate
+	//ho "\n<link rel=\"apple-touch-icon\" href=".$appleurl."apple-touch-icon.png">;
+	echo "\n<link rel=\"apple-touch-icon\" href=".$appleurl."dungeon.png>";
+
+	if (!isset($_GET['debug'])) {
 	//  iPhone hint
 //	$meta_viewport = "width=600";
 //	$meta_viewport = "width=600, minimal-ui, user-scalable=no";
