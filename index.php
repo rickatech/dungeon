@@ -6,8 +6,8 @@
 	//  rename ajax.js?
 ?><HTML>
 <HEAD>
-<!--  this CAN NOT be hosted from HTTPS, must be from HTTP  -->
-<link rel="apple-touch-icon" href="http://public.zaptech.org/apple-touch-icon.png">
+<!--  this CAN NOT be hosted from HTTPS with self-signed certificate  -->
+<link rel="apple-touch-icon" href="http://public.zaptech.org/dungeon.png">
 <?PHP
 if (!isset($_GET['debug'])) {
 	//  iPhone hint
