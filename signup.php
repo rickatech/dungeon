@@ -9,10 +9,10 @@
 </head><?PHP
 
 if (isset($isprod) && $isprod) {
-	echo "<body style=\"-webkit-text-size-adjust:none;\">";
+	echo "<body>";
 	}
 else {
-	echo "<body style=\"-webkit-text-size-adjust:auto; background: #ffdfdf;\">";
+	echo "<body style=\"background: #ffdfdf;\">";
 	}
 
 echo "\n<body><b>Signup!</b>\n";
