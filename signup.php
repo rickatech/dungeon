@@ -1,14 +1,25 @@
+<?PHP	date_default_timezone_set('America/Los_Angeles');  // otherwise PHP warnings
+	include "config.php";  ?>
 <html>
 <head>
-<TITLE>Signup</TITLE>
-</head>
-<body><b>Signup!</b>
+<TITLE>Signup</TITLE><?PHP
+        //  a_viewport = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui";
+        $meta_viewport = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
+	echo "\n<meta name=\"viewport\" content=\"".$meta_viewport."\">";  ?>
+</head><?PHP
 
-<?PHP
+if (isset($isprod) && $isprod) {
+	echo "<body style=\"-webkit-text-size-adjust:none;\">";
+	}
+else {
+	echo "<body style=\"-webkit-text-size-adjust:auto; background: #ffdfdf;\">";
+	}
+
+echo "\n<body><b>Signup!</b>\n";
 
 if (!isset($_POST['email'])) {
         /*  arrive before submit is clicked  */
-	echo "<table style=\"margin-bottom: 2em;\"><tr>";
+	echo "<table style0=\"margin-bottom: 2em;\"><tr>";
 	echo "\n<form method=\"post\">";
 	echo "\n<td>Email:</td>";
 	echo "\n<td><input name=\"email\" type=\"text\" /></td>";
@@ -17,7 +28,9 @@ if (!isset($_POST['email'])) {
 	echo "\n<td><textarea name=\"message\" rows=\"4\" cols=\"40\"></textarea></td>";
 	echo "\n</tr><tr>";
 	echo "\n<td></td>";
-	echo "\n<td><input type=\"submit\" /></td>";
+	echo "\n<td><input type=\"submit\" />";
+	echo "\n<p>".$signup_msg."</p>\n\n";
+	echo "</td>";
 	echo "\n</form></tr></table>";
 	}
 
