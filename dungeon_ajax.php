@@ -9,8 +9,26 @@
   - code coverage: lots of obsolete code, how to enable source code report that show what code is still active  */
 
 /*  Invalid session okay here since login prompt if no user is detected  */
-include "config.php";
 session_start();
+date_default_timezone_set('America/Los_Angeles');
+
+if (isset($_GET['ajax'])) {
+	/*  0 render full cal div, 1 render just the calout div, unset ajax disabled  */
+	if ($ajax = $_GET['ajax'] == 0) {
+		/*  display: none, block  visibility: hidden, visible  */
+		echo "\n\n<!--  calout  --><div id=\"calout\">";
+		echo "[ calout ]</div><!--  calout  -->";
+		return;
+		}
+	}
+else {
+	echo "[ ajax disabled ]";
+	return;
+	}
+
+include "config.php";
+include "lib_map.php";	/*  utils for loading/updating/saving map files  */
+include "lofi.php";	/*  low resolution asc art patterns  */
 
 //  service configuration parameters
 $dungeons = array('dungeon');
@@ -18,202 +36,6 @@ $homemap_prefix = 'user';
 $maxhit = 3;
 //  user00000001.txt, 'user' + uid of user + '.txt', player's home map
 //  home.txt,                           new player home map 'template'
-
-include "lib_map.php";
-
-date_default_timezone_set('America/Los_Angeles');
-
-if (0) {  //  CRUFT
-	if (isset($_GET['bill']))
-		$bill = $_GET['bill'];
-	else
-		$bill = 0;
-	if (isset($_GET['year']))
-		$year = $_GET['year'];
-	else
-		$year = 0;
-	if (isset($_GET['month']))
-		$month = $_GET['month'];
-	else
-		$month = 0;
-	if (isset($_GET['day']))
-		$day = $_GET['day'];
-	else
-		$day = 0;
-	if (isset($_GET['filter']))
-		$filter = $_GET['filter'];
-	else
-		$filter = 0;
-	}
-
-if (isset($_GET['ajax']))
-	/*  0 render full cal div, 1 render just the calout div, unset ajax disabled  */
-	$ajax = $_GET['ajax'];
-else {
-	echo "[ ajax disabled ]";
-	return;
-	}
-
-/*  display: none, block  visibility: hidden, visible  */
-if ($ajax == 0) {
-	echo "\n\n<!--  calout  --><div id=\"calout\">";
-	echo "[ calout ]</div><!--  calout  -->";
-	return;
-	}
-
-//  FUTURE: next two sections should be placed in a external asclofi file or class
-	//  lofi ASC viewpoint patterns,
-	//  FUTURE z buffer matching array to allow easier composting of dynamic elements?
-	$w[ 0][0] = "\    /";
-	$w[ 0][1] = " |##| ";
-	$w[ 0][2] = "/    \\";  /*  ! \"  */
-	$w[ 1][0] = "     /";
-	$w[ 1][1] = "####| ";
-	$w[ 1][2] = "     \\";  /*  ! \"  */
-	$w[ 2][0] = "\     ";
-	$w[ 2][1] = " |####";
-	$w[ 2][2] = "/     ";
-	$w[ 3][0] = "\ __ /";
-	$w[ 3][1] = " |__| ";
-	$w[ 3][2] = "/    \\";  /*  ! \"  */
-	$w[ 4][0] = "     &nbsp;";
-	$w[ 4][1] = "######";
-	$w[ 4][2] = "     &nbsp;";
-	$w[ 5][0] = "     /";
-	$w[ 5][1] = "####  ";
-	$w[ 5][2] = "     \\";  /*  ! \"  */
-	$w[ 6][0] = "\     ";
-	$w[ 6][1] = "  ####";
-	$w[ 6][2] = "/     ";
-	$w[ 7][0] = "  __  ";
-	$w[ 7][1] = "#|__|#";
-	$w[ 7][2] = "    &nbsp; ";
-	$w[ 8][0] = "    &nbsp; ";
-	$w[ 8][1] = "    &nbsp; ";
-	$w[ 8][2] = "    &nbsp; ";
-	$w[ 8]['z'] = 0;
-	$w[ 9][0] = "_     ";
-	$w[ 9][1] = "_|####";
-	$w[ 9][2] = "    &nbsp; ";
-	$w[10][0] = "     _";
-	$w[10][1] = "####|_";
-	$w[10][2] = "     &nbsp;";
-	$w[11][0] = "\ __  ";
-	$w[11][1] = " |__|#";
-	$w[11][2] = "/     ";
-	$w[12][0] = "\    _";
-	$w[12][1] = " |##|_";
-	$w[12][2] = "/     ";
-	$w[13][0] = "\    _";
-	$w[13][1] = "  ##|_";
-	$w[13][2] = "/     ";
-	$w[14][0] = "\ ____";
-	$w[14][1] = " |____";
-	$w[14][2] = "/     ";
-	$w[15][0] = "______";
-	$w[15][1] = "______";
-	$w[15][2] = "     &nbsp;";
-	$w[16][0] = "____  ";
-	$w[16][1] = "____|#";
-	$w[16][2] = "     &nbsp;";
-	$w[17][0] = "  ____";
-	$w[17][1] = "#|____";
-	$w[17][2] = "     &nbsp;";
-	$w[18][0] = "_    _";
-	$w[18][1] = "_|##|_";
-	$w[18][2] = "     &nbsp;";
-	$w[19][0] = "    &nbsp; ";
-	$w[19][1] = "error!";
-	$w[19][2] = "    &nbsp; ";
-	$w[20][0] = "    &nbsp; ";
-	$w[20][1] = "please";
-	$w[20][2] = "login ";
-	$w[21][0] = "_    /";
-	$w[21][1] = "_|##  ";
-	$w[21][2] = "     \\";
-	$w[22][0] = "____ /";
-	$w[22][1] = "____| ";
-	$w[22][2] = "     \\";
-	$w[23][0] = "____  ";
-	$w[23][1] = "____|#";
-	$w[23][2] = "     &nbsp;";
-	$w[24][0] = "\ __  ";
-	$w[24][1] = " |__|#";
-	$w[24][2] = "/     ";
-	$w[25][0] = "  __ /";
-	$w[25][1] = "#|__| ";
-	$w[25][2] = "     \\";
-	$w[26][0] = "\    /";
-	$w[26][1] = " |##  ";
-	$w[26][2] = "/    \\";
-	$w[27][0] = "\    /";
-	$w[27][1] = "  ##| ";
-	$w[27][2] = "/    \\";
-	$w[28][0] = "\    /";
-	$w[28][1] = "  ##  ";
-	$w[28][2] = "/    \\";
-	$w[29][0] = "_    /";
-	$w[29][1] = "_|##| ";
-	$w[29][2] = "     \\";
-	$w[30][0] = "! * @ ";
-	$w[30][1] = " BONK!";
-	$w[30][2] = " ~ %  ";
-	$w[31][0] = "welcom";
-	$w[31][1] = "e to d";
-	$w[31][2] = "ungeon";
-	$w[32][0] = "refres";
-	$w[32][1] = "h to p";
-	$w[32][2] = "roceed";
-
-
-	function near_far($f) {
-		//  there may be a way to fix code near and far seperate
-		//  then 'green screen' near over far over background
-		$v = 8;
-		if ($f ==  0) $v =  4;  /*       left center right  */ 
-		if ($f ==  1) $v =  1;  /* far    40    20    10 */
-		if ($f ==  2) $v =  8;  /* near    4     2     1 */
-		if ($f ==  3) $v =  8;
-		if ($f ==  4) $v =  2;
-		if ($f ==  5) $v =  0;
-		if ($f ==  7) $v =  8;
-		if ($f == 10) $v = 10;
-		if ($f == 11) $v =  5;
-		if ($f == 12) $v =  8;
-		if ($f == 13) $v =  8; 
-		if ($f == 14) $v = 12;
-		if ($f == 15) $v = 26;
-		if ($f == 16) $v =  8;
-		if ($f == 17) $v =  8;
-		if ($f == 20) $v =  7;
-		if ($f == 21) $v = 25;
-		if ($f == 24) $v = 11;
-		if ($f == 25) $v =  3;
-		if ($f == 30) $v = 17;
-		if ($f == 31) $v = 25;
-		if ($f == 34) $v = 14;
-		if ($f == 35) $v =  3;
-		if ($f == 40) $v =  9;
-		if ($f == 41) $v = 29;
-		if ($f == 44) $v =  6;
-		if ($f == 45) $v = 27;
-		if ($f == 50) $v = 18;
-		if ($f == 51) $v = 21;
-		if ($f == 54) $v = 13;
-		if ($f == 55) $v = 28;
-		if ($f == 56) $v =  8;
-		if ($f == 57) $v =  8;
-		if ($f == 60) $v = 23;
-		if ($f == 61) $v = 22;
-		if ($f == 64) $v = 11;
-		if ($f == 65) $v =  3;
-		if ($f == 67) $v =  8;
-		if ($f == 70) $v = 15;
-		if ($f == 71) $v = 22;
-		if ($f == 74) $v = 14;
-		if ($f == 75) $v =  3;
-		return $v;
-		}
 
 	function render($v, $message = NULL, $b = 0, $o = NULL, $oo = NULL, $or = 0) {
 		/*  this may be client side javascript at some point?  */
@@ -266,17 +88,6 @@ if ($ajax == 0) {
 		return ($r);
 		//  what if s > m?
 		}
-
-if (0) {  //  CRUFT
-	if (isset($_GET["field"])) {
-		$f = $_GET["field"];
-		$v = near_far($f);
-			}
-	else if (isset($_GET["view"]))
-		$v = $_GET["view"];
-	else
-		$v = 4;
-	}
 
 //  HEY, here's where we detect display no action refresh, or command + display refresh!!!
 //  if no command ... skip command processing ... get map, return display
@@ -480,9 +291,9 @@ else {
 	$msg3 = NULL;
 	//  FUTURE: check ticks, is it user's turn yet?
 	if (!($map_bits & FLAG_KICKED)) {  //  PILOT
-	$nyaw = $myaw = $m['user'][$_SESSION['uid_dg']]['yaw'];
-	$nx   = $mx   = $m['user'][$_SESSION['uid_dg']]['x'];
-	$ny   = $my   = $m['user'][$_SESSION['uid_dg']]['y'];
+		$nyaw = $myaw = $m['user'][$_SESSION['uid_dg']]['yaw'];
+		$nx   = $mx   = $m['user'][$_SESSION['uid_dg']]['x'];
+		$ny   = $my   = $m['user'][$_SESSION['uid_dg']]['y'];
 		}
 
 	//  opponent, check if opponent is targeted AND action command
@@ -633,12 +444,12 @@ else {
 		//      next tick for that characer they should get processed as giveup with appropriate messaging
 		}
 
+	/*  Okay, done with processing player command, let check environment for collisions  */
 	$bonk = 0;
 	$trgt_qty = 0;
 /**/	if (!($map_bits & FLAG_KICKED)) {  //  PILOT, when kicked player in in limbo, has no location
 	//  Dynamic objects
 	//  Check if collide into another user or FUTURE other dynamic element
-	//  TTTT, prepare list of available 'targets'
 	foreach ($m['user'] as $ak => $av) {
 		if ($ak != $_SESSION['uid_dg']) {
 			//  FYI, if collide/bonk happens, unlikely a non-move is action has occurred
@@ -647,6 +458,16 @@ else {
 					$bonk = 1;
 				}
 			}
+		}
+	//  Check if collide into npc
+	foreach ($m['npc'] as $ak => $av) {
+	//	if ($ak != $_SESSION['uid_dg']) {
+			//  FYI, if collide/bonk happens, unlikely a non-move is action has occurred
+			if ($put == 1) {
+				if ($av['x'] == $nx && $av['y'] == $ny)
+					$bonk = 1;
+				}
+	//		}
 		}
 	$rx = $mx;  $ry = $my;
 	//  Static objects
@@ -664,10 +485,18 @@ else {
 	if ($bonk > 0)
 		$v = 30;  //  $msg2 = "BONK! ".$msg2;
 
-	//  Calculate targets ranges
+	//  Calculate targets ranges, against npc's
+	foreach ($m['npc'] as $ak => $av) {
+		$rv = abs($av['x'] - $rx) + abs($av['y'] - $ry);  //  FUTURE: fast Pythagorean Theorem
+		$trgt_val[$trgt_qty] = $ak.",".$av['handle'].",".$rv;
+		$trgt_qty++;
+		}
+	//  Calculate targets ranges, against other players ... also assess hit/dammage dealt
 	foreach ($m['user'] as $ak => $av) {
 		if ($ak != $_SESSION['uid_dg']) {
 			$rv = abs($av['x'] - $rx) + abs($av['y'] - $ry);  //  FUTURE: fast Pythagorean Theorem
+
+			//  FUTURE: BREAK OUT TO SEPEARATE FUNCTION?
 			if (isset($trgact) && $trgact == 'tag' && $ak == $trg_id) {
 				if ($debug_mask & DEBUG_USR) {
 				echo "trg_id: ".$trg_id." <pre style=\"font-size: smaller;\">"; print_r($m['user']); echo "</pre>"; }
@@ -708,6 +537,7 @@ else {
 						  'knock out');
 						$log_dungeon = $data_dir.'/'.$dungeons[0].'.log';
 						append_map_log($log_dungeon, &$action);
+
 						//  RECENT activity update, FUTURE: refector into a call to a single new function?
 						//  get number of players active
 						$actions = array();
@@ -728,6 +558,7 @@ else {
 							array_pop($actions);
 						//  snip off oldest action
 						put_map_recent($rec_dungeon, &$actions);
+
 						//  HI SCORE update
 						//    - read in players score array
 						//    - increment dominant player knock out tally

@@ -1,6 +1,7 @@
 for dungeon
 
 grep FUTURE in code enahncement suggestions
+grep CITATION in code for information reference
 
 Use Cases - handy for smoke testing before release
   - fresh install, make sure home and dungeon maps establish okay when logged
