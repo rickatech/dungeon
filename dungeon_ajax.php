@@ -27,6 +27,9 @@ else {
 	}
 
 include "config.php";
+if ($debug_mask & DEBUG_SES) {
+	echo "\n<pre>"; print_r($_SESSION);  echo "</pre>\n";
+	}
 include "lib_map.php";	/*  utils for loading/updating/saving map files  */
 include "lofi.php";	/*  low resolution asc art patterns  */
 

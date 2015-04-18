@@ -13,8 +13,13 @@ const DEBUG_USR =     2;
 const DEBUG_FRM =    4;
 const DEBUG_ADM =   8;  //  rickatech extra status
 const DEBUG_KEY =  16;  //  experiment for direct keyboard control
+const DEBUG_SES = 32;   //  output session
 //$debug_mask = DEBUG_ADM; 
-$debug_mask = 0; 
+//  FUTURE, only allow if NOT isprod?
+if (isset($_SESSION['debug']))
+	$debug_mask = $_SESSION['debug'];
+else
+	$debug_mask = 0; 
 
 //  global, room, and 1:1 chat, fee or reputation needed
 //  global_chat
