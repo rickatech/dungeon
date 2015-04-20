@@ -6,6 +6,10 @@ $title =  'Dungeon Test'
 $data_dir = "data";
 $appleurl = 'http://public.zaptech.org/';
 $signup_msg = 'This is stable release signup form. <br>Development release uses a different <a href=http://portal.zaptech.org/dun_dev/>form</a>.';
+$dungeons = array('dungeon');
+$homemap_prefix = 'user';	//  user00000001.txt, 'user' + uid of user + '.txt', player's home map
+				//  home.txt, new player home map 'template'
+$maxhit = 3;
 
 //  uncomment to enable various debug output
 const DEBUG_FOO =      1;

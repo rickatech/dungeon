@@ -27,70 +27,10 @@ else {
 	}
 
 include "config.php";
-if ($debug_mask & DEBUG_SES) {
-	echo "\n<pre>"; print_r($_SESSION);  echo "</pre>\n";
-	}
+if ($debug_mask & DEBUG_SES) { echo "\n<pre>"; print_r($_SESSION);  echo "</pre>\n"; }
 include "lib_map.php";	/*  utils for loading/updating/saving map files  */
 include "lofi.php";	/*  low resolution asc art patterns  */
-
-//  service configuration parameters
-$dungeons = array('dungeon');
-$homemap_prefix = 'user';
-$maxhit = 3;
-//  user00000001.txt, 'user' + uid of user + '.txt', player's home map
-//  home.txt,                           new player home map 'template'
-
-	function render($v, $message = NULL, $b = 0, $o = NULL, $oo = NULL, $or = 0) {
-		/*  this may be client side javascript at some point?  */
-		global $w;
-		global $z;
-		global $bonk;
-		//  adjust border color to hint at presence of nearby walls
-		$bs  = $b & 1 ? 'border-top: solid 4px;' :       'border-top: solid 4px; border-top-color: #9FFF9F;';
-		$bs .= $b & 2 ? 'border-left: solid 4px;' :     'border-left: solid 4px; border-left-color: #9FFF9F;';
-		$bs .= $b & 4 ? 'border-right: solid 4px;' :   'border-right: solid 4px; border-right-color: #9FFF9F;';
-		$bs .= $b & 8 ? 'border-bottom: solid 4px;' : 'border-bottom: solid 4px; border-bottom-color: #9FFF9F;';
-		$r0 = $w[$v][0];
-		$r1 = $w[$v][1];
-		$r2 = $w[$v][2];
-		if (!$bonk) {
-			//  show other player!!!
-			if ($o)
-				$r1[3] = $o;
-			if ($oo) {
-				$r1[2] = $oo; $r1[3] = $oo;
-				$r2[2] = $oo; $r2[3] = $oo; }
-			}
-		//  change background based on player orientation, FUTURE: 3D background map
-		if ($or < 90)
-			$bg_tc = '#ffffff';  //  'south', bright
-		else if ($or < 180)
-			$bg_tc = '#ffefff';  //  'west', purple
-		else if ($or < 270)
-			$bg_tc = '#dfdfff';  //  'north', bluish/periwinkle/cyan
-		else
-			$bg_tc = '#efffff';  //  'east', green/mint
-		echo "<center><table style=\"margin: auto;  background: ".$bg_tc."\"><tr>\n<td id=\"rentab\" style=\"".$bs."\">\n";
-		//  echo "<center><table style=\"margin: auto;  background: #ffffff;\"><tr>\n<td id=\"rentab\" style=\"".$bs."\">\n";
-		printf("<pre style=\"font-size: 72px; margin-bottom: 0px;\">%s\n%s\n%s</pre>",
-		    $r0, $r1, $r2);
-		echo "</td>\n</tr></table>\n";
-		if ($message)
-			echo "\n".$message."\n";
-		echo "</center>";
-		}
-
-	function stepwrap($v, $m, $s) {
-		// torus 'wrap around' world baby!
-		// v current value
-		// m max, wrap around value
-		// s step amount, assumed less than m
-		if      ($v + $s < 0)        $r = $v + $s + $m;
-		else if ($v + $s > ($m - 1)) $r = $v - $m + $s;
-		else 	                     $r = $v + $s;
-		return ($r);
-		//  what if s > m?
-		}
+include "render.php";	/*  backend view render setup  */
 
 //  HEY, here's where we detect display no action refresh, or command + display refresh!!!
 //  if no command ... skip command processing ... get map, return display
@@ -763,51 +703,131 @@ else {
 	if (($debug_mask & DEBUG_ADM) && ($_SESSION['uid_dg'] == 1)) // admin/rickatech check
 		$msg .= "\n<br><span style=\"font-size: smaller; color: #ff0000;\">".$_SERVER['REQUEST_URI']."</span>";
 
-	/*  modifying map for display purposes,
-        /*  NEVER SAVE THIS?  */
-	//  $m[$x][$y] = '*';
-	$o = NULL;
-	$oo = NULL;
+	//  FUTURE: lots of 'almost' identical code below, refactor?
+	$near = array();
+	/*  flag/mark nearby players
+	/*  left<-ooo->right
+	/*  mm nn  oo  pp qq
+	/*     n   o   p
+	/*         ^      */
 	foreach ($m['user'] as $ak => $av) {
 		//  FUTURE: user scan is done in code prior to here, consolidate?
 		if (!$mapchanging && $av['x'] == $x && $av['y'] == $y)
-			$m[$x][$y] = '*';
+			$m[$x][$y] = '*';  // modifying map for display purposes, NEVER SAVE THIS  */
 		else {
-			$m[$av['x']][$av['y']] = '+';
+			$m[$av['x']][$av['y']] = '+';  // modifying map for display purposes, NEVER SAVE THIS  */
 			if (!$mapchanging) {
 				if ($yaw < 90) {
-					if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -2))	
-						$o = $av['handle'][0];
-					if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -1))	
-						$oo = $av['handle'][0];
+					if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -2))
+						$near['oo'] = $av['handle'][0];
+					if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -1))
+						$near['o'] =  $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	
+					    $av['y'] == stepwrap($y, $m['size'][2], -1))
+						$near['n'] =  $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  1) &&	
+					    $av['y'] == stepwrap($y, $m['size'][2], -1))
+						$near['p'] =  $av['handle'][0];
 					}
 				else if ($yaw < 180) {
-					if ($av['y'] == $y && $av['x'] == stepwrap($x, $m['size'][1],  2))	
-						$o = $av['handle'][0];
-					if ($av['y'] == $y && $av['x'] == stepwrap($x, $m['size'][1],  1))	
-						$oo = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == $y)
+						$near['oo'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  1) && $av['y'] == $y)
+						$near['o'] =  $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  1) &&
+					    $av['y'] == stepwrap($y, $m['size'][2], -1))
+						$near['n'] =  $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  1) &&
+					    $av['y'] == stepwrap($y, $m['size'][2],  1))
+						$near['p'] =  $av['handle'][0];
 					}
 				else if ($yaw < 270) {
 					if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  2))	
-						$o = $av['handle'][0];
+						$near['oo'] = $av['handle'][0];
 					if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  1))	
-						$oo = $av['handle'][0];
+						$near['o'] =  $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  1) &&	
+					    $av['y'] == stepwrap($y, $m['size'][2],  1))
+						$near['n'] =  $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	
+					    $av['y'] == stepwrap($y, $m['size'][2],  1))
+						$near['p'] =  $av['handle'][0];
 					}
 				else {
-					if ($av['y'] == $y && $av['x'] == stepwrap($x, $m['size'][1], -2))	
-						$o = $av['handle'][0];
-					if ($av['y'] == $y && $av['x'] == stepwrap($x, $m['size'][1], -1))	
-						$oo = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == $y)
+						$near['oo'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -1) && $av['y'] == $y)
+						$near['o'] =  $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	
+					    $av['y'] == stepwrap($y, $m['size'][2],  1))
+						$near['n'] =  $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	
+					    $av['y'] == stepwrap($y, $m['size'][2], -1))
+						$near['p'] =  $av['handle'][0];
 					}
+				}
+			}
+		}
+	foreach ($m['npc'] as $ak => $av) {
+		//  FUTURE: user scan is done in code prior to here, consolidate?
+		$m[$av['x']][$av['y']] = 'M';  // modifying map for display purposes, NEVER SAVE THIS  */
+		if (!$mapchanging) {
+			if ($yaw < 90) {
+				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+					$near['oo'] = 'M';
+				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -1))	
+					$near['o'] =  'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	
+				    $av['y'] == stepwrap($y, $m['size'][2], -1))	
+					$near['n'] =  'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  1) &&	
+				    $av['y'] == stepwrap($y, $m['size'][2], -1))	
+					$near['p'] =  'M';
+				}
+			else if ($yaw < 180) {
+				if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == $y) 
+					$near['oo'] = 'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  1) && $av['y'] == $y) 
+					$near['o'] =  'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  1) &&
+				    $av['y'] == stepwrap($y, $m['size'][2], -1))
+					$near['n'] =  'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  1) &&
+				    $av['y'] == stepwrap($y, $m['size'][2],  1))
+					$near['p'] =  'M';
+				}
+			else if ($yaw < 270) {
+				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+					$near['oo'] = 'M';
+				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  1))	
+					$near['o'] =  'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  1) &&	
+				    $av['y'] == stepwrap($y, $m['size'][2],  1))	
+					$near['n'] =  'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	
+				    $av['y'] == stepwrap($y, $m['size'][2],  1))	
+					$near['p'] =  'M';
+				}
+			else {
+				if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == $y)
+					$near['oo'] = 'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -1) && $av['y'] == $y)
+					$near['o'] =  'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	
+				    $av['y'] == stepwrap($y, $m['size'][2],  1))
+					$near['n'] =  'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	
+				    $av['y'] == stepwrap($y, $m['size'][2], -1))
+					$near['p'] =  'M';
 				}
 			}
 		}
 	}
 
 if (isset($msg))
-	render($v, $msg, $nearwall, $o, $oo, isset($yaw) ? $yaw : 0);
+	render($v, $msg, $nearwall, isset($yaw) ? $yaw : 0, &$near);
 else
-	render($v);
+	render($v);  //  OBSOLETE?
 
 	echo "\n<div style=\"display: none;\" id=\"log_activity\">\n";
 if ($map_bits & (FLAG_PLAY_OK | FLAG_PLAY_NEW)) {
