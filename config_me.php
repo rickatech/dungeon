@@ -1,11 +1,15 @@
 <?PHP
 //  copy this to config.php, then customize to taste
-$version = '0.1.8';
+$version = '0.1.9';
 $isprod = false;
 $title =  'Dungeon Test'
 $data_dir = "data";
 $appleurl = 'http://public.zaptech.org/';
 $signup_msg = 'This is stable release signup form. <br>Development release uses a different <a href=http://portal.zaptech.org/dun_dev/>form</a>.';
+$dungeons = array('dungeon');
+$homemap_prefix = 'user';	//  user00000001.txt, 'user' + uid of user + '.txt', player's home map
+				//  home.txt, new player home map 'template'
+$maxhit = 3;
 
 //  uncomment to enable various debug output
 const DEBUG_FOO =      1;
@@ -13,8 +17,13 @@ const DEBUG_USR =     2;
 const DEBUG_FRM =    4;
 const DEBUG_ADM =   8;  //  rickatech extra status
 const DEBUG_KEY =  16;  //  experiment for direct keyboard control
+const DEBUG_SES = 32;   //  output session
 //$debug_mask = DEBUG_ADM; 
-$debug_mask = 0; 
+//  FUTURE, only allow if NOT isprod?
+if (isset($_SESSION['debug']))
+	$debug_mask = $_SESSION['debug'];
+else
+	$debug_mask = 0; 
 
 //  global, room, and 1:1 chat, fee or reputation needed
 //  global_chat

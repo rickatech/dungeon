@@ -2,7 +2,6 @@
 function get_map($filename) {
 	//  try to import dungeon array
 	$row = 0;
-	$user = 0;
 	if ($fh = fopen($filename, 'r')) {
 		while (($data = fgetcsv($fh, 1000, ",")) !== FALSE) {
 			//  echo "\ndata[0]: ".$data[0]."\n";
@@ -29,12 +28,6 @@ function get_map($filename) {
 				$new_map['left'][$data[1]]['yaw'] =    $data[5];  //  yaw
 				if (isset($data[6]))
 					$new_map['left'][$data[1]]['hit'] =    $data[6];
-				//$new_map['left'][0] = 'left';
-				//$new_map['left'][1] = $data[1];  //  uid
-				//$new_map['left'][2] = $data[2];  //  name
-				//$new_map['left'][3] = $data[3];  //  x
-				//$new_map['left'][4] = $data[4];  //  y
-				//$new_map['left'][5] = $data[5];  //  yaw
 				}
 			else if ($data[0] == 'user') {
 				//  then add extra field for chat name, FUTURE use named attibutes above?
@@ -44,7 +37,15 @@ function get_map($filename) {
 				$new_map['user'][$data[1]]['yaw'] =    $data[5];  //  yaw
 				if (isset($data[6]))
 					$new_map['user'][$data[1]]['hit'] =    $data[6];
-				$user++;  //  FUTURE: this is bogus, unneeded?
+				}
+			else if ($data[0] == 'npc') {
+				//  then add extra field for chat name, FUTURE use named attibutes above?
+				$new_map['npc'][$data[1]]['handle'] = $data[2];  //  name
+				$new_map['npc'][$data[1]]['x'] =      $data[3];  //  x
+				$new_map['npc'][$data[1]]['y'] =      $data[4];  //  y
+				$new_map['npc'][$data[1]]['yaw'] =    $data[5];  //  yaw
+				if (isset($data[6]))
+					$new_map['npc'][$data[1]]['hit'] =    $data[6];
 				}
 			else
 				$new_map[$row] = $data;
@@ -91,8 +92,17 @@ function put_map($newfile, &$a) {
 				//  foreach ($av as $bv) {
 				foreach ($av as $bk => $bv) {
 					if ($debug_mask & DEBUG_FOO) echo "<br>".$bk;
-					//  $user = array('user', key($av), $bv['handle'],
 					$user = array('user', $bk, $bv['handle'],
+					  $bv['x'], $bv['y'], $bv['yaw'], isset($bv['hit']) ? $bv['hit'] : 0);
+					next($av);
+					fputcsv($fh, $user);
+					}
+				}
+			else if ($ak === 'npc') {
+				//  foreach ($av as $bv) {
+				foreach ($av as $bk => $bv) {
+					if ($debug_mask & DEBUG_FOO) echo "<br>".$bk;
+					$user = array('npc', $bk, $bv['handle'],
 					  $bv['x'], $bv['y'], $bv['yaw'], isset($bv['hit']) ? $bv['hit'] : 0);
 					next($av);
 					fputcsv($fh, $user);
@@ -224,7 +234,10 @@ function get_map_score($logfile, &$actions) {
 	}
 
 function put_map_score($logfile, &$actions) {
-	//  pass in player score sorted array, rewrite score statte file
+	//  pass in player score sorted array, two parts:
+	//    - score player ID's paired with scores, sorted by scores
+	//    - player ID's paired with characeter name, useful in case character name lookup is needed
+	//  rewrite score state file
 	if ($fh = fopen($logfile, 'w')) {
 		foreach ($actions as $ak => $av) {
 			foreach ($av as $akk =>$avv) {

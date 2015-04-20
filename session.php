@@ -1,6 +1,13 @@
 <?PHP
 
 session_start();
+//  FUTURE, only allow if NOT isprod?
+if (isset($_GET['debug'])) {
+	if ($_GET['debug'] < 1)
+		unset($_SESSION['debug']);
+	else
+		$_SESSION['debug'] = $_GET['debug'];
+	}
 if (!isset($_POST['logout']) && !isset($_GET['logout']) && isset($_SESSION['username_dg'])) {
 //if (!isset($_POST['logout']) && isset($_SESSION['username_dg'])) {
 	/*  preserve session unless logout detected  */
