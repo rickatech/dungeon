@@ -1,6 +1,6 @@
 <?PHP
 //  copy this to config.php, then customize to taste
-$version = '0.1.9';
+$version = '0.2.0';
 $isprod = false;
 $title =  'Dungeon Test'
 $data_dir = "data";
