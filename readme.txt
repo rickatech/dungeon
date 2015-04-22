@@ -10,3 +10,5 @@ These file must be copied from elsewhere to seed the server
   copy home.txt to data/
   copy dungeon.txt to data/
   'may' need to provide world write to data directory
+
+Double check the files in data folder are apache/httpd writable
