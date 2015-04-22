@@ -4,7 +4,7 @@ $version = '0.1.9';
 $isprod = false;
 $title =  'Dungeon Test'
 $data_dir = "data";
-$appleurl = 'http://public.zaptech.org/';
+$appleurl = 'http://public.zaptech.org/dungeon.png';
 $signup_msg = 'This is stable release signup form. <br>Development release uses a different <a href=http://portal.zaptech.org/dun_dev/>form</a>.';
 $dungeons = array('dungeon');
 $homemap_prefix = 'user';	//  user00000001.txt, 'user' + uid of user + '.txt', player's home map
