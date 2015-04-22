@@ -15,6 +15,8 @@ function render($v, $message = NULL, $b = 0, $or = 0, $near = array()) {
 	$r2 = $w[$v][2];
 	if (!$bonk) {
 		//  show other player!!!
+		if (isset($near['ooo'])) {
+			$r1[2] = $near['ooo'];  }
 		if (isset($near['oo'])) {
 			$r1[3] = $near['oo'];  }
 		if (isset($near['n'])) {
