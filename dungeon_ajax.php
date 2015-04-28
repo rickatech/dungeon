@@ -793,9 +793,9 @@ else {
 					if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == $y)
 						$near['oo'] = $av['handle'][0];
 					if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2], -1))	
-						$near['pp,'] = $av['handle'][0];
+						$near['pp'] = $av['handle'][0];
 					if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
-						$near['qq,'] = $av['handle'][0];
+						$near['qq'] = $av['handle'][0];
 					if ($av['x'] == stepwrap($x, $m['size'][1], -1) && $av['y'] == $y)
 						$near['o'] =  $av['handle'][0];
 					if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	
