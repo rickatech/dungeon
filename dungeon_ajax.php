@@ -720,8 +720,16 @@ else {
 				if ($yaw < 90) {
 					if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -3))
 						$near['ooo'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+						$near['mm'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -1) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+						$near['nn'] = $av['handle'][0];
 					if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -2))
 						$near['oo'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  1) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+						$near['pp'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+						$near['qq'] = $av['handle'][0];
 					if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -1))
 						$near['o'] =  $av['handle'][0];
 					if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	
@@ -734,8 +742,16 @@ else {
 				else if ($yaw < 180) {
 					if ($av['x'] == stepwrap($x, $m['size'][1],  3) && $av['y'] == $y)
 						$near['ooo'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+						$near['mm'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2], -1))	
+						$near['nn'] = $av['handle'][0];
 					if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == $y)
 						$near['oo'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2],  1))	
+						$near['pp'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+						$near['qq'] = $av['handle'][0];
 					if ($av['x'] == stepwrap($x, $m['size'][1],  1) && $av['y'] == $y)
 						$near['o'] =  $av['handle'][0];
 					if ($av['x'] == stepwrap($x, $m['size'][1],  1) &&
@@ -748,8 +764,16 @@ else {
 				else if ($yaw < 270) {
 					if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  3))	
 						$near['ooo'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+						$near['mm'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  1) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+						$near['nn'] = $av['handle'][0];
 					if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  2))	
 						$near['oo'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -1) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+						$near['pp'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+						$near['qq'] = $av['handle'][0];
 					if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  1))	
 						$near['o'] =  $av['handle'][0];
 					if ($av['x'] == stepwrap($x, $m['size'][1],  1) &&	
@@ -762,8 +786,16 @@ else {
 				else {
 					if ($av['x'] == stepwrap($x, $m['size'][1], -3) && $av['y'] == $y)
 						$near['ooo'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+						$near['mm'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2],  1))	
+						$near['nn'] = $av['handle'][0];
 					if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == $y)
 						$near['oo'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2], -1))	
+						$near['pp,'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+						$near['qq,'] = $av['handle'][0];
 					if ($av['x'] == stepwrap($x, $m['size'][1], -1) && $av['y'] == $y)
 						$near['o'] =  $av['handle'][0];
 					if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	
@@ -783,8 +815,16 @@ else {
 			if ($yaw < 90) {
 				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -3))	
 					$near['ooo'] = 'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+					$near['mm'] = 'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -1) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+					$near['nn'] = 'M';
 				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -2))	
 					$near['oo'] = 'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  1) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+					$near['pp'] = 'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+					$near['qq'] = 'M';
 				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -1))	
 					$near['o'] =  'M';
 				if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	
@@ -797,8 +837,16 @@ else {
 			else if ($yaw < 180) {
 				if ($av['x'] == stepwrap($x, $m['size'][1],  3) && $av['y'] == $y) 
 					$near['ooo'] = 'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+					$near['mm'] = 'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2], -1))	
+					$near['nn'] = 'M';
 				if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == $y) 
 					$near['oo'] = 'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2],  1))	
+					$near['pp'] = 'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+					$near['qq'] = 'M';
 				if ($av['x'] == stepwrap($x, $m['size'][1],  1) && $av['y'] == $y) 
 					$near['o'] =  'M';
 				if ($av['x'] == stepwrap($x, $m['size'][1],  1) &&
@@ -811,8 +859,16 @@ else {
 			else if ($yaw < 270) {
 				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  3))	
 					$near['ooo'] = 'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+					$near['mm'] = 'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  1) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+					$near['nn'] = 'M';
 				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  2))	
 					$near['oo'] = 'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -1) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+					$near['pp'] = 'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+					$near['qq'] = 'M';
 				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  1))	
 					$near['o'] =  'M';
 				if ($av['x'] == stepwrap($x, $m['size'][1],  1) &&	
@@ -825,8 +881,16 @@ else {
 			else {
 				if ($av['x'] == stepwrap($x, $m['size'][1], -3) && $av['y'] == $y)
 					$near['ooo'] = 'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+					$near['mm'] = 'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2],  1))	
+					$near['nn'] = 'M';
 				if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == $y)
 					$near['oo'] = 'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2], -1))	
+					$near['pp'] = 'M';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+					$near['qq'] = 'M';
 				if ($av['x'] == stepwrap($x, $m['size'][1], -1) && $av['y'] == $y)
 					$near['o'] =  'M';
 				if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	

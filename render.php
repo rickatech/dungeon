@@ -17,8 +17,16 @@ function render($v, $message = NULL, $b = 0, $or = 0, $near = array()) {
 		//  show other player!!!
 		if (isset($near['ooo'])) {
 			$r1[2] = $near['ooo'];  }
+		if (isset($near['mm'])) {
+			$r1[0] = $near['mm'];  }
+		if (isset($near['nn'])) {
+			$r1[1] = $near['nn'];  }
 		if (isset($near['oo'])) {
 			$r1[3] = $near['oo'];  }
+		if (isset($near['pp'])) {
+			$r1[4] = $near['pp'];  }
+		if (isset($near['qq'])) {
+			$r1[5] = $near['qq'];  }
 		if (isset($near['n'])) {
 			$r1[0] = $near['n']; $r1[1] = $near['n'];
 			$r2[0] = $near['n']; $r2[1] = $near['n']; }
