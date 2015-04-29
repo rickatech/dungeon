@@ -83,6 +83,12 @@ echo "\n\n<div id=\"dgnav3\" style=\"display: block; text-align: center;\">[ map
 echo "<hr><p style=\"font-size: smaller; font-style: italic; margin: 0px; text-align: center;\">";
 echo "v".$version." <a href=http://arcticfire.net/>arcticfire</a> / ";
 echo "<a href=http://zaptech.com/>zap technologies</a></p>\n\n";
+
+//  display suggestion to add page to mobile home screen, click to hide
+echo "<p style=\"text-align: center; font-size: smaller;\" id='homescrn'";
+echo " onclick=\"document.getElementById('homescrn').style.display = 'none';\"";
+echo ">home screen this page :-)";
+echo "\n<br><img style=\"width: 110px\" src=gfx/home_screen_80.png></p>\n\n";
 ?>
 
 <SCRIPT LANGUAGE="JavaScript"><!-- Begin
