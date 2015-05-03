@@ -1,9 +1,9 @@
 <?PHP
 //  copy this to config.php, then customize to taste
-$version = '0.2.1';
+$version = '0.2.2';
 $isprod = false;
 $title =  'Dungeon Test'
-$data_dir = "data";
+$data_dir = "data";  //  this should not be in a web browsable folder
 $appleurl = 'http://public.zaptech.org/dungeon.png';
 $signup_msg = 'This is stable release signup form. <br>Development release uses a different <a href=http://portal.zaptech.org/dun_dev/>form</a>.';
 $dungeons = array('dungeon');
