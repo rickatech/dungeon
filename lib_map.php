@@ -1,4 +1,5 @@
 <?PHP
+
 function get_map($filename) {
 	//  try to import dungeon array
 	$row = 0;
@@ -148,6 +149,11 @@ function gen_map(&$map) {
 	//  return $map;
 	}
 
+function append_map_log2($tick, $type, $action, $uid, $handle, $tid, $thandle) {
+	//  FUTURE, defer calls to this until after tick has been updated?
+	$log_dungeon = $data_dir.'/'.$dungeons[0].'.log';
+	}
+
 function append_map_log($logfile, &$action) {
 	//  append a given map log with values from action array
 	//  return: true if successful
@@ -160,7 +166,6 @@ function append_map_log($logfile, &$action) {
 		}
 	return false;
 	}
-
 
 function report_map_log($logfile) {
 	//  collect and return selected log activity

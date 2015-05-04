@@ -136,7 +136,7 @@ if ($map_bits & (FLAG_HOME_LOAD + FLAG_HOME_NEW)) {
 				$msg = "Could not open play map file: ".$kkk;
 			}
 		if ($map_bits & (FLAG_PLAY_OK | FLAG_PLAY_NEW)) {
-			//  got here because, existing away map or or new away map loaded
+			//  got here because, existing away map or new away map loaded
 			//  THIS IS IT, mark dungeon map is in play
 			$m = &$m_play;
 			if (!isset($m_play['user'][$_SESSION['uid_dg']])) {
@@ -145,7 +145,6 @@ if ($map_bits & (FLAG_HOME_LOAD + FLAG_HOME_NEW)) {
 						$msg2 .= "YOU HAVE BEEN KICKED HOME!";
 						$cmd = "giveup";  //  OVERRIDE USER COMMAND
 						$map_bits |= FLAG_KICKED;
-						unset($m['user'][$_SESSION['uid_dg']]);  //  ???
 						}
 					}
 				if (!($map_bits & FLAG_KICKED)) {
@@ -432,7 +431,8 @@ else {
 	if ($bonk > 0)
 		$v = 30;  //  $msg2 = "BONK! ".$msg2;
 
-	//  Calculate targets ranges, against npc's, ... also assess hit/dammage dealt
+	//  Calculate targets ranges, assess hit/dammage dealt
+	//  N P C
 	foreach ($m['npc'] as $ak => $av) {
 		$rv = abs($av['x'] - $rx) + abs($av['y'] - $ry);  //  FUTURE: fast Pythagorean Theorem
 
@@ -464,6 +464,10 @@ else {
 	//				  'hit'    => 0);
 					//  REMOVE USER FROM AWAY MAP
 					unset($m['npc'][$trg_id]);
+					//  LOG knockout action
+					append_map_log2($m['tick'][1], 'p>n', 'knock out',
+					  $_SESSION['uid_dg'], $_SESSION['username_dg'],
+					  $trg_id, $_SESSION['username_dg']);
 					}
 				else
 					$msg2 .= " HIT! ".$m['npc'][$trg_id]['hit']." put: ".$put;
@@ -474,7 +478,8 @@ else {
 		$trgt_val[$trgt_qty] = $ak.",".$av['handle'].",".$rv.",npc";
 		$trgt_qty++;
 		}
-	//  Calculate targets ranges, against other players ... also assess hit/dammage dealt
+	//  Calculate targets ranges, assess hit/dammage dealt
+	//  O T H E R   P L A Y E R S
 	foreach ($m['user'] as $ak => $av) {
 		if ($ak != $_SESSION['uid_dg']) {
 			$rv = abs($av['x'] - $rx) + abs($av['y'] - $ry);  //  FUTURE: fast Pythagorean Theorem
@@ -508,6 +513,18 @@ else {
 						  'hit'    => 0);
 						//  REMOVE USER FROM AWAY MAP
 						unset($m['user'][$trg_id]);
+
+						//  SPAWN npc at kicked player location if no npc's active
+	       					if (!isset($m['npc'][1])) {
+						//  if (0) {
+	       						$m['npc'][1] = array(
+				       			  'handle' =>'zombie',
+							  'x' =>      $m['left'][$trg_id]['x'],
+	      				 		  'y' =>      $m['left'][$trg_id]['y'],
+	       						  'yaw' =>    $m['left'][$trg_id]['yaw'],
+				       			  'hit' =>    1);
+							}
+
 						//  LOG knockout action
 						//  FUTURE, do this later, after tick has been updated (see below)
 						$action = array(
@@ -851,95 +868,95 @@ else {
 		}
 	foreach ($m['npc'] as $ak => $av) {
 		//  FUTURE: user scan is done in code prior to here, consolidate?
-		$m[$av['x']][$av['y']] = 'M';  // modifying map for display purposes, NEVER SAVE THIS  */
+		$m[$av['x']][$av['y']] = 'Z';  // modifying map for display purposes, NEVER SAVE THIS  */
 		if (!$mapchanging) {
 			if ($yaw < 90) {
 				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -3))	
-					$near['ooo'] = 'M';
+					$near['ooo'] = 'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
-					$near['mm'] = 'M';
+					$near['mm'] =  'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1], -1) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
-					$near['nn'] = 'M';
+					$near['nn'] =  'Z';
 				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -2))	
-					$near['oo'] = 'M';
+					$near['oo'] =  'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1],  1) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
-					$near['pp'] = 'M';
+					$near['pp'] =  'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
-					$near['qq'] = 'M';
+					$near['qq'] =  'Z';
 				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -1))	
-					$near['o'] =  'M';
+					$near['o'] =   'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	
 				    $av['y'] == stepwrap($y, $m['size'][2], -1))	
-					$near['n'] =  'M';
+					$near['n'] =   'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1],  1) &&	
 				    $av['y'] == stepwrap($y, $m['size'][2], -1))	
-					$near['p'] =  'M';
+					$near['p'] =   'Z';
 				}
 			else if ($yaw < 180) {
 				if ($av['x'] == stepwrap($x, $m['size'][1],  3) && $av['y'] == $y) 
-					$near['ooo'] = 'M';
+					$near['ooo'] = 'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
-					$near['mm'] = 'M';
+					$near['mm'] =  'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2], -1))	
-					$near['nn'] = 'M';
+					$near['nn'] =  'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == $y) 
-					$near['oo'] = 'M';
+					$near['oo'] =  'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2],  1))	
-					$near['pp'] = 'M';
+					$near['pp'] =  'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
-					$near['qq'] = 'M';
+					$near['qq'] =  'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1],  1) && $av['y'] == $y) 
-					$near['o'] =  'M';
+					$near['o'] =   'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1],  1) &&
 				    $av['y'] == stepwrap($y, $m['size'][2], -1))
-					$near['n'] =  'M';
+					$near['n'] =   'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1],  1) &&
 				    $av['y'] == stepwrap($y, $m['size'][2],  1))
-					$near['p'] =  'M';
+					$near['p'] =   'Z';
 				}
 			else if ($yaw < 270) {
 				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  3))	
-					$near['ooo'] = 'M';
+					$near['ooo'] = 'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
-					$near['mm'] = 'M';
+					$near['mm'] =  'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1],  1) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
-					$near['nn'] = 'M';
+					$near['nn'] =  'Z';
 				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  2))	
-					$near['oo'] = 'M';
+					$near['oo'] =  'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1], -1) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
-					$near['pp'] = 'M';
+					$near['pp'] =  'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
-					$near['qq'] = 'M';
+					$near['qq'] =  'Z';
 				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  1))	
-					$near['o'] =  'M';
+					$near['o'] =   'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1],  1) &&	
 				    $av['y'] == stepwrap($y, $m['size'][2],  1))	
-					$near['n'] =  'M';
+					$near['n'] =   'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	
 				    $av['y'] == stepwrap($y, $m['size'][2],  1))	
-					$near['p'] =  'M';
+					$near['p'] =   'Z';
 				}
 			else {
 				if ($av['x'] == stepwrap($x, $m['size'][1], -3) && $av['y'] == $y)
-					$near['ooo'] = 'M';
+					$near['ooo'] = 'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
-					$near['mm'] = 'M';
+					$near['mm'] =  'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2],  1))	
-					$near['nn'] = 'M';
+					$near['nn'] =  'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == $y)
-					$near['oo'] = 'M';
+					$near['oo'] =  'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2], -1))	
-					$near['pp'] = 'M';
+					$near['pp'] =  'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
-					$near['qq'] = 'M';
+					$near['qq'] =  'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1], -1) && $av['y'] == $y)
-					$near['o'] =  'M';
+					$near['o'] =   'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	
 				    $av['y'] == stepwrap($y, $m['size'][2],  1))
-					$near['n'] =  'M';
+					$near['n'] =   'Z';
 				if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	
 				    $av['y'] == stepwrap($y, $m['size'][2], -1))
-					$near['p'] =  'M';
+					$near['p'] =   'Z';
 				}
 			}
 		}
