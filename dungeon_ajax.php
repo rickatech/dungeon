@@ -374,11 +374,15 @@ else {
 		//          [timedate stamp][map file name][tick][uid][action][notes]
 		//  else if (isset($_POST['username_dg']) && isset($_POST['password']) && (!isset($_SESSION['username_dg']))) {
 		$trginf = explode(',', $_GET['han']);
+		if ($debug_mask & DEBUG_FOO) { echo "\n<pre>"; print_r($trginf);  echo "</pre>\n"; }
 		$msg3 = "do action: ".$_GET['act'].", ".$trginf[0];
-		if ($trginf[0] > 0)
-			$trg_id = $trginf[0];
+		if ($trginf[0] > 0) {
+			$trg_id   = $trginf[0];
+			$trg_type = $trginf[3];  //  'ply' | 'npc'
+
+			}
 		else
-			$trg_id = 0;
+			$trg_id = 0;             //  $trg_type undefined
 		$trgact = $_GET['act'];
 		//  we should already have play map loaded, which means all active players and NPC's too
 		//    - confirm the target is present in play map
@@ -428,10 +432,46 @@ else {
 	if ($bonk > 0)
 		$v = 30;  //  $msg2 = "BONK! ".$msg2;
 
-	//  Calculate targets ranges, against npc's
+	//  Calculate targets ranges, against npc's, ... also assess hit/dammage dealt
 	foreach ($m['npc'] as $ak => $av) {
 		$rv = abs($av['x'] - $rx) + abs($av['y'] - $ry);  //  FUTURE: fast Pythagorean Theorem
-		$trgt_val[$trgt_qty] = $ak.",".$av['handle'].",".$rv;
+
+		//  FUTURE: BREAK OUT TO SEPEARATE FUNCTION?
+		if (isset($trgact) && $trgact == 'tag' && $ak == $trg_id && $trg_type == 'npc') {
+			//  attack action processing: against npc
+			if ($debug_mask & DEBUG_USR) {
+			echo "trg_id: ".$trg_id.", ".$trg_type." <pre style=\"font-size: smaller;\">"; print_r($m['npc']); echo "</pre>"; }
+			if ($ak < 1) {
+				$msg2 .= " WEIRD :-/ ";
+				}
+			else if ($rv < 2) {  //  FUTURE: tag default range is 1, but may need to support greater ranges
+				$put = 1;
+				if (!isset($m['npc'][$trg_id]['hit'])) {
+					$m['npc'][$trg_id]['hit'] = 0;
+					}
+				if ($m['npc'][$trg_id]['hit'] > 0) {
+					$m['npc'][$trg_id]['hit']--;
+					}
+				if ($m['npc'][$trg_id]['hit'] < 1) {
+					$msg2 .= " KNOCK OUT HIT! ".$m['npc'][$trg_id]['hit']." put: ".$put;
+					//  make target user no longer active in away map
+					//  target user next turn, detect hit < 1, return them to their home map
+	//				$m['left'][$trg_id] = array(
+	//				  'handle' => $m['user'][$trg_id]['handle'],
+	//				  'x'      => $m['user'][$trg_id]['x'],
+	//				  'y'      => $m['user'][$trg_id]['y'],
+	//				  'yaw'    => $m['user'][$trg_id]['yaw'],
+	//				  'hit'    => 0);
+					//  REMOVE USER FROM AWAY MAP
+					unset($m['npc'][$trg_id]);
+					}
+				else
+					$msg2 .= " HIT! ".$m['npc'][$trg_id]['hit']." put: ".$put;
+				}
+			else
+				$msg2 .= " MISS! ".$m['npc'][$trg_id]['hit'];
+			}
+		$trgt_val[$trgt_qty] = $ak.",".$av['handle'].",".$rv.",npc";
 		$trgt_qty++;
 		}
 	//  Calculate targets ranges, against other players ... also assess hit/dammage dealt
@@ -440,13 +480,14 @@ else {
 			$rv = abs($av['x'] - $rx) + abs($av['y'] - $ry);  //  FUTURE: fast Pythagorean Theorem
 
 			//  FUTURE: BREAK OUT TO SEPEARATE FUNCTION?
-			if (isset($trgact) && $trgact == 'tag' && $ak == $trg_id) {
+			if (isset($trgact) && $trgact == 'tag' && $ak == $trg_id && $trg_type = 'ply') {
+				//  attack action processing: against player
 				if ($debug_mask & DEBUG_USR) {
-				echo "trg_id: ".$trg_id." <pre style=\"font-size: smaller;\">"; print_r($m['user']); echo "</pre>"; }
+				echo "trg_id: ".$trg_id.", ".$trg_type." <pre style=\"font-size: smaller;\">"; print_r($m['user']); echo "</pre>"; }
 				if ($ak < 1) {
 					$msg2 .= " WEIRD :-/ ";
 					}
-				else if ($rv < 2) {  //  tag range is 1
+				else if ($rv < 2) {  //  FUTURE: tag default range is 1, but may need to support greater ranges
 					//  ZZZZ
 					$put = 1;
 					if (!isset($m['user'][$trg_id]['hit'])) {
@@ -523,14 +564,14 @@ else {
 						$msg2 .= " HIT! ".$m['user'][$trg_id]['hit']." put: ".$put;
 					}
 				else
-					$msg2 .= " MISS! ";
+					$msg2 .= " MISS! ".$m['user'][$trg_id]['hit'];
 				}
 			if ($debug_mask & DEBUG_USR) {
 			echo "1 <pre style=\"font-size: smaller;\">"; print_r($m['user']); echo "</pre>"; }
 			//    abs($MAX + $av['x] - $rx) ...
 			//  FUTURE: what about wrap around range edge case?
 			//          dungeon flag if no wrap around?
-			$trgt_val[$trgt_qty] = $ak.",".$av['handle'].",".$rv;
+			$trgt_val[$trgt_qty] = $ak.",".$av['handle'].",".$rv.",ply";
 			$trgt_qty++;
 			}
 		}
@@ -695,11 +736,11 @@ else {
 	if ($debug_mask & DEBUG_ADM) {
 		$msg = "view: ".(isset($v) ? $v : 'N/A').
 	               ", field: ".(isset($f) ? $f : 'N/A')." ".$msg;
-		if ($msg3)
-			$msg .= "\n<br>".$msg3;
-		if ($msg2)
-			$msg .= "\n<br>".$msg2;
 		}
+	if ($msg3)
+		$msg .= "\n<br>".$msg3;
+	if ($msg2)
+		$msg .= "\n<br>".$msg2;
 	if (($debug_mask & DEBUG_ADM) && ($_SESSION['uid_dg'] == 1)) // admin/rickatech check
 		$msg .= "\n<br><span style=\"font-size: smaller; color: #ff0000;\">".$_SERVER['REQUEST_URI']."</span>";
 
