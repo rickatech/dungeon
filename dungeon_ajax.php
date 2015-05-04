@@ -373,8 +373,10 @@ else {
 		//          [timedate stamp][map file name][tick][uid][action][notes]
 		//  else if (isset($_POST['username_dg']) && isset($_POST['password']) && (!isset($_SESSION['username_dg']))) {
 		$trginf = explode(',', $_GET['han']);
-		if ($debug_mask & DEBUG_FOO) { echo "\n<pre>"; print_r($trginf);  echo "</pre>\n"; }
-		$msg3 = "do action: ".$_GET['act'].", ".$trginf[0];
+		if ($debug_mask & DEBUG_FOO) {
+			echo "\n<pre>"; print_r($trginf);  echo "</pre>\n";
+			$msg3 = "do action: ".$_GET['act'].", ".$trginf[0];
+			}
 		if ($trginf[0] > 0) {
 			$trg_id   = $trginf[0];
 			$trg_type = $trginf[3];  //  'ply' | 'npc'
@@ -454,20 +456,28 @@ else {
 					}
 				if ($m['npc'][$trg_id]['hit'] < 1) {
 					$msg2 .= " KNOCK OUT HIT! ".$m['npc'][$trg_id]['hit']." put: ".$put;
-					//  make target user no longer active in away map
-					//  target user next turn, detect hit < 1, return them to their home map
-	//				$m['left'][$trg_id] = array(
-	//				  'handle' => $m['user'][$trg_id]['handle'],
-	//				  'x'      => $m['user'][$trg_id]['x'],
-	//				  'y'      => $m['user'][$trg_id]['y'],
-	//				  'yaw'    => $m['user'][$trg_id]['yaw'],
-	//				  'hit'    => 0);
-					//  REMOVE USER FROM AWAY MAP
+					//  REMOVE NPC FROM AWAY MAP, see SPAWN NPC as part of player kicked below
 					unset($m['npc'][$trg_id]);
+
 					//  LOG knockout action
 					append_map_log2($m['tick'][1], 'p>n', 'knock out',
 					  $_SESSION['uid_dg'], $_SESSION['username_dg'],
 					  $trg_id, $_SESSION['username_dg']);
+						//  RECENT activity update, FUTURE: refector into a call to a single new function?
+						//  get number of players active
+
+						//  append action
+						//  FUTURE: edge case, this tick already has been recorded, just overwrites?
+
+						//  sort action by tick
+
+						//  snip off oldest action
+
+						//  HI SCORE update
+						//    - read in players score array
+						//    - increment dominant player knock out tally
+						//      resort
+						//    - write out players score array
 					}
 				else
 					$msg2 .= " HIT! ".$m['npc'][$trg_id]['hit']." put: ".$put;
@@ -602,10 +612,7 @@ else {
 			$file_put = $file_dungeon;
 		else
 			$file_put = $file_home;
-		//  echo "\n[active]\n<pre>"; print_r($m); echo "</pre>";
-		if (put_map($file_put, $m))
-			$msg3 = 'write map successful: '.$file_put;
-		else {
+		if (!put_map($file_put, $m)) {
 			//  FUTURE, revert session updating x,y,yaw?
 			$msg3 = 'write map error: '.$file_put;
 			}
@@ -615,10 +622,7 @@ else {
 	if ($put_home_return == 1) {
 		if ($cmd == 'giveup') {
 			$file_put = $file_home;
-			//  echo "\n[home]\n<pre>"; print_r($m_home); echo "</pre>";
-			if (put_map($file_put, $m_home))
-				$msg3 .= 'write map successful: '.$file_put;
-			else {
+			if (!put_map($file_put, $m_home)) {
 				//  FUTURE, revert session updating x,y,yaw?
 				$msg3 .= 'write map error: '.$file_put;
 				}
