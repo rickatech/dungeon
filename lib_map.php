@@ -149,9 +149,30 @@ function gen_map(&$map) {
 	//  return $map;
 	}
 
-function append_map_log2($tick, $type, $action, $uid, $handle, $tid, $thandle) {
+function append_map_log2($map, $tick, $type, $action, $uid, $handle, $tid, $thandle) {
+	global $data_dir;
+
+	//  append a given map log with values from action array
+	//  return: true if successful
+	//  FUTURE: prefix with date time tick stamp
+	//  FUTURE: should there be one map log file, with a field for which map?
 	//  FUTURE, defer calls to this until after tick has been updated?
-	$log_dungeon = $data_dir.'/'.$dungeons[0].'.log';
+	$logfile = $data_dir.'/'.$map.'.log';
+	$action = array(
+	  date('Y-m-d'), date('H:i:s'),
+	  $tick, $type, $action,
+	  $uid, $handle,
+	  $tid, $thandle,
+	  );
+	$result = false;
+	if ($fh = fopen($logfile, 'a')) {
+		if (fputcsv($fh, $action))
+			$result = true;
+		fclose($fh);
+		}
+	if (!$result)
+		echo "\n<br>ERROR: Append Map Log failed, ".$logfile."\n";
+	return $result;
 	}
 
 function append_map_log($logfile, &$action) {

@@ -64,20 +64,16 @@ UL.ALT {
 </TR></TABLE>
 
 <?php 
-// main navigation controls div
-//  echo "<div id=\"calnav\" style=\"display: block; text-align: center;\">";  //  IE is fussy about this
-//  echo "<table border=0\n  cellspacing=0 cellpadding=0 style=\"margin-left: auto; margin-right: auto;\";><tr>";
-//  dungeon_render();
-//  echo "</tr></table></div>\n";
-echo "\n\n<!--  calnav  --><div id=\"calnav\" style=\"display: block; text-align: center;\">[ loading ... ]</div><!--  calnav  -->\n";
-
-// main display div
+// main display div - the first person view :-)
 echo "\n\n<!--  cal  --><div id=\"cal\" style=\"display: block;\">[ calendar ]</div><!--  cal  -->\n";
+
+// main navigation controls div
+echo "\n\n<!--  calnav  --><div id=\"calnav\" style=\"display: block; text-align: center;\">[ loading ... ]</div><!--  calnav  -->\n";
 
 // lower navigation, controls
 echo "\n\n<div id=\"dgnav2\" style=\"display: block; text-align: center;\">[ loading ... ]</div>\n";
 
-// lower map display
+// lower map display, recent activity
 echo "\n\n<div id=\"dgnav3\" style=\"display: block; text-align: center;\">[ map loading ... ]</div>\n\n";
 
 echo "<hr><p style=\"font-size: smaller; font-style: italic; margin: 0px; text-align: center;\">";
@@ -101,6 +97,8 @@ echo "\n<br><img style=\"width: 110px\" src=gfx/home_screen_80.png></p>\n\n";
  	navhq = new class_hq('calnav', 0);
 	navhq.url = nav_display_file+'?ajax=0';
  	navhq.do_now();
+	//navhq.url = nav_display_file+'?ajax=1';
+ 	//navhq.do_now();
 
 //	head_set('head');
 
@@ -115,6 +113,8 @@ echo "\n<br><img style=\"width: 110px\" src=gfx/home_screen_80.png></p>\n\n";
  	utilhq = new class_hq(null, 0);
 	//  utilhq.url = nav_display_file+'?ajax=0';
  	//  utilhq.do_now();
+
+	nav2_reset();
 
 <?PHP	if ($debug_mask & DEBUG_KEY) {  //  CRUFT, entire if block  ?>
 	//  desktop browser, detect keypress

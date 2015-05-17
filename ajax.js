@@ -8,6 +8,15 @@ head_display_file =    'head_ajax.php';
 nav_display_file =     'nav_ajax.php';
 hiscore_display_file = 'hiscr_ajax.php';
 
+//  these are defined first in dungeon_ajax.php, make these global
+FLAG_HOME_LOAD = 1;  //  home map loaded, existing
+FLAG_PLAY_OK =   2;  //  play map loaded, existing
+FLAG_HOME_NEW =  4;  //  home map loaded, new default
+FLAG_LOGIN_NO =  8;  //  login required
+FLAG_WELCOME =  16;  //  new user, no home, welcome
+FLAG_PLAY_NEW = 32;  //  play map loaded, new
+FLAG_KICKED =   64;  //  player was kicked from map
+
 function popUp(URL) {
 	day = new Date();
 	id = day.getTime();
@@ -85,24 +94,27 @@ function head_set(which) {
 	headhq.do_hq();
 	}
 
+function nav2_reset() {
+	//  first site launch and logout need to clear away some unuseable buttons
+	document.getElementById('dgnav2').innerHTML = '<a href="javascript: showactive(\'rentab\');  showtest(\'calout\');">reset</a>';
+	document.getElementById('dgnav3').innerHTML = '...';
+	}
+
 function head_login() {
 	un = document.getElementById("username_dg").value;
 	pw = document.getElementById("password").value;
-	//alert('username: ' + un + ', ' + pw);
 	headhq.url = head_display_file+'?ajax=1&username_dg='+un+'&password='+pw;
 	headhq.div = "head";
 	headhq.do_now();  //  was .do_hq but, but this works better on slow connections
-	//alert('login 2');
  	navhq.do_now();     // refresh navigation controls
  	cal_set('calout');  // refresh dungeon view
 	}
 
 function head_logout() {
-	//alert('logout');
+	nav2_reset();
 	headhq.url = head_display_file+'?ajax=0&logout';
 	headhq.div = "head";
 	headhq.do_now();  //  was .do_hq but, but this works better on slow connections
-	//alert('logout 2');
  	navhq.do_now();     // refresh navigation controls
  	cal_set('calout');  // refresh/clear dungeon view
 	}
@@ -292,9 +304,10 @@ function users_set(which) {
 
 function class_hq(param, p2) {
 	/*  this is a 'class' to wrap around http_request  */
-
-	/*  consider adding .prototype?
-	    http://javascript.about.com/library/bltut35.htm  */
+	/*    param  DOM element ID to render into         */
+	/*    p2     callback function, called upon success asynchronous transfer completion  */
+	/*  CITATION, consider adding .prototype?
+	/*  CITATION, http://javascript.about.com/library/bltut35.htm  */
 
 	/*  'constructor' logic goes here  */
 	this.div = param;
@@ -469,6 +482,16 @@ function newmap_toggle(which) {
 	new_inpt.setAttribute("value", 'action');
 	new_inpt.setAttribute("onclick", "showactive('rentab'); nav_doaction('calout', 'tag', 0, 0);");
 	nav2_div.appendChild(new_inpt);
+	//  FUTURE: most of these variable should be preceded by var so they are not made global
+	//  place view reset link in this 'button' row
+	var a_reset = document.createElement('a');
+	a_reset.appendChild(document.createTextNode("reset"));
+	//  a_reset.title = "reset title";
+	//  a_reset.href = "javascript: showactive('rentab'); showtest('calout', 'dungeon');";
+	a_reset.href = "javascript: showactive('rentab'); showtest('calout', '" + document.getElementById('map_name').value + "');";
+	//  alert(document.getElementById('map_name').value);
+	nav2_div.appendChild(document.createTextNode(" "));
+	nav2_div.appendChild(a_reset);
 //	http://stackoverflow.com/questions/133925/javascript-post-request-like-a-form-submit  //  CITATION
 	//  document.getElementById('dgnav3').innerHTML = "test";
 	if (document.getElementById('log_activity')) {

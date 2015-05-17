@@ -436,13 +436,16 @@ else {
 	//  Calculate targets ranges, assess hit/dammage dealt
 	//  N P C
 	foreach ($m['npc'] as $ak => $av) {
+		$kicked = false;  //  assume npc is not getting kicked/removed this tick
 		$rv = abs($av['x'] - $rx) + abs($av['y'] - $ry);  //  FUTURE: fast Pythagorean Theorem
 
-		//  FUTURE: BREAK OUT TO SEPEARATE FUNCTION?
+		//  FUTURE: BREAK OUT TO SEPERATE FUNCTION?
 		if (isset($trgact) && $trgact == 'tag' && $ak == $trg_id && $trg_type == 'npc') {
 			//  attack action processing: against npc
 			if ($debug_mask & DEBUG_USR) {
-			echo "trg_id: ".$trg_id.", ".$trg_type." <pre style=\"font-size: smaller;\">"; print_r($m['npc']); echo "</pre>"; }
+				echo "trg_id: ".$trg_id.", ".$trg_type." <pre style=\"font-size: smaller;\">";
+				print_r($m['npc']); echo "</pre>";
+				}
 			if ($ak < 1) {
 				$msg2 .= " WEIRD :-/ ";
 				}
@@ -456,13 +459,14 @@ else {
 					}
 				if ($m['npc'][$trg_id]['hit'] < 1) {
 					$msg2 .= " KNOCK OUT HIT! ".$m['npc'][$trg_id]['hit']." put: ".$put;
+					//  LOG knockout action
+					append_map_log2($dungeons[0], $m['tick'][1], 'p>n', 'knock out',
+					  $_SESSION['uid_dg'], $_SESSION['username_dg'],
+					  $trg_id, $m['npc'][$trg_id]['handle']);
 					//  REMOVE NPC FROM AWAY MAP, see SPAWN NPC as part of player kicked below
 					unset($m['npc'][$trg_id]);
+					$kicked = true;
 
-					//  LOG knockout action
-					append_map_log2($m['tick'][1], 'p>n', 'knock out',
-					  $_SESSION['uid_dg'], $_SESSION['username_dg'],
-					  $trg_id, $_SESSION['username_dg']);
 						//  RECENT activity update, FUTURE: refector into a call to a single new function?
 						//  get number of players active
 
@@ -485,20 +489,25 @@ else {
 			else
 				$msg2 .= " MISS! ".$m['npc'][$trg_id]['hit'];
 			}
-		$trgt_val[$trgt_qty] = $ak.",".$av['handle'].",".$rv.",npc";
-		$trgt_qty++;
+		if (!$kicked) {
+			$trgt_val[$trgt_qty] = $ak.",".$av['handle'].",".$rv.",npc";
+			$trgt_qty++;
+			}
 		}
 	//  Calculate targets ranges, assess hit/dammage dealt
 	//  O T H E R   P L A Y E R S
 	foreach ($m['user'] as $ak => $av) {
 		if ($ak != $_SESSION['uid_dg']) {
+			$kicked = false;  //  assume player is not getting kicked/removed this tick
 			$rv = abs($av['x'] - $rx) + abs($av['y'] - $ry);  //  FUTURE: fast Pythagorean Theorem
 
-			//  FUTURE: BREAK OUT TO SEPEARATE FUNCTION?
+			//  FUTURE: BREAK OUT TO SEPERATE FUNCTION?
 			if (isset($trgact) && $trgact == 'tag' && $ak == $trg_id && $trg_type = 'ply') {
 				//  attack action processing: against player
 				if ($debug_mask & DEBUG_USR) {
-				echo "trg_id: ".$trg_id.", ".$trg_type." <pre style=\"font-size: smaller;\">"; print_r($m['user']); echo "</pre>"; }
+					echo "trg_id: ".$trg_id.", ".$trg_type." <pre style=\"font-size: smaller;\">";
+					print_r($m['user']); echo "</pre>";
+					}
 				if ($ak < 1) {
 					$msg2 .= " WEIRD :-/ ";
 					}
@@ -521,8 +530,13 @@ else {
 						  'y'      => $m['user'][$trg_id]['y'],
 						  'yaw'    => $m['user'][$trg_id]['yaw'],
 						  'hit'    => 0);
+						//  LOG knockout action
+						append_map_log2($dungeons[0], $m['tick'][1], 'p>p', 'knock out',
+						  $_SESSION['uid_dg'], $_SESSION['username_dg'],
+						  $trg_id, $av['handle']);
 						//  REMOVE USER FROM AWAY MAP
 						unset($m['user'][$trg_id]);
+						$kicked = true;
 
 						//  SPAWN npc at kicked player location if no npc's active
 	       					if (!isset($m['npc'][1])) {
@@ -533,21 +547,10 @@ else {
 	      				 		  'y' =>      $m['left'][$trg_id]['y'],
 	       						  'yaw' =>    $m['left'][$trg_id]['yaw'],
 				       			  'hit' =>    1);
+							$trgt_val[$trgt_qty] =  1 .",".$m['npc'][1]['handle'].",".$rv.",npc";
+					//		$trgt_val[$trgt_qty] = $ak.",".$av['handle']         .",".$rv.",ply";
+							$trgt_qty++;
 							}
-
-						//  LOG knockout action
-						//  FUTURE, do this later, after tick has been updated (see below)
-						$action = array(
-						  date('Y-m-d'),
-						  date('H:i:s'),
-						  $m['tick'][1],
-						  $_SESSION['uid_dg'],
-						  $_SESSION['username_dg'],
-						  $trg_id,
-						  $av['handle'],
-						  'knock out');
-						$log_dungeon = $data_dir.'/'.$dungeons[0].'.log';
-						append_map_log($log_dungeon, &$action);
 
 						//  RECENT activity update, FUTURE: refector into a call to a single new function?
 						//  get number of players active
@@ -594,12 +597,14 @@ else {
 					$msg2 .= " MISS! ".$m['user'][$trg_id]['hit'];
 				}
 			if ($debug_mask & DEBUG_USR) {
-			echo "1 <pre style=\"font-size: smaller;\">"; print_r($m['user']); echo "</pre>"; }
+			echo "1 ".($kicked ? "true" : "false")." <pre style=\"font-size: smaller;\">"; print_r($m['user']); print_r($m['npc']); echo "</pre>"; }
 			//    abs($MAX + $av['x] - $rx) ...
 			//  FUTURE: what about wrap around range edge case?
 			//          dungeon flag if no wrap around?
-			$trgt_val[$trgt_qty] = $ak.",".$av['handle'].",".$rv.",ply";
-			$trgt_qty++;
+			if (!$kicked) {
+				$trgt_val[$trgt_qty] = $ak.",".$av['handle'].",".$rv.",ply";
+				$trgt_qty++;
+				}
 			}
 		}
 /**/	}
@@ -607,7 +612,7 @@ else {
 	if ($put == 1) {
 		$m['tick'][1]++;  //  FUTURE: don't increment for home if play map active?
 		if ($debug_mask & DEBUG_USR) {
-		echo "2 <pre style=\"font-size: smaller;\">"; print_r($m['user']); echo "</pre>"; }
+		echo "2 <pre style=\"font-size: smaller;\">"; print_r($m['user']); print_r($m['npc']); echo "</pre>"; }
 		if ($map_bits & (FLAG_PLAY_OK | FLAG_PLAY_NEW))
 			$file_put = $file_dungeon;
 		else
@@ -978,22 +983,29 @@ if ($map_bits & (FLAG_PLAY_OK | FLAG_PLAY_NEW)) {
 	$rec_dungeon = $data_dir.'/'.$dungeons[0].'.recent';  //  FUTURE, this is set twice :-(
 	$actions = array();
 	get_map_recent($rec_dungeon, &$actions);
-	$log_report = "recent activity";
-	foreach ($actions as $ak => $av) {
-		$log_report .= "\n<br>";
-//		$log_report .= "\n<br>".$cmd." / ".$map_bits." / ";
-		$log_report .= $ak;
-//		if (isset($av[3]))
-		$log_report .= ", ".$av[1]." > ".$av[3].": ".$av[4];
-//		else
-//		$log_report .= ", ".$av[1]." > N/A";
+	if (0) {
+		$log_report = "recent activity";
+		foreach ($actions as $ak => $av) {
+			$log_report .= "\n<br>";
+			$log_report .= $ak;
+			$log_report .= ", ".$av[1]." > ".$av[3].": ".$av[4];
+			}
+		echo "\n<p style=\"margin: 0px;\">".$log_report."</p>\n";
 		}
-	echo "\n<p style=\"margin: 0px;\">".$log_report."</p>\n";
+	else {
+		$log_report = "\n<tr><td colspan=2>recent activity </td>\n<td>tick</td></tr>";
+		foreach ($actions as $ak => $av) {
+			$log_report .= "\n<tr><td>";
+			$log_report .= $av[4].",</td>\n<td>".$av[1]." > ".$av[3]."</td>";
+			$log_report .= "\n<td>".$ak."</td></tr>";
+			}
+		echo "\n<table style=\"display: inline; padding: 0px; font-size: smaller;\">\n".$log_report."\n</table>\n";
+		}
 	}
 else {
 	echo "\n<p style=\"margin: 0px;\"> ... </p>\n";
 	}
-	echo "</div>\n";
+echo "</div>\n";
 
 if (0) {
 //if (isset($_SESSION['uid_dg']) && ($_SESSION['uid_dg'] == 1)) { // admin/rickatech check
@@ -1016,10 +1028,16 @@ if (0) {
 	echo "\n</div>\n";
 	}
 
+//  Place hidden DOM elements hinting at what targets and commands are available 
+//    Typically, a javascript callback will be invoked after this page loads
+//    to dynamically adjust navigation elements elsewhere on the page.
 if ($debug_mask & DEBUG_FRM) $form_show = 'block'; else $form_show = 'hidden';
-//  typically, a javascript callback will be invoked after
-//  this page loads to adjust navigation button elsewhere on the page
+//  map_bits flag state
 echo "\n\n<input id=\"map_bits\" type=".$form_show." value=\"".$map_bits."\">\n";
+//  active dungeon map, for use by newmap_toggle(), a_reset
+echo "\n\n<input id=\"map_name\" type=".$form_show." value=\"";
+echo (isset($m_home['away'][3]) && ($map_bits & FLAG_PLAY_OK)) ? $m_home['away'][3] : "home";
+echo "\">\n";
 //  available targets
 echo "\n\n<input id=\"trgt_qty\" type=".$form_show." value=\"".$trgt_qty."\">\n";
 for ($i = 0; $i < $trgt_qty; $i++)
@@ -1033,4 +1051,9 @@ echo "\n\n<input id=\"actn_val_0\" type=".$form_show." value=\"tag\">\n";
 //  http://viralpatel.net/blogs/dynamic-add-textbox-input-button-radio-element-html-javascript/
 //  http://stackoverflow.com/questions/9338205/javascript-explode-equivilent
 //  FUTURE: target: id,handle,range
+
+//  PLAYER TRIGGERED TICK - COMPLETED
+
+//  NPC TURN TICK CHECK - BLOCK PLAYER TICKS?
+ 
 ?>

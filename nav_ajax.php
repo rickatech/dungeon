@@ -72,11 +72,11 @@ else {  //  @@@@
 		//	}
 		/*  FUTURE: need hint so high scores ajax knows what dungeon to report for  */
 		/*          when player moves from one map to another, perhaps stash dungeon name in DOM element?  */
-		echo "\n<td>&nbsp;<a href=\"javascript: showactive('rentab');  showtest('calout', 'dungeon');\">reset</a></td>";
+		//  echo "\n<td>&nbsp;<a href=\"javascript: showactive('rentab');  showtest('calout', 'dungeon');\">reset</a></td>";
 		}
 	else {
 		//  FUTURE: &nbsp;<a href=\"javascript: showactive('rentab');  showtest('calout', 'user00000001');\">reset</a></td>";
-		echo "\n<td>&nbsp;<a href=\"javascript: showactive('rentab');  showtest('calout');\">reset</a></td>";
+		//  echo "\n<td>&nbsp;<a href=\"javascript: showactive('rentab');  showtest('calout');\">reset</a></td>";
 		}
 
 	}  //  @@@@
