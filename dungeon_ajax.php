@@ -463,19 +463,15 @@ else {
 					append_map_log2($dungeons[0], $m['tick'][1], 'p>n', 'knock out',
 					  $_SESSION['uid_dg'], $_SESSION['username_dg'],
 					  $trg_id, $m['npc'][$trg_id]['handle']);
+					//  RECENT activity update
+					append_map_recent($dungeons[0], $m['tick'][1], 'p>n', 'knock out',
+					  $_SESSION['uid_dg'], $_SESSION['username_dg'],
+					  $trg_id, $m['npc'][$trg_id]['handle'],
+					  3);
+
 					//  REMOVE NPC FROM AWAY MAP, see SPAWN NPC as part of player kicked below
 					unset($m['npc'][$trg_id]);
 					$kicked = true;
-
-						//  RECENT activity update, FUTURE: refector into a call to a single new function?
-						//  get number of players active
-
-						//  append action
-						//  FUTURE: edge case, this tick already has been recorded, just overwrites?
-
-						//  sort action by tick
-
-						//  snip off oldest action
 
 						//  HI SCORE update
 						//    - read in players score array
@@ -552,26 +548,10 @@ else {
 							$trgt_qty++;
 							}
 
-						//  RECENT activity update, FUTURE: refector into a call to a single new function?
-						//  get number of players active
-						$actions = array();
-						$rec_dungeon = $data_dir.'/'.$dungeons[0].'.recent';  //  FUTURE, this is set twice :-(
-						get_map_recent($rec_dungeon, &$actions);
-						//  append action
-						//  FUTURE: edge case, this tick already has been recorded, just overwrites?
-						$actions[$m['tick'][1]] = array(
-						  $_SESSION['uid_dg'],
-						  $_SESSION['username_dg'],
-						  $trg_id,
-						  $av['handle'],
-						  'knock out');
-						$max_count = count($actions);
-						//  sort action by tick
-						krsort($actions);  //  most recent first
-						if ($max_count > 3)
-							array_pop($actions);
-						//  snip off oldest action
-						put_map_recent($rec_dungeon, &$actions);
+						append_map_recent($dungeons[0], $m['tick'][1], 'p>p', 'knock out',
+						  $_SESSION['uid_dg'], $_SESSION['username_dg'],
+						  $trg_id, $av['handle'],
+						  3);
 
 						//  HI SCORE update
 						//    - read in players score array

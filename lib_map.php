@@ -154,7 +154,6 @@ function append_map_log2($map, $tick, $type, $action, $uid, $handle, $tid, $than
 
 	//  append a given map log with values from action array
 	//  return: true if successful
-	//  FUTURE: prefix with date time tick stamp
 	//  FUTURE: should there be one map log file, with a field for which map?
 	//  FUTURE, defer calls to this until after tick has been updated?
 	$logfile = $data_dir.'/'.$map.'.log';
@@ -173,39 +172,6 @@ function append_map_log2($map, $tick, $type, $action, $uid, $handle, $tid, $than
 	if (!$result)
 		echo "\n<br>ERROR: Append Map Log failed, ".$logfile."\n";
 	return $result;
-	}
-
-function append_map_log($logfile, &$action) {
-	//  append a given map log with values from action array
-	//  return: true if successful
-	//  FUTURE: prefix with date time tick stamp
-	//  FUTURE: should there be one map log file, with a field for which map?
-	if ($fh = fopen($logfile, 'a')) {
-		fputcsv($fh, $action);
-		fclose($fh);
-        	return true;
-		}
-	return false;
-	}
-
-function report_map_log($logfile) {
-	//  collect and return selected log activity
-	//  FUTURE: this will become obsolete, replaced by get/put_map_recent
-	$out = '';
-	if ($fh = fopen($logfile, 'r')) {
-		while (($data = fgetcsv($fh, 1000, ",")) !== FALSE) {
-			//  echo "\ndata[0]: ".$data[0]."\n";
-			if ($data[1]) $out .= $data[1];
-			if ($data[3]) $out .= ' -> '.$data[3];
-			if (isset($data[4])) $out .= ' = '.$data[4];
-			$out .= "\n<br>";
-			}
-		fclose($fh);
-		return ($out);
-		}
-	else {
-		return (NULL);
-		}
 	}
 
 function get_map_recent($logfile, &$actions) {
@@ -243,6 +209,26 @@ function put_map_recent($logfile, &$actions) {
         	return true;
 		}
 	return false;
+	}
+
+function append_map_recent($map, $tick, $type, $action, $uid, $handle, $tid, $thandle, $max) {
+	global $data_dir;
+
+	//  RECENT activity update, FUTURE: refector into a call to a single new function?
+	//  get number of players active
+	$actions = array();
+	$rec_dungeon = $data_dir.'/'.$map.'.recent';
+	get_map_recent($rec_dungeon, &$actions);
+	//  append action
+	//  FUTURE: edge case, this tick already has been recorded, just overwrites?
+	$actions[$tick] = array($uid, $handle, $tid, $thandle, $type.": ".$action);
+	$max_count = count($actions);
+	//  sort action by tick
+	krsort($actions);  //  most recent first
+	if ($max_count > $max)
+		array_pop($actions);
+	//  snip off oldest action
+	put_map_recent($rec_dungeon, &$actions);
 	}
 
 function get_map_score($logfile, &$actions) {
