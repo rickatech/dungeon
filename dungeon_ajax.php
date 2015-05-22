@@ -468,16 +468,11 @@ else {
 					  $_SESSION['uid_dg'], $_SESSION['username_dg'],
 					  $trg_id, $m['npc'][$trg_id]['handle'],
 					  3);
-
+					//  HI SCORE update
+					update_map_score($dungeons[0], $_SESSION['uid_dg'], $_SESSION['username_dg']);
 					//  REMOVE NPC FROM AWAY MAP, see SPAWN NPC as part of player kicked below
 					unset($m['npc'][$trg_id]);
 					$kicked = true;
-
-						//  HI SCORE update
-						//    - read in players score array
-						//    - increment dominant player knock out tally
-						//      resort
-						//    - write out players score array
 					}
 				else
 					$msg2 .= " HIT! ".$m['npc'][$trg_id]['hit']." put: ".$put;
@@ -492,8 +487,8 @@ else {
 		}
 	//  Calculate targets ranges, assess hit/dammage dealt
 	//  O T H E R   P L A Y E R S
-	foreach ($m['user'] as $ak => $av) {
-		if ($ak != $_SESSION['uid_dg']) {
+	foreach ($m['user'] as $ak => $av) {  /* + */
+		if ($ak != $_SESSION['uid_dg']) {  /*  FUTURE: combine this if with next  */
 			$kicked = false;  //  assume player is not getting kicked/removed this tick
 			$rv = abs($av['x'] - $rx) + abs($av['y'] - $ry);  //  FUTURE: fast Pythagorean Theorem
 
@@ -530,10 +525,6 @@ else {
 						append_map_log2($dungeons[0], $m['tick'][1], 'p>p', 'knock out',
 						  $_SESSION['uid_dg'], $_SESSION['username_dg'],
 						  $trg_id, $av['handle']);
-						//  REMOVE USER FROM AWAY MAP
-						unset($m['user'][$trg_id]);
-						$kicked = true;
-
 						//  SPAWN npc at kicked player location if no npc's active
 	       					if (!isset($m['npc'][1])) {
 						//  if (0) {
@@ -547,28 +538,16 @@ else {
 					//		$trgt_val[$trgt_qty] = $ak.",".$av['handle']         .",".$rv.",ply";
 							$trgt_qty++;
 							}
-
+						//  RECENT activity update
 						append_map_recent($dungeons[0], $m['tick'][1], 'p>p', 'knock out',
 						  $_SESSION['uid_dg'], $_SESSION['username_dg'],
 						  $trg_id, $av['handle'],
 						  3);
-
 						//  HI SCORE update
-						//    - read in players score array
-						//    - increment dominant player knock out tally
-						//      resort
-						//    - write out players score array
-						$scr_dungeon = $data_dir.'/'.$dungeons[0].'.score';
-						$actions = array();
-						get_map_score($scr_dungeon, &$actions);
-						$actions['names'][$_SESSION['uid_dg']] = $_SESSION['username_dg'];
-						if (isset($actions['scores'][$_SESSION['uid_dg']]))
-							$actions['scores'][$_SESSION['uid_dg']]++;
-						else
-							$actions['scores'][$_SESSION['uid_dg']] = 1;
-						//$actions['scores'][1]++;
-						arsort($actions['scores']);
-						put_map_score($scr_dungeon, &$actions);
+						update_map_score($dungeons[0], $_SESSION['uid_dg'], $_SESSION['username_dg']);
+						//  REMOVE USER FROM AWAY MAP
+						unset($m['user'][$trg_id]);
+						$kicked = true;
 						}
 					else
 						$msg2 .= " HIT! ".$m['user'][$trg_id]['hit']." put: ".$put;
@@ -586,7 +565,7 @@ else {
 				$trgt_qty++;
 				}
 			}
-		}
+		}  /* + */
 /**/	}
 
 	if ($put == 1) {

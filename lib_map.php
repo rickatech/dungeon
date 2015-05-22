@@ -214,7 +214,7 @@ function put_map_recent($logfile, &$actions) {
 function append_map_recent($map, $tick, $type, $action, $uid, $handle, $tid, $thandle, $max) {
 	global $data_dir;
 
-	//  RECENT activity update, FUTURE: refector into a call to a single new function?
+	//  RECENT activity update - typically a few recent action rows that shows below the view
 	//  get number of players active
 	$actions = array();
 	$rec_dungeon = $data_dir.'/'.$map.'.recent';
@@ -263,5 +263,25 @@ function put_map_score($logfile, &$actions) {
         	return true;
 		}
 	return false;
+	}
+
+function update_map_score($map, $uid, $handle) {
+	global $data_dir;
+
+	//  HI SCORE update
+	//    - read in players score array
+	//    - increment dominant player knock out tally
+	//      resort
+	//    - write out players score array
+	$scr_dungeon = $data_dir.'/'.$map.'.score';
+	$actions = array();
+	get_map_score($scr_dungeon, &$actions);
+	$actions['names'][$uid] = $handle;
+	if (isset($actions['scores'][$uid]))
+		$actions['scores'][$uid]++;
+	else
+		$actions['scores'][$uid] = 1;
+	arsort($actions['scores']);
+	put_map_score($scr_dungeon, &$actions);
 	}
 ?>
