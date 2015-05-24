@@ -1,0 +1,2 @@
+# dungeon
+Dungeon is a pure web browser Multi-User Dungeon (MUD) game.  It uses VERY simple ASC art for player viewpoint, and simple file based server side states for easy deployment.  The goal of the this project is to demonstrate basic client-side (HTML/CSS/javascript) and server-side (PHP) practical code necessary for making an interactive multi-user persistent world game.  Secondary goal is to limit code base so it can run with just basic Linux, Apache, PHP hosting.
