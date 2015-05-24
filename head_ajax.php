@@ -1,4 +1,5 @@
 <?PHP	date_default_timezone_set('America/Los_Angeles');  // otherwise PHP warnings
+	include "config.php";   // needed to load user profiles
 	include "session.php";  // identical session code used for daytimer?
 
 /*  This 'plug-in' generates output for calout div from AJAX call.

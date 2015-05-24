@@ -1,12 +1,14 @@
-README - notes for settinh up dungeon instance
+README - notes for setting up dungeon instance
 
 Checkout dungeon code from git
 
-mkdir test
-chmod 777 test
+mkdir data
+chmod 777 data
 
 These file must be copied from elsewhere to seed the server
-config.php, typically copy from config_me.php
-copy home.txt to test/
-copy test.txt to test/
-'may' need to provide world write to data directory
+  config.php, typically copy from config_me.php
+  copy home.txt to data/
+  copy dungeon.txt to data/
+  'may' need to provide world write to data directory
+
+Double check the files in data folder are apache/httpd writable

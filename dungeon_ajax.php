@@ -9,309 +9,28 @@
   - code coverage: lots of obsolete code, how to enable source code report that show what code is still active  */
 
 /*  Invalid session okay here since login prompt if no user is detected  */
-include "config.php";
 session_start();
-
-//  service configuration parameters
-$data_dir = "test";
-//  $filename = $data_dir."/test.txt";
-$homemap_prefix = 'user';
-$maxhit = 3;
-//  user00000001.txt, 'user' + uid of user + '.txt', player's home map
-//  home.txt,                           new player home map 'template'
-
-include "lib_map.php";
-
-function checkevent($y, $m, $d, $row) {
-	//  return -1 too soon
-	//          0 ready
-	//          1 not yet
-	$t = strtotime($row);
-	$ey = date('Y', $t);
-	$em = date('m', $t);
-	$ed = date('d', $t);
-	if ($ey > $y)
-		$r = 1;
-	else if ($ey < $y)
-		$r = -1;
-	else if ($em > $m)
-		$r = 1;
-	else if ($em < $m)
-		$r = -1;
-	else if ($ed > $d)
-		$r = 1;
-	else if ($ed < $d)
-		$r = -1;
-	else
-		$r = 0;
-	return ($r);
-	};
-
-function previous_week($DY, $WD, $MO, $YR, $PM, $PY) {
-	if ($DY - $WD - 7 >= 1) {
-	        $SD = mktime(0, 0, 0, $MO, $DY - $WD - 7, $YR);
-	        }
-	else {
-	        $ML = mktime(0, 0, 0, $PM, 1, $PY);
-	        $SD = mktime(0, 0, 0, $PM, date("t", $ML) + $DY - $WD - 7, $PY);
-	        }
-    //  echo "\n  <BR>".date('Y-m-d', $SD)." previous week";
-        return $SD;
-	};
-
-function event($row) {
-	echo "\n<BR>. .";
-	};
-
 date_default_timezone_set('America/Los_Angeles');
-if (isset($_GET['bill']))
-	$bill = $_GET['bill'];
-else
-	$bill = 0;
-if (isset($_GET['year']))
-	$year = $_GET['year'];
-else
-	$year = 0;
-if (isset($_GET['month']))
-	$month = $_GET['month'];
-else
-	$month = 0;
-if (isset($_GET['day']))
-	$day = $_GET['day'];
-else
-	$day = 0;
-if (isset($_GET['filter']))
-	$filter = $_GET['filter'];
-else
-	$filter = 0;
-if (isset($_GET['ajax']))
+
+if (isset($_GET['ajax'])) {
 	/*  0 render full cal div, 1 render just the calout div, unset ajax disabled  */
-	$ajax = $_GET['ajax'];
+	if ($ajax = $_GET['ajax'] == 0) {
+		/*  display: none, block  visibility: hidden, visible  */
+		echo "\n\n<!--  calout  --><div id=\"calout\">";
+		echo "[ calout ]</div><!--  calout  -->";
+		return;
+		}
+	}
 else {
 	echo "[ ajax disabled ]";
 	return;
 	}
 
-/*  display: none, block  visibility: hidden, visible  */
-if ($ajax == 0) {
-	echo "\n\n<!--  calout  --><div id=\"calout\">";
-	echo "[ calout ]</div><!--  calout  -->";
-	return;
-	}
-
-	//  lofi ASC viewpoint patterns,
-	//  FUTURE z buffer matching array to allow easier composting of dynamic elements?
-	$w[ 0][0] = "\    /";
-	$w[ 0][1] = " |##| ";
-	$w[ 0][2] = "/    \\";  /*  ! \"  */
-	$w[ 1][0] = "     /";
-	$w[ 1][1] = "####| ";
-	$w[ 1][2] = "     \\";  /*  ! \"  */
-	$w[ 2][0] = "\     ";
-	$w[ 2][1] = " |####";
-	$w[ 2][2] = "/     ";
-	$w[ 3][0] = "\ __ /";
-	$w[ 3][1] = " |__| ";
-	$w[ 3][2] = "/    \\";  /*  ! \"  */
-	$w[ 4][0] = "     &nbsp;";
-	$w[ 4][1] = "######";
-	$w[ 4][2] = "     &nbsp;";
-	$w[ 5][0] = "     /";
-	$w[ 5][1] = "####  ";
-	$w[ 5][2] = "     \\";  /*  ! \"  */
-	$w[ 6][0] = "\     ";
-	$w[ 6][1] = "  ####";
-	$w[ 6][2] = "/     ";
-	$w[ 7][0] = "  __  ";
-	$w[ 7][1] = "#|__|#";
-	$w[ 7][2] = "    &nbsp; ";
-	$w[ 8][0] = "    &nbsp; ";
-	$w[ 8][1] = "    &nbsp; ";
-	$w[ 8][2] = "    &nbsp; ";
-	$w[ 8]['z'] = 0;
-	$w[ 9][0] = "_     ";
-	$w[ 9][1] = "_|####";
-	$w[ 9][2] = "    &nbsp; ";
-	$w[10][0] = "     _";
-	$w[10][1] = "####|_";
-	$w[10][2] = "     &nbsp;";
-	$w[11][0] = "\ __  ";
-	$w[11][1] = " |__|#";
-	$w[11][2] = "/     ";
-	$w[12][0] = "\    _";
-	$w[12][1] = " |##|_";
-	$w[12][2] = "/     ";
-	$w[13][0] = "\    _";
-	$w[13][1] = "  ##|_";
-	$w[13][2] = "/     ";
-	$w[14][0] = "\ ____";
-	$w[14][1] = " |____";
-	$w[14][2] = "/     ";
-	$w[15][0] = "______";
-	$w[15][1] = "______";
-	$w[15][2] = "     &nbsp;";
-	$w[16][0] = "____  ";
-	$w[16][1] = "____|#";
-	$w[16][2] = "     &nbsp;";
-	$w[17][0] = "  ____";
-	$w[17][1] = "#|____";
-	$w[17][2] = "     &nbsp;";
-	$w[18][0] = "_    _";
-	$w[18][1] = "_|##|_";
-	$w[18][2] = "     &nbsp;";
-	$w[19][0] = "    &nbsp; ";
-	$w[19][1] = "error!";
-	$w[19][2] = "    &nbsp; ";
-	$w[20][0] = "    &nbsp; ";
-	$w[20][1] = "please";
-	$w[20][2] = "login ";
-	$w[21][0] = "_    /";
-	$w[21][1] = "_|##  ";
-	$w[21][2] = "     \\";
-	$w[22][0] = "____ /";
-	$w[22][1] = "____| ";
-	$w[22][2] = "     \\";
-	$w[23][0] = "____  ";
-	$w[23][1] = "____|#";
-	$w[23][2] = "     &nbsp;";
-	$w[24][0] = "\ __  ";
-	$w[24][1] = " |__|#";
-	$w[24][2] = "/     ";
-	$w[25][0] = "  __ /";
-	$w[25][1] = "#|__| ";
-	$w[25][2] = "     \\";
-	$w[26][0] = "\    /";
-	$w[26][1] = " |##  ";
-	$w[26][2] = "/    \\";
-	$w[27][0] = "\    /";
-	$w[27][1] = "  ##| ";
-	$w[27][2] = "/    \\";
-	$w[28][0] = "\    /";
-	$w[28][1] = "  ##  ";
-	$w[28][2] = "/    \\";
-	$w[29][0] = "_    /";
-	$w[29][1] = "_|##| ";
-	$w[29][2] = "     \\";
-	$w[30][0] = "! * @ ";
-	$w[30][1] = " BONK!";
-	$w[30][2] = " ~ %  ";
-	$w[31][0] = "welcom";
-	$w[31][1] = "e to d";
-	$w[31][2] = "ungeon";
-	$w[32][0] = "refres";
-	$w[32][1] = "h to p";
-	$w[32][2] = "roceed";
-
-
-	function near_far($f) {
-		//  there may be a way to fix code near and far seperate
-		//  then 'green screen' near over far over background
-		$v = 8;
-		if ($f ==  0) $v =  4;  /*       left center right  */ 
-		if ($f ==  1) $v =  1;  /* far    40    20    10 */
-		if ($f ==  2) $v =  8;  /* near    4     2     1 */
-		if ($f ==  3) $v =  8;
-		if ($f ==  4) $v =  2;
-		if ($f ==  5) $v =  0;
-		if ($f ==  7) $v =  8;
-		if ($f == 10) $v = 10;
-		if ($f == 11) $v =  5;
-		if ($f == 12) $v =  8;
-		if ($f == 13) $v =  8; 
-		if ($f == 14) $v = 12;
-		if ($f == 15) $v = 26;
-		if ($f == 16) $v =  8;
-		if ($f == 17) $v =  8;
-		if ($f == 20) $v =  7;
-		if ($f == 21) $v = 25;
-		if ($f == 24) $v = 11;
-		if ($f == 25) $v =  3;
-		if ($f == 30) $v = 17;
-		if ($f == 31) $v = 25;
-		if ($f == 34) $v = 14;
-		if ($f == 35) $v =  3;
-		if ($f == 40) $v =  9;
-		if ($f == 41) $v = 29;
-		if ($f == 44) $v =  6;
-		if ($f == 45) $v = 27;
-		if ($f == 50) $v = 18;
-		if ($f == 51) $v = 21;
-		if ($f == 54) $v = 13;
-		if ($f == 55) $v = 28;
-		if ($f == 56) $v =  8;
-		if ($f == 57) $v =  8;
-		if ($f == 60) $v = 23;
-		if ($f == 61) $v = 22;
-		if ($f == 64) $v = 11;
-		if ($f == 65) $v =  3;
-		if ($f == 67) $v =  8;
-		if ($f == 70) $v = 15;
-		if ($f == 71) $v = 22;
-		if ($f == 74) $v = 14;
-		if ($f == 75) $v =  3;
-		return $v;
-		}
-
-	function render($v, $message = NULL, $b = 0, $o = NULL, $oo = NULL, $or = 0) {
-		/*  this may be client side javascript at some point?  */
-		global $w;
-		global $z;
-		global $bonk;
-		//  adjust border color to hint at presence of nearby walls
-		$bs  = $b & 1 ? 'border-top: solid 4px;' :       'border-top: solid 4px; border-top-color: #9FFF9F;';
-		$bs .= $b & 2 ? 'border-left: solid 4px;' :     'border-left: solid 4px; border-left-color: #9FFF9F;';
-		$bs .= $b & 4 ? 'border-right: solid 4px;' :   'border-right: solid 4px; border-right-color: #9FFF9F;';
-		$bs .= $b & 8 ? 'border-bottom: solid 4px;' : 'border-bottom: solid 4px; border-bottom-color: #9FFF9F;';
-		$r0 = $w[$v][0];
-		$r1 = $w[$v][1];
-		$r2 = $w[$v][2];
-		if (!$bonk) {
-			//  show other player!!!
-			if ($o)
-				$r1[3] = $o;
-			if ($oo) {
-				$r1[2] = $oo; $r1[3] = $oo;
-				$r2[2] = $oo; $r2[3] = $oo; }
-			}
-		//  change background based on player orientation, FUTURE: 3D background map
-		if ($or < 90)
-			$bg_tc = '#ffffff';  //  'south', bright
-		else if ($or < 180)
-			$bg_tc = '#ffefff';  //  'west', purple
-		else if ($or < 270)
-			$bg_tc = '#dfdfff';  //  'north', bluish/periwinkle/cyan
-		else
-			$bg_tc = '#efffff';  //  'east', green/mint
-		echo "<center><table style=\"margin: auto;  background: ".$bg_tc."\"><tr>\n<td id=\"rentab\" style=\"".$bs."\">\n";
-		//  echo "<center><table style=\"margin: auto;  background: #ffffff;\"><tr>\n<td id=\"rentab\" style=\"".$bs."\">\n";
-		printf("<pre style=\"font-size: 72px; margin-bottom: 0px;\">%s\n%s\n%s</pre>",
-		    $r0, $r1, $r2);
-		echo "</td>\n</tr></table>\n";
-		if ($message)
-			echo "\n".$message."\n";
-		echo "</center>";
-		}
-
-	function stepwrap($v, $m, $s) {
-		// torus 'wrap around' world baby!
-		// v current value
-		// m max, wrap around value
-		// s step amount, assumed less than m
-		if      ($v + $s < 0)        $r = $v + $s + $m;
-		else if ($v + $s > ($m - 1)) $r = $v - $m + $s;
-		else 	                     $r = $v + $s;
-		return ($r);
-		//  what if s > m?
-		}
-
-if (isset($_GET["field"])) {
-	$f = $_GET["field"];
-	$v = near_far($f);
-		}
-else if (isset($_GET["view"]))
-	$v = $_GET["view"];
-else
-	$v = 4;
+include "config.php";
+if ($debug_mask & DEBUG_SES) { echo "\n<pre>"; print_r($_SESSION);  echo "</pre>\n"; }
+include "lib_map.php";	/*  utils for loading/updating/saving map files  */
+include "lofi.php";	/*  low resolution asc art patterns  */
+include "render.php";	/*  backend view render setup  */
 
 //  HEY, here's where we detect display no action refresh, or command + display refresh!!!
 //  if no command ... skip command processing ... get map, return display
@@ -339,18 +58,18 @@ else
 //  need to deal with 'torus world' x/y wrap around
 
 
-//   1  home map loaded, existing
-//   2  play map loaded, existing
-//   4  home map loaded, new default
-//   2  login required
-//  16  new user, no home, welcome
-//  32  play map loaded, new default
-const FLAG_KICKED = 64;  //  player was kicked from map
+const FLAG_HOME_LOAD = 1;  //  home map loaded, existing
+const FLAG_PLAY_OK =   2;  //  play map loaded, existing
+const FLAG_HOME_NEW =  4;  //  home map loaded, new default
+const FLAG_LOGIN_NO =  8;  //  login required
+const FLAG_WELCOME =  16;  //  new user, no home, welcome
+const FLAG_PLAY_NEW = 32;  //  play map loaded, new
+const FLAG_KICKED =   64;  //  player was kicked from map
 //  ??  generate new map, FUTURE
 $map_bits = 0;
 
 if (!isset($_SESSION['username_dg']) || !isset($_SESSION['uid_dg'])) {
-	$map_bits |= 8;
+	$map_bits |= FLAG_LOGIN_NO;
 	}
 else {  //****
 
@@ -380,12 +99,12 @@ else {
 		//  check tick, size, ... make part of get_map?
 		//  $msg = "Could not open home map file: ".$kkk;
 //		$msg = "Welcome ";
-		$map_bits |= 16;
+		$map_bits |= FLAG_WELCOME;
 		}
 	else {
 		//  prompt to create new player home map
 	   	if ($m_home = get_map($kkk = $data_dir.'/'.'home.txt')) {
-			$map_bits |= 4;
+			$map_bits |= FLAG_HOME_NEW;
 			//  THIS IS IT, mark home map is in play
 			$m = &$m_home;
          		$m['user'][$_SESSION['uid_dg']]['handle'] = $_SESSION['username_dg'];
@@ -401,23 +120,23 @@ else {
 			$msg = "Could not open new home map file: ".$kkk;
 		}
 	}
-if ($map_bits & 5) {
+if ($map_bits & (FLAG_HOME_LOAD + FLAG_HOME_NEW)) {
 	//  got here because, existing home map or new home map loaded
 	if (isset($m_home['away']) && isset($m_home['away'][3])) {  //  8888
 		//  check for play map (non-home) map active
 		//  determine name of map in play (if any map in play)
 		$file_dungeon = $data_dir.'/'.$m_home['away'][3].'.txt';
 		if ($m_play = get_map($file_dungeon))
-			$map_bits |= 2;
+			$map_bits |= FLAG_PLAY_OK;
 		else {
 			//  prompt to create new player home map
 		   	if ($m_play = get_map($kkk = $data_dir.'/'.'dungeon.txt'))
-				$map_bits |= 32;
+				$map_bits |= FLAG_PLAY_NEW;
 			else
 				$msg = "Could not open play map file: ".$kkk;
 			}
-		if ($map_bits & 34) {
-			//  got here because, existing away map or or new away map loaded
+		if ($map_bits & (FLAG_PLAY_OK | FLAG_PLAY_NEW)) {
+			//  got here because, existing away map or new away map loaded
 			//  THIS IS IT, mark dungeon map is in play
 			$m = &$m_play;
 			if (!isset($m_play['user'][$_SESSION['uid_dg']])) {
@@ -426,7 +145,6 @@ if ($map_bits & 5) {
 						$msg2 .= "YOU HAVE BEEN KICKED HOME!";
 						$cmd = "giveup";  //  OVERRIDE USER COMMAND
 						$map_bits |= FLAG_KICKED;
-						unset($m['user'][$_SESSION['uid_dg']]);  //  ???
 						}
 					}
 				if (!($map_bits & FLAG_KICKED)) {
@@ -447,6 +165,8 @@ if ($map_bits & 5) {
 			       			$m['user'][$_SESSION['uid_dg']]['yaw'] =    0;
 			       			$m['user'][$_SESSION['uid_dg']]['hit'] =    $m_home['left'][$_SESSION['uid_dg']]['hit'];
 						}
+					//  FUTURE: if another player or dynamic object already at spawn location
+					//          lower occupying objects hit points (damage from being in the way of door)
 					$put = 1;
 					}
 				}
@@ -485,7 +205,7 @@ else if ($map_bits & 16)
 	$v = 31;  // welcome
 else if (($map_bits & 5) == 0)
 	$v = 19;  // error, couldn't load home map
-else if (isset($m_home['away']) && ($map_bits & 34) == 0)
+else if (isset($m_home['away']) && ($map_bits & (FLAG_PLAY_OK | FLAG_PLAY_NEW)) == 0)
 	$v = 19;  // error, couldn't load away map 
 else if (!isset($m['tick'])) {
 	$v = 19;  // error
@@ -512,9 +232,11 @@ else {
 	$bonk_1 = 0;
 	$msg3 = NULL;
 	//  FUTURE: check ticks, is it user's turn yet?
-	$nyaw = $myaw = $m['user'][$_SESSION['uid_dg']]['yaw'];
-	$nx   = $mx   = $m['user'][$_SESSION['uid_dg']]['x'];
-	$ny   = $my   = $m['user'][$_SESSION['uid_dg']]['y'];
+	if (!($map_bits & FLAG_KICKED)) {  //  PILOT
+		$nyaw = $myaw = $m['user'][$_SESSION['uid_dg']]['yaw'];
+		$nx   = $mx   = $m['user'][$_SESSION['uid_dg']]['x'];
+		$ny   = $my   = $m['user'][$_SESSION['uid_dg']]['y'];
+		}
 
 	//  opponent, check if opponent is targeted AND action command
 	//  load up opponent home map
@@ -580,13 +302,13 @@ else {
 		}
 	else if ($cmd == 'passwait') { //  FUTURE
 		//  strobe lock file?
-		//  FUTURE: allow 'no nothing' command, advance map tick
+		//  FUTURE: allow 'do nothing' command, advance map tick
 		$put = 1;
 		}
 	else if ($cmd == 'dungeon') { //  FUTURE
 		//  strobe lock file?
 		//  PLACE USER AWAY FROM HOME MAP, CITE AWAY MAP
-		$m_home['away'] = array('away', $_SESSION['uid_dg'], $_SESSION['username_dg'], 'test');
+		$m_home['away'] = array('away', $_SESSION['uid_dg'], $_SESSION['username_dg'], $dungeons[0]);
 		//  left, location user was last active on home map
 		//  SSS
 		//  FUTURE: left needs to be like user, allow mulitple lefts/map
@@ -608,13 +330,14 @@ else {
 		//  in some cases user command will be overrided with this (e.g. kicked), see above
 		//  strobe lock file?
 		$bonk_1 = 1;
-		$hit_save = $m['user'][$_SESSION['uid_dg']]['hit'];
 		if ($map_bits & FLAG_KICKED) {
+			$hit_save = 0;
 			unset($m['left'][$_SESSION['uid_dg']]);
 			$msg3 = "kicked";
 			}
 		else {
 			//  away, user is no longer active in away map, return user to home map
+			$hit_save = $m['user'][$_SESSION['uid_dg']]['hit'];  //  PILOT, moving this 7 lines down
 			$m['left'][$_SESSION['uid_dg']] = array(
 			  'handle' => $_SESSION['username_dg'],
 			  'x'      => $m['user'][$_SESSION['uid_dg']]['x'],
@@ -622,6 +345,7 @@ else {
 			  'yaw'    => $m['user'][$_SESSION['uid_dg']]['yaw'],
 			  'hit'    => $hit_save);
 			$msg3 = "give up";
+			$m_home['left'][$_SESSION['uid_dg']]['hit'] = $hit_save;  //  PILOT
 			}
 		//  REMOVE USER FROM AWAY MAP
 		unset($m['user'][$_SESSION['uid_dg']]);
@@ -649,11 +373,17 @@ else {
 		//          [timedate stamp][map file name][tick][uid][action][notes]
 		//  else if (isset($_POST['username_dg']) && isset($_POST['password']) && (!isset($_SESSION['username_dg']))) {
 		$trginf = explode(',', $_GET['han']);
-		$msg3 = "do action: ".$_GET['act'].", ".$trginf[0];
-		if ($trginf[0] > 0)
-			$trg_id = $trginf[0];
+		if ($debug_mask & DEBUG_FOO) {
+			echo "\n<pre>"; print_r($trginf);  echo "</pre>\n";
+			$msg3 = "do action: ".$_GET['act'].", ".$trginf[0];
+			}
+		if ($trginf[0] > 0) {
+			$trg_id   = $trginf[0];
+			$trg_type = $trginf[3];  //  'ply' | 'npc'
+
+			}
 		else
-			$trg_id = 0;
+			$trg_id = 0;             //  $trg_type undefined
 		$trgact = $_GET['act'];
 		//  we should already have play map loaded, which means all active players and NPC's too
 		//    - confirm the target is present in play map
@@ -662,10 +392,12 @@ else {
 		//      next tick for that characer they should get processed as giveup with appropriate messaging
 		}
 
+	/*  Okay, done with processing player command, let check environment for collisions  */
 	$bonk = 0;
+	$trgt_qty = 0;
+/**/	if (!($map_bits & FLAG_KICKED)) {  //  PILOT, when kicked player in in limbo, has no location
 	//  Dynamic objects
 	//  Check if collide into another user or FUTURE other dynamic element
-	//  TTTT, prepare list of available 'targets'
 	foreach ($m['user'] as $ak => $av) {
 		if ($ak != $_SESSION['uid_dg']) {
 			//  FYI, if collide/bonk happens, unlikely a non-move is action has occurred
@@ -674,6 +406,16 @@ else {
 					$bonk = 1;
 				}
 			}
+		}
+	//  Check if collide into npc
+	foreach ($m['npc'] as $ak => $av) {
+	//	if ($ak != $_SESSION['uid_dg']) {
+			//  FYI, if collide/bonk happens, unlikely a non-move is action has occurred
+			if ($put == 1) {
+				if ($av['x'] == $nx && $av['y'] == $ny)
+					$bonk = 1;
+				}
+	//		}
 		}
 	$rx = $mx;  $ry = $my;
 	//  Static objects
@@ -690,18 +432,77 @@ else {
 		}
 	if ($bonk > 0)
 		$v = 30;  //  $msg2 = "BONK! ".$msg2;
-	//  Calculate targets ranges
-	$trgt_qty = 0;
-	foreach ($m['user'] as $ak => $av) {
-		if ($ak != $_SESSION['uid_dg']) {
+
+	//  Calculate targets ranges, assess hit/dammage dealt
+	//  N P C
+	foreach ($m['npc'] as $ak => $av) {
+		$kicked = false;  //  assume npc is not getting kicked/removed this tick
+		$rv = abs($av['x'] - $rx) + abs($av['y'] - $ry);  //  FUTURE: fast Pythagorean Theorem
+
+		//  FUTURE: BREAK OUT TO SEPERATE FUNCTION?
+		if (isset($trgact) && $trgact == 'tag' && $ak == $trg_id && $trg_type == 'npc') {
+			//  attack action processing: against npc
+			if ($debug_mask & DEBUG_USR) {
+				echo "trg_id: ".$trg_id.", ".$trg_type." <pre style=\"font-size: smaller;\">";
+				print_r($m['npc']); echo "</pre>";
+				}
+			if ($ak < 1) {
+				$msg2 .= " WEIRD :-/ ";
+				}
+			else if ($rv < 2) {  //  FUTURE: tag default range is 1, but may need to support greater ranges
+				$put = 1;
+				if (!isset($m['npc'][$trg_id]['hit'])) {
+					$m['npc'][$trg_id]['hit'] = 0;
+					}
+				if ($m['npc'][$trg_id]['hit'] > 0) {
+					$m['npc'][$trg_id]['hit']--;
+					}
+				if ($m['npc'][$trg_id]['hit'] < 1) {
+					$msg2 .= " KNOCK OUT HIT! ".$m['npc'][$trg_id]['hit']." put: ".$put;
+					//  LOG knockout action
+					append_map_log2($dungeons[0], $m['tick'][1], 'p>n', 'knock out',
+					  $_SESSION['uid_dg'], $_SESSION['username_dg'],
+					  $trg_id, $m['npc'][$trg_id]['handle']);
+					//  RECENT activity update
+					append_map_recent($dungeons[0], $m['tick'][1], 'p>n', 'knock out',
+					  $_SESSION['uid_dg'], $_SESSION['username_dg'],
+					  $trg_id, $m['npc'][$trg_id]['handle'],
+					  3);
+					//  HI SCORE update
+					update_map_score($dungeons[0], $_SESSION['uid_dg'], $_SESSION['username_dg']);
+					//  REMOVE NPC FROM AWAY MAP, see SPAWN NPC as part of player kicked below
+					unset($m['npc'][$trg_id]);
+					$kicked = true;
+					}
+				else
+					$msg2 .= " HIT! ".$m['npc'][$trg_id]['hit']." put: ".$put;
+				}
+			else
+				$msg2 .= " MISS! ".$m['npc'][$trg_id]['hit'];
+			}
+		if (!$kicked) {
+			$trgt_val[$trgt_qty] = $ak.",".$av['handle'].",".$rv.",npc";
+			$trgt_qty++;
+			}
+		}
+	//  Calculate targets ranges, assess hit/dammage dealt
+	//  O T H E R   P L A Y E R S
+	foreach ($m['user'] as $ak => $av) {  /* + */
+		if ($ak != $_SESSION['uid_dg']) {  /*  FUTURE: combine this if with next  */
+			$kicked = false;  //  assume player is not getting kicked/removed this tick
 			$rv = abs($av['x'] - $rx) + abs($av['y'] - $ry);  //  FUTURE: fast Pythagorean Theorem
-			if (isset($trgact) && $trgact == 'tag' && $ak == $trg_id) {
+
+			//  FUTURE: BREAK OUT TO SEPERATE FUNCTION?
+			if (isset($trgact) && $trgact == 'tag' && $ak == $trg_id && $trg_type = 'ply') {
+				//  attack action processing: against player
 				if ($debug_mask & DEBUG_USR) {
-				echo "trg_id: ".$trg_id." <pre style=\"font-size: smaller;\">"; print_r($m['user']); echo "</pre>"; }
+					echo "trg_id: ".$trg_id.", ".$trg_type." <pre style=\"font-size: smaller;\">";
+					print_r($m['user']); echo "</pre>";
+					}
 				if ($ak < 1) {
 					$msg2 .= " WEIRD :-/ ";
 					}
-				else if ($rv < 2) {  //  tag range is 1
+				else if ($rv < 2) {  //  FUTURE: tag default range is 1, but may need to support greater ranges
 					//  ZZZZ
 					$put = 1;
 					if (!isset($m['user'][$trg_id]['hit'])) {
@@ -720,37 +521,62 @@ else {
 						  'y'      => $m['user'][$trg_id]['y'],
 						  'yaw'    => $m['user'][$trg_id]['yaw'],
 						  'hit'    => 0);
+						//  LOG knockout action
+						append_map_log2($dungeons[0], $m['tick'][1], 'p>p', 'knock out',
+						  $_SESSION['uid_dg'], $_SESSION['username_dg'],
+						  $trg_id, $av['handle']);
+						//  SPAWN npc at kicked player location if no npc's active
+	       					if (!isset($m['npc'][1])) {
+						//  if (0) {
+	       						$m['npc'][1] = array(
+				       			  'handle' =>'zombie',
+							  'x' =>      $m['left'][$trg_id]['x'],
+	      				 		  'y' =>      $m['left'][$trg_id]['y'],
+	       						  'yaw' =>    $m['left'][$trg_id]['yaw'],
+				       			  'hit' =>    1);
+							$trgt_val[$trgt_qty] =  1 .",".$m['npc'][1]['handle'].",".$rv.",npc";
+					//		$trgt_val[$trgt_qty] = $ak.",".$av['handle']         .",".$rv.",ply";
+							$trgt_qty++;
+							}
+						//  RECENT activity update
+						append_map_recent($dungeons[0], $m['tick'][1], 'p>p', 'knock out',
+						  $_SESSION['uid_dg'], $_SESSION['username_dg'],
+						  $trg_id, $av['handle'],
+						  3);
+						//  HI SCORE update
+						update_map_score($dungeons[0], $_SESSION['uid_dg'], $_SESSION['username_dg']);
 						//  REMOVE USER FROM AWAY MAP
 						unset($m['user'][$trg_id]);
+						$kicked = true;
 						}
 					else
 						$msg2 .= " HIT! ".$m['user'][$trg_id]['hit']." put: ".$put;
 					}
 				else
-					$msg2 .= " MISS! ";
+					$msg2 .= " MISS! ".$m['user'][$trg_id]['hit'];
 				}
 			if ($debug_mask & DEBUG_USR) {
-			echo "1 <pre style=\"font-size: smaller;\">"; print_r($m['user']); echo "</pre>"; }
+			echo "1 ".($kicked ? "true" : "false")." <pre style=\"font-size: smaller;\">"; print_r($m['user']); print_r($m['npc']); echo "</pre>"; }
 			//    abs($MAX + $av['x] - $rx) ...
 			//  FUTURE: what about wrap around range edge case?
 			//          dungeon flag if no wrap around?
-			$trgt_val[$trgt_qty] = $ak.",".$av['handle'].",".$rv;
-			$trgt_qty++;
+			if (!$kicked) {
+				$trgt_val[$trgt_qty] = $ak.",".$av['handle'].",".$rv.",ply";
+				$trgt_qty++;
+				}
 			}
-		}
+		}  /* + */
+/**/	}
 
 	if ($put == 1) {
 		$m['tick'][1]++;  //  FUTURE: don't increment for home if play map active?
 		if ($debug_mask & DEBUG_USR) {
-		echo "2 <pre style=\"font-size: smaller;\">"; print_r($m['user']); echo "</pre>"; }
-		if ($map_bits & 34)
+		echo "2 <pre style=\"font-size: smaller;\">"; print_r($m['user']); print_r($m['npc']); echo "</pre>"; }
+		if ($map_bits & (FLAG_PLAY_OK | FLAG_PLAY_NEW))
 			$file_put = $file_dungeon;
 		else
 			$file_put = $file_home;
-		//  echo "\n[active]\n<pre>"; print_r($m); echo "</pre>";
-		if (put_map($file_put, $m))
-			$msg3 = 'write map successful: '.$file_put;
-		else {
+		if (!put_map($file_put, $m)) {
 			//  FUTURE, revert session updating x,y,yaw?
 			$msg3 = 'write map error: '.$file_put;
 			}
@@ -760,10 +586,7 @@ else {
 	if ($put_home_return == 1) {
 		if ($cmd == 'giveup') {
 			$file_put = $file_home;
-			//  echo "\n[home]\n<pre>"; print_r($m_home); echo "</pre>";
-			if (put_map($file_put, $m_home))
-				$msg3 .= 'write map successful: '.$file_put;
-			else {
+			if (!put_map($file_put, $m_home)) {
 				//  FUTURE, revert session updating x,y,yaw?
 				$msg3 .= 'write map error: '.$file_put;
 				}
@@ -771,6 +594,8 @@ else {
 		}
 
 	//  opponent map, update (only allow one for now)
+
+	//  FUTURE, if possible consolidate log file writing to occur here, after tick may have been incremented
 
 	$put_away_chain = 0;
 	//  FUTURE: proceed from one away map to another away map
@@ -782,17 +607,8 @@ else {
 		//  FUTURE: load in new non-home map?
 		}
 
-	if ($map_bits & 34) {
+	if ($map_bits & (FLAG_PLAY_OK | FLAG_PLAY_NEW)) {
 		//  give up button
-		//  any hmoe map updates needed?
-		//  any hmoe map updates needed?
-		//  any hmoe map updates needed?
-		//  any hmoe map updates needed?
-		//  any hmoe map updates needed?
-		//  any hmoe map updates needed?
-		//  any hmoe map updates needed?
-		//  any hmoe map updates needed?
-		//  any hmoe map updates needed?
 		//  any hmoe map updates needed?
 		}
 
@@ -899,71 +715,262 @@ else {
 		$v = near_far($f);
 		}
 	//  $msg = "view: ".$v.", field: ".$f." tick: ".$m['tick']." x, y = ".$x.", ".$y;
-	$msg = "view: ".(isset($v) ? $v : 'N/A').
-               ", field: ".(isset($f) ? $f : 'N/A').
-               " tick: ".$_SESSION['tick']." x, y = 
-	       ".(isset($x) ? $x : 'N/A').", ".(isset($y) ? $y : 'N/A').
+	$msg = "tick: ".$_SESSION['tick']." x:".(isset($x) ? $x : 'N/A')." y:".(isset($y) ? $y : 'N/A').
 	       " ".(isset($yaw) ? $yaw : 'N/A').
-	       " ".(isset($hit) ? $hit : 'N/A');
+	       "&deg; hp:".(isset($hit) ? $hit : 'N/A');
+	if ($debug_mask & DEBUG_ADM) {
+		$msg = "view: ".(isset($v) ? $v : 'N/A').
+	               ", field: ".(isset($f) ? $f : 'N/A')." ".$msg;
+		}
 	if ($msg3)
 		$msg .= "\n<br>".$msg3;
 	if ($msg2)
 		$msg .= "\n<br>".$msg2;
-	if ($_SESSION['uid_dg'] == 1) // admin/rickatech check
+	if (($debug_mask & DEBUG_ADM) && ($_SESSION['uid_dg'] == 1)) // admin/rickatech check
 		$msg .= "\n<br><span style=\"font-size: smaller; color: #ff0000;\">".$_SERVER['REQUEST_URI']."</span>";
 
-	/*  modifying map for display purposes,
-        /*  NEVER SAVE THIS?  */
-	//  $m[$x][$y] = '*';
-	$o = NULL;
-	$oo = NULL;
+	//  FUTURE: lots of 'almost' identical code below, refactor?
+	$near = array();
+	/*  flag/mark nearby players
+	/*  left<-ooo->right
+	/*  mm nn  oo  pp qq
+	/*     n   o   p
+	/*         ^      */
 	foreach ($m['user'] as $ak => $av) {
 		//  FUTURE: user scan is done in code prior to here, consolidate?
 		if (!$mapchanging && $av['x'] == $x && $av['y'] == $y)
-			$m[$x][$y] = '*';
+			$m[$x][$y] = '*';  // modifying map for display purposes, NEVER SAVE THIS  */
 		else {
-			$m[$av['x']][$av['y']] = '+';
+			$m[$av['x']][$av['y']] = '+';  // modifying map for display purposes, NEVER SAVE THIS  */
 			if (!$mapchanging) {
 				if ($yaw < 90) {
-					if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -2))	
-						$o = $av['handle'][0];
-					if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -1))	
-						$oo = $av['handle'][0];
+					if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -3))
+						$near['ooo'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+						$near['mm'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -1) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+						$near['nn'] = $av['handle'][0];
+					if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -2))
+						$near['oo'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  1) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+						$near['pp'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+						$near['qq'] = $av['handle'][0];
+					if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -1))
+						$near['o'] =  $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	
+					    $av['y'] == stepwrap($y, $m['size'][2], -1))
+						$near['n'] =  $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  1) &&	
+					    $av['y'] == stepwrap($y, $m['size'][2], -1))
+						$near['p'] =  $av['handle'][0];
 					}
 				else if ($yaw < 180) {
-					if ($av['y'] == $y && $av['x'] == stepwrap($x, $m['size'][1],  2))	
-						$o = $av['handle'][0];
-					if ($av['y'] == $y && $av['x'] == stepwrap($x, $m['size'][1],  1))	
-						$oo = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  3) && $av['y'] == $y)
+						$near['ooo'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+						$near['mm'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2], -1))	
+						$near['nn'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == $y)
+						$near['oo'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2],  1))	
+						$near['pp'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+						$near['qq'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  1) && $av['y'] == $y)
+						$near['o'] =  $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  1) &&
+					    $av['y'] == stepwrap($y, $m['size'][2], -1))
+						$near['n'] =  $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  1) &&
+					    $av['y'] == stepwrap($y, $m['size'][2],  1))
+						$near['p'] =  $av['handle'][0];
 					}
 				else if ($yaw < 270) {
+					if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  3))	
+						$near['ooo'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+						$near['mm'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  1) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+						$near['nn'] = $av['handle'][0];
 					if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  2))	
-						$o = $av['handle'][0];
+						$near['oo'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -1) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+						$near['pp'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+						$near['qq'] = $av['handle'][0];
 					if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  1))	
-						$oo = $av['handle'][0];
+						$near['o'] =  $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1],  1) &&	
+					    $av['y'] == stepwrap($y, $m['size'][2],  1))
+						$near['n'] =  $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	
+					    $av['y'] == stepwrap($y, $m['size'][2],  1))
+						$near['p'] =  $av['handle'][0];
 					}
 				else {
-					if ($av['y'] == $y && $av['x'] == stepwrap($x, $m['size'][1], -2))	
-						$o = $av['handle'][0];
-					if ($av['y'] == $y && $av['x'] == stepwrap($x, $m['size'][1], -1))	
-						$oo = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -3) && $av['y'] == $y)
+						$near['ooo'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+						$near['mm'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2],  1))	
+						$near['nn'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == $y)
+						$near['oo'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2], -1))	
+						$near['pp'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+						$near['qq'] = $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -1) && $av['y'] == $y)
+						$near['o'] =  $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	
+					    $av['y'] == stepwrap($y, $m['size'][2],  1))
+						$near['n'] =  $av['handle'][0];
+					if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	
+					    $av['y'] == stepwrap($y, $m['size'][2], -1))
+						$near['p'] =  $av['handle'][0];
 					}
+				}
+			}
+		}
+	foreach ($m['npc'] as $ak => $av) {
+		//  FUTURE: user scan is done in code prior to here, consolidate?
+		$m[$av['x']][$av['y']] = 'Z';  // modifying map for display purposes, NEVER SAVE THIS  */
+		if (!$mapchanging) {
+			if ($yaw < 90) {
+				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -3))	
+					$near['ooo'] = 'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+					$near['mm'] =  'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -1) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+					$near['nn'] =  'Z';
+				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+					$near['oo'] =  'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  1) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+					$near['pp'] =  'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+					$near['qq'] =  'Z';
+				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2], -1))	
+					$near['o'] =   'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	
+				    $av['y'] == stepwrap($y, $m['size'][2], -1))	
+					$near['n'] =   'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  1) &&	
+				    $av['y'] == stepwrap($y, $m['size'][2], -1))	
+					$near['p'] =   'Z';
+				}
+			else if ($yaw < 180) {
+				if ($av['x'] == stepwrap($x, $m['size'][1],  3) && $av['y'] == $y) 
+					$near['ooo'] = 'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+					$near['mm'] =  'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2], -1))	
+					$near['nn'] =  'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == $y) 
+					$near['oo'] =  'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2],  1))	
+					$near['pp'] =  'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+					$near['qq'] =  'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  1) && $av['y'] == $y) 
+					$near['o'] =   'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  1) &&
+				    $av['y'] == stepwrap($y, $m['size'][2], -1))
+					$near['n'] =   'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  1) &&
+				    $av['y'] == stepwrap($y, $m['size'][2],  1))
+					$near['p'] =   'Z';
+				}
+			else if ($yaw < 270) {
+				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  3))	
+					$near['ooo'] = 'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  2) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+					$near['mm'] =  'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  1) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+					$near['nn'] =  'Z';
+				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+					$near['oo'] =  'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -1) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+					$near['pp'] =  'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+					$near['qq'] =  'Z';
+				if ($av['x'] == $x && $av['y'] == stepwrap($y, $m['size'][2],  1))	
+					$near['o'] =   'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1],  1) &&	
+				    $av['y'] == stepwrap($y, $m['size'][2],  1))	
+					$near['n'] =   'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	
+				    $av['y'] == stepwrap($y, $m['size'][2],  1))	
+					$near['p'] =   'Z';
+				}
+			else {
+				if ($av['x'] == stepwrap($x, $m['size'][1], -3) && $av['y'] == $y)
+					$near['ooo'] = 'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2],  2))	
+					$near['mm'] =  'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2],  1))	
+					$near['nn'] =  'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == $y)
+					$near['oo'] =  'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2], -1))	
+					$near['pp'] =  'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -2) && $av['y'] == stepwrap($y, $m['size'][2], -2))	
+					$near['qq'] =  'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -1) && $av['y'] == $y)
+					$near['o'] =   'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	
+				    $av['y'] == stepwrap($y, $m['size'][2],  1))
+					$near['n'] =   'Z';
+				if ($av['x'] == stepwrap($x, $m['size'][1], -1) &&	
+				    $av['y'] == stepwrap($y, $m['size'][2], -1))
+					$near['p'] =   'Z';
 				}
 			}
 		}
 	}
 
 if (isset($msg))
-	render($v, $msg, $nearwall, $o, $oo, isset($yaw) ? $yaw : 0);
+	render($v, $msg, $nearwall, isset($yaw) ? $yaw : 0, &$near);
 else
-	render($v);
+	render($v);  //  OBSOLETE?
 
-//  echo "<pre>"; print_r($m['user']); echo "</pre>";
+	echo "\n<div style=\"display: none;\" id=\"log_activity\">\n";
+if ($map_bits & (FLAG_PLAY_OK | FLAG_PLAY_NEW)) {
+	//  report log knockout action, partially based on previous call to append_map_log
+	//  FUTURE, if no away map, show log for home map?
+	$rec_dungeon = $data_dir.'/'.$dungeons[0].'.recent';  //  FUTURE, this is set twice :-(
+	$actions = array();
+	get_map_recent($rec_dungeon, &$actions);
+	if (0) {
+		$log_report = "recent activity";
+		foreach ($actions as $ak => $av) {
+			$log_report .= "\n<br>";
+			$log_report .= $ak;
+			$log_report .= ", ".$av[1]." > ".$av[3].": ".$av[4];
+			}
+		echo "\n<p style=\"margin: 0px;\">".$log_report."</p>\n";
+		}
+	else {
+		$log_report = "\n<tr><td colspan=2>recent activity </td>\n<td>tick</td></tr>";
+		foreach ($actions as $ak => $av) {
+			$log_report .= "\n<tr><td>";
+			$log_report .= $av[4].",</td>\n<td>".$av[1]." > ".$av[3]."</td>";
+			$log_report .= "\n<td>".$ak."</td></tr>";
+			}
+		echo "\n<table style=\"display: inline; padding: 0px; font-size: smaller;\">\n".$log_report."\n</table>\n";
+		}
+	}
+else {
+	echo "\n<p style=\"margin: 0px;\"> ... </p>\n";
+	}
+echo "</div>\n";
+
 if (0) {
 //if (isset($_SESSION['uid_dg']) && ($_SESSION['uid_dg'] == 1)) { // admin/rickatech check
 //if (isset($_SESSION['uid_dg']) && ($_SESSION['uid_dg'] < 3)) { // admin/rickatech check
 	//echo "\n<div style=\"display: none;\" id=\"map_hidden_0\">\n";
-	echo "\n<div style=\"display: block;\" id=\"map_hidden_0\">\n";
+	echo "\n<div style=\"display: table; margin: 0px auto; border: 1px solid;\" id=\"map_hidden_0\">\n";
 	if (isset($m_new)) {
 		print_map($m_new);
 		}
@@ -971,17 +978,25 @@ if (0) {
 		if (isset($m)) {
 			print_map($m);
 			//  echo "<pre>"; print_r($m); echo "</pre>";
+		//	if (isset($m_home)) {
+		//		if ($m != $m_home)
+		//		print_map($m_home);
+		//		}
 			}
-		if (isset($m_home))
-			print_map($m_home);
 		}
 	echo "\n</div>\n";
 	}
 
+//  Place hidden DOM elements hinting at what targets and commands are available 
+//    Typically, a javascript callback will be invoked after this page loads
+//    to dynamically adjust navigation elements elsewhere on the page.
 if ($debug_mask & DEBUG_FRM) $form_show = 'block'; else $form_show = 'hidden';
-//  typically, a javascript callback will be invoked after
-//  this page loads to adjust navigation button elsewhere on the page
+//  map_bits flag state
 echo "\n\n<input id=\"map_bits\" type=".$form_show." value=\"".$map_bits."\">\n";
+//  active dungeon map, for use by newmap_toggle(), a_reset
+echo "\n\n<input id=\"map_name\" type=".$form_show." value=\"";
+echo (isset($m_home['away'][3]) && ($map_bits & FLAG_PLAY_OK)) ? $m_home['away'][3] : "home";
+echo "\">\n";
 //  available targets
 echo "\n\n<input id=\"trgt_qty\" type=".$form_show." value=\"".$trgt_qty."\">\n";
 for ($i = 0; $i < $trgt_qty; $i++)
@@ -995,4 +1010,9 @@ echo "\n\n<input id=\"actn_val_0\" type=".$form_show." value=\"tag\">\n";
 //  http://viralpatel.net/blogs/dynamic-add-textbox-input-button-radio-element-html-javascript/
 //  http://stackoverflow.com/questions/9338205/javascript-explode-equivilent
 //  FUTURE: target: id,handle,range
+
+//  PLAYER TRIGGERED TICK - COMPLETED
+
+//  NPC TURN TICK CHECK - BLOCK PLAYER TICKS?
+ 
 ?>

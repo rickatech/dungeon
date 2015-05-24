@@ -6,7 +6,11 @@
 	//  rename ajax.js?
 ?><HTML>
 <HEAD><?PHP
-if (!isset($_GET['debug'])) {
+	//  this CAN NOT be hosted from HTTPS with self-signed certificate
+	//ho "\n<link rel=\"apple-touch-icon\" href=".$appleurl."apple-touch-icon.png">;
+	echo "\n<link rel=\"apple-touch-icon\" href=".$appleurl.">";
+
+	if (!isset($_GET['debug'])) {
 	//  iPhone hint
 //	$meta_viewport = "width=600";
 //	$meta_viewport = "width=600, minimal-ui, user-scalable=no";
@@ -50,7 +54,7 @@ UL.ALT {
 		echo "<body style=\"-webkit-text-size-adjust:none; background: #ffdfdf;\">";  ?>
 
 <TABLE WIDTH=100% BORDER=1><TR>
-<TD VALIGN=TOP id="today" id="head-today"><?php  printf("%s today", date('Y-m-d'));  ?></TD>
+<TD VALIGN=TOP id="head-today"><?php  printf("%s today", date('Y-m-d'));  ?></TD>
 <TD VALIGN=TOP ALIGN=CENTER id="head-title"><B><?PHP
 	if (isset($title))
 		echo $title; 
@@ -60,25 +64,28 @@ UL.ALT {
 </TR></TABLE>
 
 <?php 
-// main navigation controls div
-//  echo "<div id=\"calnav\" style=\"display: block; text-align: center;\">";  //  IE is fussy about this
-//  echo "<table border=0\n  cellspacing=0 cellpadding=0 style=\"margin-left: auto; margin-right: auto;\";><tr>";
-//  dungeon_render();
-//  echo "</tr></table></div>\n";
-echo "\n\n<!--  calnav  --><div id=\"calnav\" style=\"display: block; text-align: center;\">[ loading ... ]</div><!--  calnav  -->\n";
-
-// main display div
+// main display div - the first person view :-)
 echo "\n\n<!--  cal  --><div id=\"cal\" style=\"display: block;\">[ calendar ]</div><!--  cal  -->\n";
+
+// main navigation controls div
+echo "\n\n<!--  calnav  --><div id=\"calnav\" style=\"display: block; text-align: center;\">[ loading ... ]</div><!--  calnav  -->\n";
 
 // lower navigation, controls
 echo "\n\n<div id=\"dgnav2\" style=\"display: block; text-align: center;\">[ loading ... ]</div>\n";
 
-// lower map display
-echo "\n\n<div id=\"dgnav3\" style=\"display: block; text-align: center;\">[ map loading ... ]</div>\n";
-?>
+// lower map display, recent activity
+echo "\n\n<div id=\"dgnav3\" style=\"display: block; text-align: center;\">[ map loading ... ]</div>\n\n";
 
-<p style="font-size: smaller; font-style: italic; margin: 0px; text-align: center;">this
-site brought to you by <A HREF=http://zaptech.com/>zap technologies</A></p>
+echo "<hr><p style=\"font-size: smaller; font-style: italic; margin: 0px; text-align: center;\">";
+echo "v".$version." <a href=http://arcticfire.net/>arcticfire</a> / ";
+echo "<a href=http://zaptech.com/>zap technologies</a></p>\n\n";
+
+//  display suggestion to add page to mobile home screen, click to hide
+echo "<p style=\"text-align: center; font-size: smaller;\" id='homescrn'";
+echo " onclick=\"document.getElementById('homescrn').style.display = 'none';\"";
+echo ">home screen this page :-)";
+echo "\n<br><img style=\"width: 110px\" src=gfx/home_screen_80.png></p>\n\n";
+?>
 
 <SCRIPT LANGUAGE="JavaScript"><!-- Begin
 	var headhq;
@@ -90,14 +97,37 @@ site brought to you by <A HREF=http://zaptech.com/>zap technologies</A></p>
  	navhq = new class_hq('calnav', 0);
 	navhq.url = nav_display_file+'?ajax=0';
  	navhq.do_now();
+	//navhq.url = nav_display_file+'?ajax=1';
+ 	//navhq.do_now();
 
 //	head_set('head');
 
 	var calhq;
- 	calhq = new class_hq('cal', function() {  newmap_toggle('map_bits');});  //  FUTURE why have both div cal wrapped around div calout?
+	//  FUTURE why have both div cal wrapped around div calout?
+ 	calhq = new class_hq('cal', function() {  newmap_toggle('map_bits');});
 	calhq.url = dungeon_display_file+'?ajax=0';
  	calhq.do_now();
  	cal_set('calout');  //  1st pass (above) provide the 'cal' div with 'calout' div
+
+	var utilhq;  //  attempt to reuse this for misc ajax loads: high score, options
+ 	utilhq = new class_hq(null, 0);
+	//  utilhq.url = nav_display_file+'?ajax=0';
+ 	//  utilhq.do_now();
+
+	nav2_reset();
+
+<?PHP	if ($debug_mask & DEBUG_KEY) {  //  CRUFT, entire if block  ?>
+	//  desktop browser, detect keypress
+	//  FUTURE: diable Firefox page search triggering for non-control keys, make this config enabled?
+	//  http://stackoverflow.com/questions/3369593/  CITATION
+	//  http://stackoverflow.com/questions/4602277/  CITATION
+	document.onkeydown = function(evt) {
+		evt = evt || window.event;
+		if (evt.keyCode == 27) {
+			alert("Escape");
+			}
+		};
+<?PHP		}  ?>
 
 //	var nv2hq;
 // 	navhq = new class_hq('dgnav2', 0);

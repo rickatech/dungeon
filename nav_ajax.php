@@ -67,22 +67,25 @@ else {  //  @@@@
 		echo "\n    disabled=false onclick=\"showactive('rentab'); cal_dungeon('calout');\" style=\"display: none;\"></td>";
 		echo "\n  <td><input id=\"give_up\" type=button value=\"give_up\"";
 		echo "\n    disabled=false onclick=\"showactive('rentab'); cal_giveup('calout');\"  style=\"display: none;\"></td>";
+		//  if ($_SESSION['uid_dg'] == "1") {
+		//	if ((isset($_SESSION['username_dg'])) && ($_SESSION['username'] == "rickatech"))
+		//	}
+		/*  FUTURE: need hint so high scores ajax knows what dungeon to report for  */
+		/*          when player moves from one map to another, perhaps stash dungeon name in DOM element?  */
+		//  echo "\n<td>&nbsp;<a href=\"javascript: showactive('rentab');  showtest('calout', 'dungeon');\">reset</a></td>";
 		}
-	if ((isset($_SESSION['uid_dg'])) && ($_SESSION['uid_dg'] == "1")) {
-//		if ((isset($_SESSION['username_dg'])) && ($_SESSION['username'] == "rickatech"))
-//		printf("\n<td><input type=button value=\"to do\" onclick=\"to_do_set('calout')\"></td>");
-//		printf("\n<td><input type=button value=\"book\" onclick=\"book_set('calout')\"></td>");
-//		printf("\n<td><input type=button value=\"users\" onclick=\"users_set('calout')\"></td>");
-//		printf("\n<td><input type=button value=\"prev\" onclick=\"cal_prev('calout')\"></td>");
+	else {
+		//  FUTURE: &nbsp;<a href=\"javascript: showactive('rentab');  showtest('calout', 'user00000001');\">reset</a></td>";
+		//  echo "\n<td>&nbsp;<a href=\"javascript: showactive('rentab');  showtest('calout');\">reset</a></td>";
 		}
-	echo "\n<td>&nbsp;<a href=\"javascript: showactive('rentab');  showtest('calout');\">reset</a></td>";
 
 	}  //  @@@@
 echo "</tr></table>\n";
 
-if (isset($_SESSION['uid_dg']) && $_SESSION['uid_dg'] == 1) {  // admin/rickatech check
-	if (!isset($msg)) $msg ='';
-	$msg .= "\n<span style=\"font-size: smaller; color: #ff0000;\">".$_SERVER['REQUEST_URI']."</span>";
-	echo "\n".$msg."\n";
+
+if (($debug_mask & DEBUG_ADM) && isset($_SESSION['uid_dg']) && $_SESSION['uid_dg'] == 1) {  // admin/rickatech check
+       if (!isset($msg)) $msg ='';
+       $msg .= "\n<span style=\"font-size: smaller; color: #ff0000;\">".$_SERVER['REQUEST_URI']."</span>";
+       echo "\n".$msg."\n";
 	}
 ?>

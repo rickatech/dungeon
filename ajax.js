@@ -6,6 +6,16 @@
 dungeon_display_file = 'dungeon_ajax.php';
 head_display_file =    'head_ajax.php';
 nav_display_file =     'nav_ajax.php';
+hiscore_display_file = 'hiscr_ajax.php';
+
+//  these are defined first in dungeon_ajax.php, make these global
+FLAG_HOME_LOAD = 1;  //  home map loaded, existing
+FLAG_PLAY_OK =   2;  //  play map loaded, existing
+FLAG_HOME_NEW =  4;  //  home map loaded, new default
+FLAG_LOGIN_NO =  8;  //  login required
+FLAG_WELCOME =  16;  //  new user, no home, welcome
+FLAG_PLAY_NEW = 32;  //  play map loaded, new
+FLAG_KICKED =   64;  //  player was kicked from map
 
 function popUp(URL) {
 	day = new Date();
@@ -38,11 +48,26 @@ function hideshow0(which) {
 		which.style.display = "none";
 	}
 
-function showtest(which) {
+function showtest(which, did) {
+	/*  which, div ID to update innerHTML  */
+	/*  did, Dungeon ID :-)  */
 	if (!document.getElementById)
 		return;
+		
+	var did_note;
+	if (typeof did == 'undefined')
+		did_note = 'high score: N/A';
+	else
+		did_note = 'high score: ' + did;
 	document.getElementById(which).innerHTML =
-	  '<center><table style=\"margin: auto;\" id=\"rentab\"><tr><td>[ reset complete  ]</td></tr></table></center>';
+	  '<center><table style=\"margin: auto;\" id=\"rentab\"><tr><td>[ reset complete  ]</td></tr></table></center>\n' +
+	  '<div id=\"dv_hiscore\" style=\"margin: auto; width: 10em;\">' + did_note + '</div>\n' +
+	  '<div id=\"dv_options\" style=\"margin: auto; width: 10em;\">options</div>\n';
+	if (typeof did != 'undefined') {
+		utilhq.div = "dv_hiscore";  /*  utilhq defined in index.php currenlty  */
+		utilhq.url = hiscore_display_file+'?ajax=0&did=' + did;
+		utilhq.do_now();
+		}
 	}
 
 function showactive(which) {
@@ -69,24 +94,27 @@ function head_set(which) {
 	headhq.do_hq();
 	}
 
+function nav2_reset() {
+	//  first site launch and logout need to clear away some unuseable buttons
+	document.getElementById('dgnav2').innerHTML = '<a href="javascript: showactive(\'rentab\');  showtest(\'calout\');">reset</a>';
+	document.getElementById('dgnav3').innerHTML = '...';
+	}
+
 function head_login() {
 	un = document.getElementById("username_dg").value;
 	pw = document.getElementById("password").value;
-	//alert('username: ' + un + ', ' + pw);
 	headhq.url = head_display_file+'?ajax=1&username_dg='+un+'&password='+pw;
 	headhq.div = "head";
 	headhq.do_now();  //  was .do_hq but, but this works better on slow connections
-	//alert('login 2');
  	navhq.do_now();     // refresh navigation controls
  	cal_set('calout');  // refresh dungeon view
 	}
 
 function head_logout() {
-	//alert('logout');
+	nav2_reset();
 	headhq.url = head_display_file+'?ajax=0&logout';
 	headhq.div = "head";
 	headhq.do_now();  //  was .do_hq but, but this works better on slow connections
-	//alert('logout 2');
  	navhq.do_now();     // refresh navigation controls
  	cal_set('calout');  // refresh/clear dungeon view
 	}
@@ -276,9 +304,10 @@ function users_set(which) {
 
 function class_hq(param, p2) {
 	/*  this is a 'class' to wrap around http_request  */
-
-	/*  consider adding .prototype?
-	    http://javascript.about.com/library/bltut35.htm  */
+	/*    param  DOM element ID to render into         */
+	/*    p2     callback function, called upon success asynchronous transfer completion  */
+	/*  CITATION, consider adding .prototype?
+	/*  CITATION, http://javascript.about.com/library/bltut35.htm  */
 
 	/*  'constructor' logic goes here  */
 	this.div = param;
@@ -428,11 +457,6 @@ function newmap_toggle(which) {
 			if (i == 0) {
 				if (document.getElementById('nav2_sel')) {
 					nav2_sel0 = document.getElementById("nav2_sel");
-		//			alert('remove sel');
-		//			while (nav2_sel0.firstChild) {
-		//				alert('remove sel');
-		//				nav2_sel0.removeChild(nav2_sel0.firstChild);
-		//				}
 					}
 				}
 			if (document.getElementById('trgt_val_'+i)) {
@@ -456,22 +480,23 @@ function newmap_toggle(which) {
     	new_inpt = document.createElement("input");
 	new_inpt.setAttribute("type", "button");
 	new_inpt.setAttribute("value", 'action');
-//	new_inpt.setAttribute("onclick", "showactive('rentab'); nav_doaction('calout');");
 	new_inpt.setAttribute("onclick", "showactive('rentab'); nav_doaction('calout', 'tag', 0, 0);");
-//	QQQQ
-//	http://stackoverflow.com/questions/133925/javascript-post-request-like-a-form-submit
-//	new_inpt.setAttribute("onclick", "showactive('rentab'); cal_set('calout');");
-//	type=button value=\"&nbsp;^&nbsp;\" onclick=\"showactive('rentab'); nav_stepforw('calout');\">");
 	nav2_div.appendChild(new_inpt);
-	if (0) {
-		nav_refresh_alt('dgnav2');
-		//  alert('poo');
-		//  ajax_test = "test javascript div contents set";
-		if (document.getElementById('map_hidden_0')) {
-			ajax_test = document.getElementById('map_hidden_0').innerHTML;
-			document.getElementById('dgnav3').innerHTML = ajax_test;
-			}
-		alert('poo 2');
+	//  FUTURE: most of these variable should be preceded by var so they are not made global
+	//  place view reset link in this 'button' row
+	var a_reset = document.createElement('a');
+	a_reset.appendChild(document.createTextNode("reset"));
+	//  a_reset.title = "reset title";
+	//  a_reset.href = "javascript: showactive('rentab'); showtest('calout', 'dungeon');";
+	a_reset.href = "javascript: showactive('rentab'); showtest('calout', '" + document.getElementById('map_name').value + "');";
+	//  alert(document.getElementById('map_name').value);
+	nav2_div.appendChild(document.createTextNode(" "));
+	nav2_div.appendChild(a_reset);
+//	http://stackoverflow.com/questions/133925/javascript-post-request-like-a-form-submit  //  CITATION
+	//  document.getElementById('dgnav3').innerHTML = "test";
+	if (document.getElementById('log_activity')) {
+		ajax_test = document.getElementById('log_activity').innerHTML;
+		document.getElementById('dgnav3').innerHTML = ajax_test;
 		}
 	}
 
